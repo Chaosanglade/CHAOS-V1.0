@@ -1,0 +1,31 @@
+{
+  "description": "HMM regime gating policy. Pre-signal: regime determines which model groups are enabled. Hostile regime forces FLAT. These mappings are initial design and will be calibrated during paper trading (V3.5) using historical HMM state sequences against model performance.",
+  "regime_states": {
+    "REGIME_0": {
+      "label": "Low Volatility / Range-Bound",
+      "allow": ["M15", "M30", "H1"],
+      "deny": ["M5"],
+      "notes": "Mean-reversion friendly. Deny M5 due to noise in low-vol environments."
+    },
+    "REGIME_1": {
+      "label": "Trending / Directional",
+      "allow": ["M5", "M15", "M30", "H1", "H4"],
+      "deny": [],
+      "notes": "All timeframes viable in established trends."
+    },
+    "REGIME_2": {
+      "label": "High Volatility / Transitional",
+      "allow": ["M30", "H1", "H4"],
+      "deny": ["M5", "M15"],
+      "notes": "Only slower timeframes survive volatility spikes. Default fallback when regime_confidence < threshold."
+    },
+    "REGIME_3": {
+      "label": "Crisis / Hostile",
+      "allow": [],
+      "deny": ["M5", "M15", "M30", "H1", "H4", "D1"],
+      "notes": "ALL FLAT. No trading. Capital preservation. No override permitted."
+    }
+  },
+  "confidence_threshold": 0.6,
+  "confidence_rule": "If regime_confidence < 0.6, degrade to REGIME_2 policy regardless of detected state. This prevents trading on uncertain regime classification."
+}

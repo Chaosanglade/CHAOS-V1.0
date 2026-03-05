@@ -1,0 +1,54 @@
+# Model artifacts (too large for git — tracked separately)
+models/*.pt
+models/*.onnx
+models/*.joblib
+models/candidates/
+models/production/
+
+# Feature data (too large)
+*.parquet
+features/
+ohlcv_data/
+data/
+
+# Replay run outputs (regenerable)
+replay/outputs/runs/
+replay/outputs/baselines/
+replay/outputs/equity_curves.html
+replay/outputs/*.json
+
+# Audit exports
+audit/exports/
+
+# Risk reports
+risk/reports/
+
+# Ops runtime outputs
+ops/retrain_jobs.jsonl
+ops/promotion_decisions/
+ops/deploy_audit/
+ops/edge_baselines_by_regime.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Checkpoints (tracked in Drive, not git)
+models/*checkpoint*.json
+models/optuna_checkpoint.json
+
+# Logs
+*.log

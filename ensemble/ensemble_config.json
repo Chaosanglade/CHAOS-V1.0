@@ -1,0 +1,79 @@
+{
+  "description": "V3 Ensemble voting and multi-timeframe confirmation configuration",
+  "version": "1.0.0",
+
+  "layer_1_brain_voting": {
+    "method": "trimmed_mean",
+    "trim_fraction": 0.1,
+    "trim_justification": "10% trimmed mean is a standard robust location estimator (Wilcox 2012). With 21 brains, this drops the 2 most extreme predictions per class in each direction, reducing sensitivity to individual model failures while preserving ensemble diversity.",
+
+    "optional_weighting": {
+      "enabled": false,
+      "weight_sources": ["adj_pf", "sub_period_consistency", "trade_count"],
+      "notes": "When enabled, weight each brain by its V2 evaluation metrics. Disabled initially — use equal weight until live performance data validates which metrics best predict forward performance. Premature weighting introduces selection bias."
+    },
+
+    "minimum_models_required": 5,
+    "minimum_models_justification": "Below 5 models, trimmed mean loses robustness. With trim=10%, 5 models trims 1 per side, leaving 3 for averaging. Below this, single model failures dominate.",
+
+    "minimum_agreement_ratio": 0.6,
+    "agreement_justification": "60% agreement means at least 13/21 models agree on direction. Random agreement would be ~33% (3-class). 60% is approximately 2 standard deviations above chance for a 21-model ensemble, providing statistical significance at p<0.05."
+  },
+
+  "layer_2_timeframe_confirmation": {
+    "primary_signal": "M30",
+    "primary_justification": "M30 has the highest pass rate across all pairs (100% on EURUSD). It balances trade frequency with signal quality.",
+
+    "confirmation_tfs": {
+      "H1": {
+        "role": "directional_bias",
+        "required": true,
+        "justification": "H1 models have the highest raw profit factors (up to 8.7). Required confirmation filters false M30 signals."
+      },
+      "M15": {
+        "role": "timing_confirmation",
+        "required": false,
+        "justification": "M15 at 71% pass rate provides timing granularity. Optional because not all pairs have strong M15 models."
+      },
+      "M5": {
+        "role": "entry_precision",
+        "required": false,
+        "ibkr_only": true,
+        "justification": "M5 only viable at IBKR pricing. 80%+ pass rate on AUDUSD/GBPUSD. Provides precise entry timing when available."
+      }
+    },
+    "alignment_rule": "Primary signal (M30) must align with H1 bias. If H1 disagrees directionally, degrade to FLAT. M15 and M5 are optional confirmations that increase position size confidence but do not veto.",
+    "disagreement_action": "FLAT"
+  },
+
+  "layer_3_cross_pair_correlation": {
+    "max_correlated_exposure": 3,
+    "max_exposure_justification": "Limiting to 3 correlated positions caps USD-beta at approximately 60% of total exposure. Beyond 3, drawdowns become correlated and diversification benefit collapses.",
+
+    "correlation_groups": {
+      "USD_long": ["EURUSD_SHORT", "GBPUSD_SHORT", "AUDUSD_SHORT", "NZDUSD_SHORT"],
+      "USD_short": ["EURUSD_LONG", "GBPUSD_LONG", "AUDUSD_LONG", "NZDUSD_LONG"],
+      "JPY_cross": ["USDJPY", "EURJPY", "GBPJPY"]
+    },
+    "rule": "If more than max_correlated_exposure signals align in same USD direction, keep the top signals ranked by agreement_ratio and suppress the rest to FLAT."
+  },
+
+  "tf_roles": {
+    "H1":  {"role": "EXECUTE", "can_open_positions": true},
+    "M30": {"role": "EXECUTE", "can_open_positions": true},
+    "M15": {"role": "CONFIRM_ONLY", "can_open_positions": false},
+    "M5":  {"role": "CONFIRM_ONLY", "can_open_positions": false}
+  },
+  "tf_execution_thresholds": {
+    "min_pf_stress": 1.30,
+    "min_pf_volatility_spike": 1.20,
+    "min_trades_full_window": 100,
+    "notes": "A TF is allowed to execute only if it passes all 3 thresholds over the full replay window"
+  },
+
+  "layer_4_regime_gating": {
+    "source": "regime/regime_policy.json",
+    "integration_point": "pre_signal",
+    "notes": "Applied BEFORE inference. Hostile regime (REGIME_3) forces all signals to FLAT with no override. Low confidence (<0.6) degrades to conservative REGIME_2 policy."
+  }
+}

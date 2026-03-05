@@ -1,0 +1,25 @@
+{
+  "description": "Maps spot FX pairs to CFTC COT futures contract names. Source: CFTC Traders in Financial Futures (TFF) report, Futures Only.",
+  "report_type": "TFF_futures_only",
+  "currency_to_cot": {
+    "EUR": {"cot_name": "EURO FX", "cme_code": "6E", "cftc_code": "099741"},
+    "GBP": {"cot_name": "BRITISH POUND", "cme_code": "6B", "cftc_code": "096742"},
+    "JPY": {"cot_name": "JAPANESE YEN", "cme_code": "6J", "cftc_code": "097741"},
+    "AUD": {"cot_name": "AUSTRALIAN DOLLAR", "cme_code": "6A", "cftc_code": "232741"},
+    "CAD": {"cot_name": "CANADIAN DOLLAR", "cme_code": "6C", "cftc_code": "090741"},
+    "CHF": {"cot_name": "SWISS FRANC", "cme_code": "6S", "cftc_code": "092741"},
+    "NZD": {"cot_name": "NEW ZEALAND DOLLAR", "cme_code": "6N", "cftc_code": "112741"},
+    "USD": {"cot_name": "U.S. DOLLAR INDEX", "cme_code": "DX", "cftc_code": "098662", "notes": "ICE, not CME. Used as reference only."}
+  },
+  "pair_decomposition": {
+    "EURUSD": {"base": "EUR", "quote": "USD", "type": "direct"},
+    "GBPUSD": {"base": "GBP", "quote": "USD", "type": "direct"},
+    "USDJPY": {"base": "USD", "quote": "JPY", "type": "inverse", "notes": "For COT pressure: USD_pressure - JPY_pressure"},
+    "AUDUSD": {"base": "AUD", "quote": "USD", "type": "direct"},
+    "USDCAD": {"base": "USD", "quote": "CAD", "type": "inverse"},
+    "USDCHF": {"base": "USD", "quote": "CHF", "type": "inverse"},
+    "NZDUSD": {"base": "NZD", "quote": "USD", "type": "direct"},
+    "EURJPY": {"base": "EUR", "quote": "JPY", "type": "cross", "notes": "Derived: EUR_pressure - JPY_pressure"},
+    "GBPJPY": {"base": "GBP", "quote": "JPY", "type": "cross", "notes": "Derived: GBP_pressure - JPY_pressure"}
+  }
+}

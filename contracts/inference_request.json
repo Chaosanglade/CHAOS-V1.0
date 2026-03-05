@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CHAOS Inference Request",
+  "description": "MT5 NEVER decides model logic. MT5 only: 1. Assembles features from price data 2. Sends ZeroMQ request 3. Receives decision 4. Executes with CoreArb DLL + risk constraints",
+  "type": "object",
+  "required": ["request_id", "timestamp", "symbol", "timeframe", "regime_state", "regime_confidence", "features"],
+  "properties": {
+    "request_id": {
+      "type": "integer",
+      "description": "Monotonically increasing sequence ID for order integrity"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Server UTC time of request"
+    },
+    "symbol": {
+      "type": "string",
+      "enum": ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD", "EURJPY", "GBPJPY"],
+      "description": "Currency pair"
+    },
+    "timeframe": {
+      "type": "string",
+      "enum": ["M5", "M15", "M30", "H1", "H4", "D1"],
+      "description": "Timeframe (production-viable only, excludes M1/W1/MN1)"
+    },
+    "regime_state": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "description": "HMM regime state (0-3). Pre-signal gating uses this to enable/disable model groups."
+    },
+    "regime_confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "HMM regime state confidence probability"
+    },
+    "features": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 273,
+      "maxItems": 273,
+      "description": "Feature vector in canonical schema order (273 universal features). No NaN/Inf. Float64."
+    }
+  }
+}

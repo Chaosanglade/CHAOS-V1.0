@@ -1,0 +1,1657 @@
+{
+  "version": "1.0.0",
+  "created": "2026-03-02",
+  "description": "Canonical feature schema for CHAOS V1.0 inference pipeline",
+  "feature_count": 273,
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "execution_lag_bars": 1,
+  "execution_lag_note": "Lag is applied to returns (shift -1), not features. See chaos_gpu_training.py line 708.",
+  "features": [
+    {
+      "index": 0,
+      "name": "Tick_Interval_Mean",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 1,
+      "name": "Tick_Interval_Std",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 2,
+      "name": "Tick_Interval_Max",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 3,
+      "name": "Tick_Interval_Min",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 4,
+      "name": "Tick_Clustering",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 5,
+      "name": "Tick_Intensity",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 6,
+      "name": "Uptick_Count",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 7,
+      "name": "Downtick_Count",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 8,
+      "name": "Uptick_Ratio",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 9,
+      "name": "Tick_Imbalance",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 10,
+      "name": "Path_Length",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 11,
+      "name": "Path_Efficiency",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 12,
+      "name": "Path_Reversals",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 13,
+      "name": "Max_Favorable_Excursion",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 14,
+      "name": "Max_Adverse_Excursion",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 15,
+      "name": "Reversal_Rate",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 16,
+      "name": "TWAP",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 17,
+      "name": "VWAP",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 18,
+      "name": "Realized_Vol",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 19,
+      "name": "Realized_Vol_Bipower",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 20,
+      "name": "Time_To_First_Tick",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 21,
+      "name": "Quote_Stability",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 22,
+      "name": "vpin",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 23,
+      "name": "vpin_ma10",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 24,
+      "name": "vpin_ma50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 25,
+      "name": "vpin_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 26,
+      "name": "vpin_percentile",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 27,
+      "name": "kyle_lambda",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 28,
+      "name": "kyle_lambda_ma20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 29,
+      "name": "kyle_lambda_ma50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 30,
+      "name": "kyle_lambda_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 31,
+      "name": "amihud_illiq",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 32,
+      "name": "amihud_ma21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 33,
+      "name": "amihud_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 34,
+      "name": "ofi",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 35,
+      "name": "ofi_ma5",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 36,
+      "name": "ofi_ma20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 37,
+      "name": "ofi_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 38,
+      "name": "ofi_cumsum",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 39,
+      "name": "buy_pressure",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 40,
+      "name": "sell_pressure",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 41,
+      "name": "pressure_ratio",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 42,
+      "name": "effective_spread",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 43,
+      "name": "realized_spread",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 44,
+      "name": "price_impact",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 45,
+      "name": "spread_decomposition",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 46,
+      "name": "tick_direction",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 47,
+      "name": "tick_up_count",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 48,
+      "name": "tick_down_count",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 49,
+      "name": "tick_imbalance",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 50,
+      "name": "tick_intensity",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 51,
+      "name": "tick_run_length",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 52,
+      "name": "tick_reversal_rate",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 53,
+      "name": "tick_clustering",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 54,
+      "name": "spread_raw",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 55,
+      "name": "spread_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 56,
+      "name": "spread_ma5",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 57,
+      "name": "spread_ma20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 58,
+      "name": "spread_ma50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 59,
+      "name": "spread_std20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 60,
+      "name": "spread_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 61,
+      "name": "spread_percentile",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 62,
+      "name": "spread_vs_typical",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 63,
+      "name": "volume_proxy",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 64,
+      "name": "momentum_5",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 65,
+      "name": "momentum_10",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 66,
+      "name": "momentum_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 67,
+      "name": "momentum_63",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 68,
+      "name": "momentum_126",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 69,
+      "name": "momentum_252",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 70,
+      "name": "momentum_252_skip21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 71,
+      "name": "momentum_126_skip10",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 72,
+      "name": "momentum_63_skip5",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 73,
+      "name": "momentum_acceleration",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 74,
+      "name": "momentum_jerk",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 75,
+      "name": "rsi_2",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 76,
+      "name": "rsi_3",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 77,
+      "name": "rsi_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 78,
+      "name": "rsi_2_cumulative",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 79,
+      "name": "rsi_stretched",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 80,
+      "name": "ou_half_life",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 81,
+      "name": "ou_half_life_ma20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 82,
+      "name": "ou_equilibrium",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 83,
+      "name": "ou_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 84,
+      "name": "mean_reversion_signal",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 85,
+      "name": "mean_reversion_strength",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 86,
+      "name": "ema_8",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 87,
+      "name": "ema_13",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 88,
+      "name": "ema_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 89,
+      "name": "ema_34",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 90,
+      "name": "ema_55",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 91,
+      "name": "ema_89",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 92,
+      "name": "sma_10",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 93,
+      "name": "sma_20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 94,
+      "name": "sma_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 95,
+      "name": "sma_100",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 96,
+      "name": "sma_200",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 97,
+      "name": "price_vs_ema_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 98,
+      "name": "price_vs_ema_55",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 99,
+      "name": "trend_consistency",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 100,
+      "name": "stoch_k_5",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 101,
+      "name": "stoch_d_5",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 102,
+      "name": "stoch_k_9",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 103,
+      "name": "stoch_d_9",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 104,
+      "name": "stoch_k_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 105,
+      "name": "stoch_k_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 106,
+      "name": "vol_cc_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 107,
+      "name": "vol_cc_7_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 108,
+      "name": "vol_cc_7_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 109,
+      "name": "vol_cc_7_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 110,
+      "name": "vol_parkinson_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 111,
+      "name": "vol_parkinson_7_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 112,
+      "name": "vol_parkinson_7_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 113,
+      "name": "vol_parkinson_7_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 114,
+      "name": "vol_gk_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 115,
+      "name": "vol_gk_7_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 116,
+      "name": "vol_gk_7_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 117,
+      "name": "vol_gk_7_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 118,
+      "name": "vol_yz_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 119,
+      "name": "vol_yz_7_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 120,
+      "name": "vol_yz_7_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 121,
+      "name": "vol_yz_7_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 122,
+      "name": "vol_cc_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 123,
+      "name": "vol_cc_14_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 124,
+      "name": "vol_cc_14_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 125,
+      "name": "vol_cc_14_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 126,
+      "name": "vol_parkinson_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 127,
+      "name": "vol_parkinson_14_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 128,
+      "name": "vol_parkinson_14_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 129,
+      "name": "vol_parkinson_14_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 130,
+      "name": "vol_gk_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 131,
+      "name": "vol_gk_14_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 132,
+      "name": "vol_gk_14_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 133,
+      "name": "vol_gk_14_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 134,
+      "name": "vol_yz_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 135,
+      "name": "vol_yz_14_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 136,
+      "name": "vol_yz_14_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 137,
+      "name": "vol_yz_14_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 138,
+      "name": "vol_cc_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 139,
+      "name": "vol_cc_21_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 140,
+      "name": "vol_cc_21_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 141,
+      "name": "vol_cc_21_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 142,
+      "name": "vol_parkinson_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 143,
+      "name": "vol_parkinson_21_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 144,
+      "name": "vol_parkinson_21_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 145,
+      "name": "vol_parkinson_21_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 146,
+      "name": "vol_gk_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 147,
+      "name": "vol_gk_21_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 148,
+      "name": "vol_gk_21_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 149,
+      "name": "vol_gk_21_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 150,
+      "name": "vol_yz_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 151,
+      "name": "vol_yz_21_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 152,
+      "name": "vol_yz_21_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 153,
+      "name": "vol_yz_21_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 154,
+      "name": "vol_cc_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 155,
+      "name": "vol_cc_50_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 156,
+      "name": "vol_cc_50_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 157,
+      "name": "vol_cc_50_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 158,
+      "name": "vol_parkinson_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 159,
+      "name": "vol_parkinson_50_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 160,
+      "name": "vol_parkinson_50_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 161,
+      "name": "vol_parkinson_50_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 162,
+      "name": "vol_gk_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 163,
+      "name": "vol_gk_50_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 164,
+      "name": "vol_gk_50_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 165,
+      "name": "vol_gk_50_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 166,
+      "name": "vol_yz_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 167,
+      "name": "vol_yz_50_ma",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 168,
+      "name": "vol_yz_50_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 169,
+      "name": "vol_yz_50_pct",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 170,
+      "name": "vol_regime_duration",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 171,
+      "name": "atr_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 172,
+      "name": "atr_pct_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 173,
+      "name": "atr_zscore_7",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 174,
+      "name": "atr_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 175,
+      "name": "atr_pct_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 176,
+      "name": "atr_zscore_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 177,
+      "name": "atr_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 178,
+      "name": "atr_pct_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 179,
+      "name": "atr_zscore_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 180,
+      "name": "atr_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 181,
+      "name": "atr_pct_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 182,
+      "name": "atr_zscore_50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 183,
+      "name": "hurst_exponent",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 184,
+      "name": "hurst_ma20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 185,
+      "name": "hurst_ma50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 186,
+      "name": "hurst_confidence",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 187,
+      "name": "frac_diff_03",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 188,
+      "name": "frac_diff_04",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 189,
+      "name": "frac_diff_05",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 190,
+      "name": "frac_diff_04_ma10",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 191,
+      "name": "frac_diff_04_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 192,
+      "name": "frac_diff_signal",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 193,
+      "name": "hmm_prob_0",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 194,
+      "name": "hmm_prob_1",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 195,
+      "name": "hmm_prob_2",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 196,
+      "name": "hmm_prob_3",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 197,
+      "name": "hmm_state_duration",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 198,
+      "name": "entropy",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 199,
+      "name": "entropy_ma10",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 200,
+      "name": "entropy_ma50",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 201,
+      "name": "entropy_zscore",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 202,
+      "name": "bb_middle",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 203,
+      "name": "bb_upper_2",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 204,
+      "name": "bb_lower_2",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 205,
+      "name": "bb_width",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 206,
+      "name": "bb_percent_b",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 207,
+      "name": "macd_12_26",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 208,
+      "name": "macd_signal_12_26",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 209,
+      "name": "macd_hist_12_26",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 210,
+      "name": "macd_8_17",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 211,
+      "name": "macd_signal_8_17",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 212,
+      "name": "macd_hist_8_17",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 213,
+      "name": "macd_5_35",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 214,
+      "name": "macd_signal_5_35",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 215,
+      "name": "macd_hist_5_35",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 216,
+      "name": "williams_r_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 217,
+      "name": "williams_r_21",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 218,
+      "name": "cci_14",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 219,
+      "name": "cci_20",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 220,
+      "name": "adx",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 221,
+      "name": "plus_di",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 222,
+      "name": "minus_di",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 223,
+      "name": "lf_hour",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 224,
+      "name": "lf_minutes_to_fix",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 225,
+      "name": "lf_proximity",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 226,
+      "name": "lf_am_fix_proximity",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 227,
+      "name": "lf_momentum_pre",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 228,
+      "name": "lf_momentum_fix",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 229,
+      "name": "lf_vol_during_fix",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 230,
+      "name": "lf_typical_direction",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 231,
+      "name": "lf_fix_strength",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 232,
+      "name": "hour_sin",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 233,
+      "name": "hour_cos",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 234,
+      "name": "minute_sin",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 235,
+      "name": "minute_cos",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 236,
+      "name": "dow_sin",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 237,
+      "name": "dow_cos",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 238,
+      "name": "sess_liquidity_score",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 239,
+      "name": "cal_day_of_month",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 240,
+      "name": "cal_days_to_month_end",
+      "dtype": "int64",
+      "nullable": false
+    },
+    {
+      "index": 241,
+      "name": "cal_nfp_hours",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 242,
+      "name": "cal_major_news_risk",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 243,
+      "name": "cal_month_sin",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 244,
+      "name": "cal_month_cos",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 245,
+      "name": "exec_spread_score",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 246,
+      "name": "exec_spread_vs_typical",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 247,
+      "name": "exec_spread_percentile",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 248,
+      "name": "exec_gap_risk",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 249,
+      "name": "exec_slippage_estimate",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 250,
+      "name": "exec_fill_probability",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 251,
+      "name": "exec_market_impact",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 252,
+      "name": "exec_quality_score",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 253,
+      "name": "rn_big_figure",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 254,
+      "name": "rn_half_figure",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 255,
+      "name": "rn_quarter_figure",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 256,
+      "name": "rn_dist_big_pips",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 257,
+      "name": "rn_dist_half_pips",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 258,
+      "name": "wknd_day_of_week",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 259,
+      "name": "wknd_hours_to_close",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 260,
+      "name": "wknd_hours_since_open",
+      "dtype": "int32",
+      "nullable": false
+    },
+    {
+      "index": 261,
+      "name": "wknd_gap_risk",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 262,
+      "name": "corr_USDJPY_20",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 263,
+      "name": "rel_strength",
+      "dtype": "float32",
+      "nullable": false
+    },
+    {
+      "index": 264,
+      "name": "rel_strength_cum",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 265,
+      "name": "rel_strength_rank",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 266,
+      "name": "usd_index",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 267,
+      "name": "usd_index_ma",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 268,
+      "name": "jpy_index",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 269,
+      "name": "jpy_index_ma",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 270,
+      "name": "cross_momentum_div_5",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 271,
+      "name": "cross_momentum_div_20",
+      "dtype": "float64",
+      "nullable": false
+    },
+    {
+      "index": 272,
+      "name": "vol_vs_basket",
+      "dtype": "float64",
+      "nullable": false
+    }
+  ],
+  "null_policy": "No NaN or Inf allowed at inference. Forward-fill then zero-fill any gaps.",
+  "scaling_policy": "Neural network models use StandardScaler (saved in checkpoint). Tree models use raw unscaled features.",
+  "class_mapping": {
+    "0": "SHORT",
+    "1": "FLAT",
+    "2": "LONG"
+  }
+}

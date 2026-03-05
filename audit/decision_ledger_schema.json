@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CHAOS Decision Audit Ledger Entry",
+  "description": "Immutable record of every inference decision. One row per bar per pair/timeframe.",
+  "type": "object",
+  "required": ["entry_id", "timestamp", "pair", "timeframe", "regime_state", "signal", "action_taken"],
+  "properties": {
+    "entry_id": {
+      "type": "string",
+      "description": "Unique ID: {pair}_{tf}_{timestamp_iso}"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pair": {
+      "type": "string"
+    },
+    "timeframe": {
+      "type": "string"
+    },
+    "regime_state": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "regime_confidence": {
+      "type": "number"
+    },
+    "models_enabled": {
+      "type": "integer",
+      "description": "Number of models enabled after regime gating"
+    },
+    "models_voted": {
+      "type": "integer",
+      "description": "Number of models that successfully produced predictions"
+    },
+    "models_agreed": {
+      "type": "integer",
+      "description": "Number of models whose argmax matched ensemble signal"
+    },
+    "agreement_ratio": {
+      "type": "number"
+    },
+    "agreement_threshold_used": {
+      "type": "number",
+      "description": "Effective threshold after alt-data adjustment"
+    },
+    "trimmed_mean_probs": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "[P(SHORT), P(FLAT), P(LONG)] after trimmed mean"
+    },
+    "raw_signal": {
+      "type": "string",
+      "enum": ["SHORT", "FLAT", "LONG"],
+      "description": "Signal from ensemble BEFORE risk/agreement checks"
+    },
+    "signal": {
+      "type": "string",
+      "enum": ["SHORT", "FLAT", "LONG"],
+      "description": "Signal AFTER all checks (may differ from raw_signal)"
+    },
+    "signal_overridden": {
+      "type": "boolean",
+      "description": "True if signal was changed by agreement check, risk engine, or regime gating"
+    },
+    "override_reason": {
+      "type": "string",
+      "enum": [
+        "none",
+        "regime_gated",
+        "low_agreement",
+        "risk_drawdown_breaker",
+        "risk_exposure_limit",
+        "risk_cooldown",
+        "risk_correlated_positions",
+        "missed_fill"
+      ]
+    },
+    "alt_data_available": {
+      "type": "boolean"
+    },
+    "cot_pressure": {
+      "type": "number"
+    },
+    "cot_extreme": {
+      "type": "boolean"
+    },
+    "cme_spike": {
+      "type": "boolean"
+    },
+    "cme_confirm": {
+      "type": "boolean"
+    },
+    "tf_confirmation": {
+      "type": "object",
+      "properties": {
+        "h1_bias": {"type": "string"},
+        "m30_signal": {"type": "string"},
+        "aligned": {"type": "boolean"}
+      }
+    },
+    "action_taken": {
+      "type": "string",
+      "enum": ["no_trade", "open_long", "open_short", "close_position", "hold_position", "missed_fill"],
+      "description": "What actually happened after all logic"
+    },
+    "latency_ms": {
+      "type": "number"
+    }
+  }
+}

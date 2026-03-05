@@ -1,0 +1,41 @@
+{
+  "ibkr_base_costs_rt_pips": {
+    "EURUSD": 0.52, "GBPUSD": 0.72, "USDJPY": 0.58,
+    "AUDUSD": 0.60, "USDCAD": 0.78, "USDCHF": 0.73,
+    "NZDUSD": 0.88, "EURJPY": 0.83, "GBPJPY": 1.05
+  },
+  "scenarios": [
+    {
+      "name": "IBKR_BASE",
+      "spread_pips_mult": 1.0,
+      "slippage_pips_add": 0.0,
+      "commission_usd_per_million": 40,
+      "fill_rate": 1.0,
+      "description": "IBKR modeled costs (Equinix NY4, true ECN)"
+    },
+    {
+      "name": "BASE_PLUS_25",
+      "spread_pips_mult": 1.25,
+      "slippage_pips_add": 0.1,
+      "commission_usd_per_million": 40,
+      "fill_rate": 1.0,
+      "description": "+25% spread/slippage over IBKR baseline"
+    },
+    {
+      "name": "STRESS_PLUS_75",
+      "spread_pips_mult": 1.75,
+      "slippage_pips_add": 0.3,
+      "commission_usd_per_million": 40,
+      "fill_rate": 0.85,
+      "description": "+75% spread/slippage + 15% intermittent missed fills"
+    },
+    {
+      "name": "VOLATILITY_SPIKE",
+      "spread_pips_mult": 2.5,
+      "slippage_pips_add": 0.8,
+      "commission_usd_per_million": 40,
+      "fill_rate": 0.75,
+      "description": "Extreme volatility: spread x2.5, slippage x3, 25% missed fills. Simulates news events, flash crashes, liquidity gaps."
+    }
+  ]
+}

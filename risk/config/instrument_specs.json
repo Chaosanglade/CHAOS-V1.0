@@ -1,0 +1,22 @@
+{
+  "pip_value_usd_per_standard_lot": {
+    "EURUSD": 10.0,
+    "GBPUSD": 10.0,
+    "USDJPY": 9.1,
+    "AUDUSD": 10.0,
+    "USDCAD": 7.7,
+    "USDCHF": 10.3,
+    "NZDUSD": 10.0,
+    "EURJPY": 9.1,
+    "GBPJPY": 9.1
+  },
+  "pip_size": {
+    "EURUSD": 0.0001, "GBPUSD": 0.0001, "USDJPY": 0.01,
+    "AUDUSD": 0.0001, "USDCAD": 0.0001, "USDCHF": 0.0001,
+    "NZDUSD": 0.0001, "EURJPY": 0.01, "GBPJPY": 0.01
+  },
+  "min_lot": 0.01,
+  "lot_step": 0.01,
+  "max_lot": 10.0,
+  "notes": "Pip values approximate at current exchange rates. Engine should support per-broker overrides."
+}

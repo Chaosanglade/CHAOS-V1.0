@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "portfolio": {
+    "max_total_open_positions": 12,
+    "max_positions_per_pair": 1,
+    "max_positions_per_tf": 4,
+    "max_gross_exposure_usd": 250000,
+    "max_net_exposure_usd": 100000
+  },
+  "group_caps": [
+    {"group": "USD_LEG", "max_gross_exposure_usd": 150000},
+    {"group": "JPY_CROSS", "max_gross_exposure_usd": 80000}
+  ],
+  "drawdown_circuit_breaker": {
+    "enabled": true,
+    "max_intraday_dd_pct": 2.0,
+    "cooldown_minutes": 180
+  },
+  "loss_streak_control": {
+    "enabled": true,
+    "max_consecutive_losses": 5,
+    "cooldown_bars": 30
+  },
+  "trade_throttle": {
+    "min_minutes_between_entries_per_pair": 5
+  }
+}

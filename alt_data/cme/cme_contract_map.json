@@ -1,0 +1,13 @@
+{
+  "description": "Maps currencies to CME FX futures contracts for volume and open interest data.",
+  "currency_to_cme": {
+    "EUR": {"symbol": "6E", "exchange": "CME", "name": "Euro FX Futures"},
+    "GBP": {"symbol": "6B", "exchange": "CME", "name": "British Pound Futures"},
+    "JPY": {"symbol": "6J", "exchange": "CME", "name": "Japanese Yen Futures"},
+    "AUD": {"symbol": "6A", "exchange": "CME", "name": "Australian Dollar Futures"},
+    "CAD": {"symbol": "6C", "exchange": "CME", "name": "Canadian Dollar Futures"},
+    "CHF": {"symbol": "6S", "exchange": "CME", "name": "Swiss Franc Futures"},
+    "NZD": {"symbol": "6N", "exchange": "CME", "name": "New Zealand Dollar Futures"}
+  },
+  "pair_decomposition": "Same as cot_contract_map.json"
+}

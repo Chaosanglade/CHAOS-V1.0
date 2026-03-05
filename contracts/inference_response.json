@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CHAOS Inference Response",
+  "description": "MT5 NEVER decides model logic. MT5 only: 1. Assembles features from price data 2. Sends ZeroMQ request 3. Receives decision 4. Executes with CoreArb DLL + risk constraints",
+  "type": "object",
+  "required": ["request_id", "ensemble_key", "signal", "class_probs", "confidence", "models_voted", "models_agreed", "latency_ms"],
+  "properties": {
+    "request_id": {
+      "type": "integer",
+      "description": "Echoed from request for correlation"
+    },
+    "ensemble_key": {
+      "type": "string",
+      "description": "e.g., EURUSD_M30_ensemble"
+    },
+    "signal": {
+      "type": "string",
+      "enum": ["SHORT", "FLAT", "LONG"],
+      "description": "Final ensemble decision after all gating layers"
+    },
+    "class_probs": {
+      "type": "array",
+      "items": {"type": "number"},
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "[P(SHORT), P(FLAT), P(LONG)] from ensemble aggregation"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "max(class_probs) — raw model confidence, NOT calibrated probability"
+    },
+    "models_voted": {
+      "type": "integer",
+      "description": "Number of models that were enabled by regime gating and produced predictions"
+    },
+    "models_agreed": {
+      "type": "integer",
+      "description": "Number of models whose argmax matched the ensemble signal"
+    },
+    "agreement_ratio": {
+      "type": "number",
+      "description": "models_agreed / models_voted — measure of ensemble consensus"
+    },
+    "latency_ms": {
+      "type": "number",
+      "description": "Total inference time in milliseconds"
+    },
+    "tf_confirmation": {
+      "type": "object",
+      "description": "Multi-timeframe confirmation status",
+      "properties": {
+        "h1_bias": {"type": "string", "enum": ["SHORT", "FLAT", "LONG"]},
+        "m30_signal": {"type": "string", "enum": ["SHORT", "FLAT", "LONG"]},
+        "m15_confirm": {"type": "string", "enum": ["SHORT", "FLAT", "LONG"]},
+        "aligned": {"type": "boolean", "description": "True if all non-FLAT signals agree directionally"}
+      }
+    }
+  }
+}

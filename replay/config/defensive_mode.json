@@ -1,0 +1,16 @@
+{
+  "trigger": "VOLATILITY_SPIKE gate FAIL OR real-time spread > 2.5x normal",
+  "rules": {
+    "enabled_tfs": ["H1"],
+    "disabled_tfs": ["M30", "M15", "M5"],
+    "agreement_threshold_adjustment": "+0.10",
+    "risk_scalar": 0.5,
+    "max_simultaneous_positions": 3,
+    "disabled_tiers": ["tier_2", "tier_3"],
+    "description": "H1-only, Tier 1 pairs only, tighter agreement, half risk. Triggered when extreme cost conditions detected."
+  },
+  "exit_criteria": {
+    "spread_normalized": "Spread returns to < 1.5x normal for 4 consecutive hours",
+    "manual_override": true
+  }
+}
