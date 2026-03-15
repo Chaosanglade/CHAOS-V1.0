@@ -96,7 +96,10 @@ def export_available(registry_path='G:/My Drive/chaos_v1.0/models/model_registry
                 # Try to determine feature count from a parquet file
                 try:
                     import pandas as pd
+                    from pathlib import Path as _Path
                     parquet_path = f"G:/My Drive/chaos_v1.0/{pair}_{tf}_features.parquet"
+                    if not _Path(parquet_path).exists():
+                        parquet_path = f"G:/My Drive/chaos_v1.0/features/{pair}_{tf}_features.parquet"
                     df = pd.read_parquet(parquet_path, columns=None)
                     # Count features using same logic as training
                     exclude_prefixes = ['target_', 'returns_']

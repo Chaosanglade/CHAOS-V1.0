@@ -450,13 +450,20 @@ def _infer_model_params(brain, checkpoint, n_features):
     state_dict = checkpoint.get('model_state_dict', checkpoint)
 
     if brain == 'mlp_optuna':
-        # Infer hidden sizes from linear layer shapes
-        hidden_sizes = []
-        for key in sorted(state_dict.keys()):
-            if 'network' in key and 'weight' in key and 'bn' not in key.lower():
-                hidden_sizes.append(state_dict[key].shape[0])
-        # Last one is num_classes (3), remove it
-        if hidden_sizes and hidden_sizes[-1] == 3:
+        # Infer hidden sizes from Linear layer shapes (2D weights only)
+        # BatchNorm weights are 1D, Linear weights are 2D — only count 2D
+        # Must sort by numeric layer index, not string (e.g. "12" before "4")
+        linear_layers = []
+        for key in state_dict.keys():
+            if 'network' in key and 'weight' in key:
+                tensor = state_dict[key]
+                if tensor.dim() == 2:  # Linear layers only, skip BatchNorm (1D)
+                    idx = int(key.split('.')[1])
+                    linear_layers.append((idx, tensor.shape[0]))
+        linear_layers.sort()  # Sort by numeric index
+        hidden_sizes = [shape for _, shape in linear_layers]
+        # Last Linear is the output layer (num_classes=3), remove it
+        if hidden_sizes:
             hidden_sizes = hidden_sizes[:-1]
         return {'input_size': n_features, 'num_classes': 3,
                 'hidden_sizes': hidden_sizes if hidden_sizes else [256, 128, 64]}
@@ -479,16 +486,17 @@ def _infer_model_params(brain, checkpoint, n_features):
                 'hidden_size': hidden_size, 'num_layers': 2}
 
     elif brain == 'cnn1d_optuna':
-        # Infer channels from conv weight shapes
-        channels = []
-        for key in sorted(state_dict.keys()):
-            if 'conv' in key and 'weight' in key and key.startswith('conv.'):
-                channels.append(state_dict[key].shape[0])
-        # Deduplicate (BatchNorm weights also match)
-        seen = []
-        for c in channels:
-            if not seen or seen[-1] != c:
-                seen.append(c)
+        # Infer channels from Conv1d weight shapes (3D tensors only, skip BN 1D)
+        # Sort by numeric layer index to avoid string-sort issues
+        conv_layers = []
+        for key in state_dict.keys():
+            if key.startswith('conv.') and 'weight' in key:
+                tensor = state_dict[key]
+                if tensor.dim() == 3:  # Conv1d weights are 3D (out, in, kernel)
+                    idx = int(key.split('.')[1])
+                    conv_layers.append((idx, tensor.shape[0]))
+        conv_layers.sort()
+        seen = [shape for _, shape in conv_layers]
         return {'input_size': n_features, 'num_classes': 3,
                 'channels': seen if seen else [32, 64, 64]}
 
@@ -559,19 +567,33 @@ def export_pytorch_to_onnx(model_path, output_path, input_size=None):
 
     state_dict = checkpoint['model_state_dict']
     brain = checkpoint.get('brain', '')
-    n_features = checkpoint.get('n_features', input_size)
+    # Infer n_features from state_dict first (always matches actual model architecture)
+    n_features = None
+    if 'network.0.weight' in state_dict:
+        n_features = state_dict['network.0.weight'].shape[1]
+    elif 'input_projection.weight' in state_dict:
+        n_features = state_dict['input_projection.weight'].shape[1]
+    elif 'input_grn.fc1.weight' in state_dict:
+        n_features = state_dict['input_grn.fc1.weight'].shape[1]
+    elif 'lstm.weight_ih_l0' in state_dict:
+        n_features = state_dict['lstm.weight_ih_l0'].shape[1]
+    elif 'gru.weight_ih_l0' in state_dict:
+        n_features = state_dict['gru.weight_ih_l0'].shape[1]
+    elif 'input_conv.weight' in state_dict:
+        n_features = state_dict['input_conv.weight'].shape[1]
+    elif 'conv.0.weight' in state_dict:
+        n_features = state_dict['conv.0.weight'].shape[1]
+    elif 'mlp.0.weight' in state_dict:
+        n_features = state_dict['mlp.0.weight'].shape[1]
+    elif 'blocks.0.fc.0.weight' in state_dict:
+        n_features = state_dict['blocks.0.fc.0.weight'].shape[1]
 
-    # Infer n_features from state_dict if not in checkpoint
+    # Fallback to checkpoint metadata, then caller-provided input_size
     if n_features is None:
-        # Try input_projection.weight (most models)
-        if 'input_projection.weight' in state_dict:
-            n_features = state_dict['input_projection.weight'].shape[1]
-        elif 'network.0.weight' in state_dict:
-            n_features = state_dict['network.0.weight'].shape[1]
-        elif 'input_grn.fc1.weight' in state_dict:
-            n_features = state_dict['input_grn.fc1.weight'].shape[1]
-        else:
-            raise ValueError(f"Cannot infer n_features from checkpoint. Provide input_size.")
+        n_features = checkpoint.get('n_features') or input_size
+
+    if n_features is None:
+        raise ValueError(f"Cannot infer n_features from checkpoint. Provide input_size.")
 
     logger.info(f"Exporting {brain} ({n_features} features) -> {output_path}")
 
