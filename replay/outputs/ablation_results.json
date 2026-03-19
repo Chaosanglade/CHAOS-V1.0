@@ -1,0 +1,552 @@
+{
+  "variants": {
+    "A_baseline": {
+      "AUDUSD_H1": {
+        "run_id": "20260318T204032Z",
+        "pair": "AUDUSD",
+        "tf": "H1",
+        "pair_tf": "AUDUSD_H1",
+        "wall_time": 1382.2677171000105,
+        "pf": 0,
+        "trades": 0,
+        "pnl": 0,
+        "win_rate": 0,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "portfolio_pf": 0.0,
+        "portfolio_trades": 0,
+        "portfolio_pnl": 0.0
+      },
+      "AUDUSD_M30": {
+        "run_id": "20260318T214823Z",
+        "pair": "AUDUSD",
+        "tf": "M30",
+        "pair_tf": "AUDUSD_M30",
+        "wall_time": 1378.1711384999799,
+        "pf": 0,
+        "trades": 0,
+        "pnl": 0,
+        "win_rate": 0,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "portfolio_pf": 0.0,
+        "portfolio_trades": 0,
+        "portfolio_pnl": 0.0
+      },
+      "EURUSD_H1": {
+        "run_id": "20260318T225608Z",
+        "pair": "EURUSD",
+        "tf": "H1",
+        "pair_tf": "EURUSD_H1",
+        "wall_time": 1371.5489950000192,
+        "pf": 2.4663,
+        "trades": 65,
+        "pnl": 125.6,
+        "win_rate": 0.4923,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [],
+        "portfolio_pf": 2.4663,
+        "portfolio_trades": 65,
+        "portfolio_pnl": 125.60024757385254
+      },
+      "USDCAD_H1": {
+        "run_id": "20260319T000506Z",
+        "pair": "USDCAD",
+        "tf": "H1",
+        "pair_tf": "USDCAD_H1",
+        "wall_time": 1106.286248599994,
+        "pf": 2.9001,
+        "trades": 232,
+        "pnl": 733.01,
+        "win_rate": 0.556,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [],
+        "portfolio_pf": 2.9001,
+        "portfolio_trades": 232,
+        "portfolio_pnl": 733.0090372467145
+      },
+      "USDCHF_H1": {
+        "run_id": "20260319T010023Z",
+        "pair": "USDCHF",
+        "tf": "H1",
+        "pair_tf": "USDCHF_H1",
+        "wall_time": 959.8805317000079,
+        "pf": 3.8911,
+        "trades": 1181,
+        "pnl": 3865.72,
+        "win_rate": 0.6698,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [
+          "nbeats_optuna"
+        ],
+        "portfolio_pf": 3.7094,
+        "portfolio_trades": 1236,
+        "portfolio_pnl": 3859.5031176280136
+      },
+      "GBPJPY_M30": {
+        "run_id": "20260319T014853Z",
+        "pair": "GBPJPY",
+        "tf": "M30",
+        "pair_tf": "GBPJPY_M30",
+        "wall_time": 1387.2831359999836,
+        "pf": 3.0804,
+        "trades": 136,
+        "pnl": 859.4,
+        "win_rate": 0.5074,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [
+          "residual_mlp_optuna"
+        ],
+        "portfolio_pf": 3.0804,
+        "portfolio_trades": 136,
+        "portfolio_pnl": 859.4003112792929
+      },
+      "NZDUSD_M30": {
+        "run_id": "20260319T023153Z",
+        "pair": "NZDUSD",
+        "tf": "M30",
+        "pair_tf": "NZDUSD_M30",
+        "wall_time": 1387.585481999995,
+        "pf": 0.4408,
+        "trades": 305,
+        "pnl": -706.85,
+        "win_rate": 0.4885,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [
+          "cnn1d_optuna"
+        ],
+        "portfolio_pf": 1.1044,
+        "portfolio_trades": 616,
+        "portfolio_pnl": 179.76347972871088
+      }
+    },
+    "B_minus_6": {
+      "AUDUSD_H1": {
+        "run_id": "20260318T210335Z",
+        "pair": "AUDUSD",
+        "tf": "H1",
+        "pair_tf": "AUDUSD_H1",
+        "wall_time": 1332.3765032000083,
+        "pf": 2.0753,
+        "trades": 268,
+        "pnl": 512.5,
+        "win_rate": 0.5746,
+        "brains_used": 14,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "portfolio_pf": 2.0753,
+        "portfolio_trades": 268,
+        "portfolio_pnl": 512.4983854293823
+      },
+      "AUDUSD_M30": {
+        "run_id": "20260318T221121Z",
+        "pair": "AUDUSD",
+        "tf": "M30",
+        "pair_tf": "AUDUSD_M30",
+        "wall_time": 1263.2784692999849,
+        "pf": 2.7053,
+        "trades": 308,
+        "pnl": 835.1,
+        "win_rate": 0.539,
+        "brains_used": 14,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "portfolio_pf": 2.7053,
+        "portfolio_trades": 308,
+        "portfolio_pnl": 835.0978775024414
+      },
+      "EURUSD_H1": {
+        "run_id": "20260318T231900Z",
+        "pair": "EURUSD",
+        "tf": "H1",
+        "pair_tf": "EURUSD_H1",
+        "wall_time": 1321.4786256999942,
+        "pf": 7.0058,
+        "trades": 206,
+        "pnl": 1255.49,
+        "win_rate": 0.6117,
+        "brains_used": 14,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [],
+        "portfolio_pf": 7.0058,
+        "portfolio_trades": 206,
+        "portfolio_pnl": 1255.486132125854
+      },
+      "USDCAD_H1": {
+        "run_id": "20260319T002333Z",
+        "pair": "USDCAD",
+        "tf": "H1",
+        "pair_tf": "USDCAD_H1",
+        "wall_time": 1050.5968185999955,
+        "pf": 3.857,
+        "trades": 418,
+        "pnl": 1681.58,
+        "win_rate": 0.61,
+        "brains_used": 14,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [],
+        "portfolio_pf": 3.857,
+        "portfolio_trades": 418,
+        "portfolio_pnl": 1681.583391437509
+      },
+      "USDCHF_H1": {
+        "run_id": "20260319T011626Z",
+        "pair": "USDCHF",
+        "tf": "H1",
+        "pair_tf": "USDCHF_H1",
+        "wall_time": 917.6552017999929,
+        "pf": 3.8982,
+        "trades": 1181,
+        "pnl": 3875.05,
+        "win_rate": 0.6706,
+        "brains_used": 14,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [],
+        "portfolio_pf": 3.7161,
+        "portfolio_trades": 1236,
+        "portfolio_pnl": 3868.8249979685897
+      },
+      "GBPJPY_M30": {
+        "pair_tf": "GBPJPY_M30",
+        "pf": 0,
+        "trades": 0,
+        "pnl": 0,
+        "error": "[WinError 3] Failed to open local file 'G:/My Drive/chaos_v1.0/replay/outputs/runs/20260319T021200Z/decision_ledger.parquet'. Detail: [Windows error 3] The system cannot find the path specified.\r\n",
+        "wall_time": 1122.5697845999966,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ]
+      },
+      "NZDUSD_M30": {
+        "run_id": "20260319T025501Z",
+        "pair": "NZDUSD",
+        "tf": "M30",
+        "pair_tf": "NZDUSD_M30",
+        "wall_time": 1289.699479300005,
+        "pf": 0.8127,
+        "trades": 54,
+        "pnl": -24.17,
+        "win_rate": 0.4259,
+        "brains_used": 14,
+        "brains_excluded": [
+          "cnn1d_optuna",
+          "gru_optuna",
+          "lstm_optuna",
+          "nbeats_optuna",
+          "residual_mlp_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [
+          "cnn1d_optuna"
+        ],
+        "portfolio_pf": 2.47,
+        "portfolio_trades": 365,
+        "portfolio_pnl": 862.4443223953317
+      }
+    },
+    "C_per_block": {
+      "AUDUSD_H1": {
+        "run_id": "20260318T212548Z",
+        "pair": "AUDUSD",
+        "tf": "H1",
+        "pair_tf": "AUDUSD_H1",
+        "wall_time": 1354.4529557999922,
+        "pf": 0,
+        "trades": 0,
+        "pnl": 0,
+        "win_rate": 0,
+        "brains_used": 17,
+        "brains_excluded": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "portfolio_pf": 0.0,
+        "portfolio_trades": 0,
+        "portfolio_pnl": 0.0
+      },
+      "AUDUSD_M30": {
+        "run_id": "20260318T223225Z",
+        "pair": "AUDUSD",
+        "tf": "M30",
+        "pair_tf": "AUDUSD_M30",
+        "wall_time": 1324.9764914999832,
+        "pf": 0,
+        "trades": 0,
+        "pnl": 0,
+        "win_rate": 0,
+        "brains_used": 17,
+        "brains_excluded": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "quarantine_candidates": [
+          "gru_optuna",
+          "nbeats_optuna",
+          "tft_optuna"
+        ],
+        "portfolio_pf": 0.0,
+        "portfolio_trades": 0,
+        "portfolio_pnl": 0.0
+      },
+      "EURUSD_H1": {
+        "run_id": "20260318T234102Z",
+        "pair": "EURUSD",
+        "tf": "H1",
+        "pair_tf": "EURUSD_H1",
+        "wall_time": 1360.4927872000262,
+        "pf": 2.4663,
+        "trades": 65,
+        "pnl": 125.6,
+        "win_rate": 0.4923,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [],
+        "portfolio_pf": 2.4663,
+        "portfolio_trades": 65,
+        "portfolio_pnl": 125.60024757385254
+      },
+      "USDCAD_H1": {
+        "run_id": "20260319T004104Z",
+        "pair": "USDCAD",
+        "tf": "H1",
+        "pair_tf": "USDCAD_H1",
+        "wall_time": 1097.4121416999842,
+        "pf": 2.9001,
+        "trades": 232,
+        "pnl": 733.01,
+        "win_rate": 0.556,
+        "brains_used": 20,
+        "brains_excluded": [],
+        "quarantine_candidates": [],
+        "portfolio_pf": 2.9001,
+        "portfolio_trades": 232,
+        "portfolio_pnl": 733.0090372467145
+      },
+      "USDCHF_H1": {
+        "run_id": "20260319T013144Z",
+        "pair": "USDCHF",
+        "tf": "H1",
+        "pair_tf": "USDCHF_H1",
+        "wall_time": 942.7606205000193,
+        "pf": 0.1899,
+        "trades": 10,
+        "pnl": -40.24,
+        "win_rate": 0.3,
+        "brains_used": 19,
+        "brains_excluded": [
+          "nbeats_optuna"
+        ],
+        "quarantine_candidates": [],
+        "portfolio_pf": 0.6609,
+        "portfolio_trades": 65,
+        "portfolio_pnl": -46.462959957122784
+      },
+      "GBPJPY_M30": {
+        "pair_tf": "GBPJPY_M30",
+        "pf": 0,
+        "trades": 0,
+        "pnl": 0,
+        "error": "[WinError 3] The system cannot find the path specified: 'G:\\\\'",
+        "wall_time": 0.0006269000004976988,
+        "brains_excluded": [
+          "residual_mlp_optuna"
+        ]
+      },
+      "NZDUSD_M30": {
+        "run_id": "20260319T031631Z",
+        "pair": "NZDUSD",
+        "tf": "M30",
+        "pair_tf": "NZDUSD_M30",
+        "wall_time": 1367.291778599989,
+        "pf": 0.4408,
+        "trades": 305,
+        "pnl": -706.85,
+        "win_rate": 0.4885,
+        "brains_used": 19,
+        "brains_excluded": [
+          "cnn1d_optuna"
+        ],
+        "quarantine_candidates": [
+          "cnn1d_optuna"
+        ],
+        "portfolio_pf": 1.1044,
+        "portfolio_trades": 616,
+        "portfolio_pnl": 179.76347972871088
+      }
+    }
+  },
+  "quarantine_maps": {
+    "A_baseline": {},
+    "B_minus_6": {
+      "AUDUSD_H1": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ],
+      "AUDUSD_M30": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ],
+      "EURUSD_H1": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ],
+      "USDCAD_H1": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ],
+      "USDCHF_H1": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ],
+      "GBPJPY_M30": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ],
+      "NZDUSD_M30": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "residual_mlp_optuna",
+        "tft_optuna"
+      ]
+    },
+    "C_per_block": {
+      "AUDUSD_H1": [
+        "gru_optuna",
+        "nbeats_optuna",
+        "tft_optuna"
+      ],
+      "AUDUSD_M30": [
+        "gru_optuna",
+        "nbeats_optuna",
+        "tft_optuna"
+      ],
+      "GBPJPY_M30": [
+        "residual_mlp_optuna"
+      ],
+      "NZDUSD_M30": [
+        "cnn1d_optuna"
+      ],
+      "USDCHF_H1": [
+        "nbeats_optuna"
+      ]
+    }
+  },
+  "recommendations": {
+    "AUDUSD_H1": {
+      "brains": [],
+      "action": "REVIEW"
+    },
+    "AUDUSD_M30": {
+      "brains": [],
+      "action": "REVIEW"
+    },
+    "USDCHF_H1": {
+      "brains": [],
+      "action": "KEEP"
+    },
+    "GBPJPY_M30": {
+      "brains": [],
+      "action": "KEEP"
+    },
+    "NZDUSD_M30": {
+      "brains": [],
+      "action": "REVIEW"
+    }
+  }
+}

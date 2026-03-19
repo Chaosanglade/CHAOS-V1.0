@@ -1,0 +1,37 @@
+{
+    "quarantine_version": "ABLATION_V1_20260319",
+    "quarantine_reason": "Ensemble dilution - 6 brains suppress consensus across most production blocks",
+    "evidence": "ablation_results.json - Variant B recovery: AUDUSD 0->576 trades, EURUSD 65->206, USDCAD 232->418",
+    "global_quarantine": [
+        "cnn1d_optuna",
+        "gru_optuna",
+        "lstm_optuna",
+        "nbeats_optuna",
+        "tft_optuna"
+    ],
+    "conditional_quarantine": {
+        "residual_mlp_optuna": {
+            "policy": "quarantined_globally_except",
+            "exceptions": ["GBPJPY_M30"],
+            "reason": "Load-bearing for GBPJPY_M30 (136 trades, PF 3.08). Removing kills the block."
+        }
+    },
+    "active_brains_after_quarantine": [
+        "lgb_optuna",
+        "lgb_v2_optuna",
+        "xgb_optuna",
+        "xgb_v2_optuna",
+        "cat_optuna",
+        "cat_v2_optuna",
+        "rf_optuna",
+        "et_optuna",
+        "mlp_optuna",
+        "ensemble_nn_optuna",
+        "attention_net_optuna",
+        "transformer_optuna",
+        "tabnet_optuna",
+        "wavenet_optuna"
+    ],
+    "active_brain_count": 14,
+    "notes": "residual_mlp_optuna is brain #15 only for GBPJPY_M30. All other blocks use 14 brains."
+}
