@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "iterations": 617,
+    "learning_rate": 0.01028466709800655,
+    "depth": 6,
+    "l2_leaf_reg": 29.406047885675573
+  },
+  "best_pf": 1.3980344537569955,
+  "brain": "cat_v2_optuna",
+  "pair": "GBPUSD",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-17T23:24:32.295436"
+}

@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "n_estimators": 528,
+    "learning_rate": 0.008097684353554674,
+    "max_depth": 5,
+    "min_child_weight": 15,
+    "subsample": 0.748956465336382,
+    "colsample_bytree": 0.8917545264389012,
+    "reg_alpha": 0.13571176675255334,
+    "reg_lambda": 32.593814218306
+  },
+  "best_pf": 1.9507548435649344,
+  "brain": "xgb_v2_optuna",
+  "pair": "USDJPY",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-22T09:58:01.617890"
+}

@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "iterations": 642,
+    "learning_rate": 0.08412765085857582,
+    "depth": 6,
+    "l2_leaf_reg": 45.90343359877807
+  },
+  "best_pf": 1.51580624887599,
+  "brain": "cat_v2_optuna",
+  "pair": "EURUSD",
+  "tf": "M1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-07T02:41:48.435363"
+}

@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "iterations": 310,
+    "learning_rate": 0.07299613077602728,
+    "depth": 10,
+    "l2_leaf_reg": 0.0659909777134342
+  },
+  "best_pf": 1.9446701512711424,
+  "brain": "cat_optuna",
+  "pair": "NZDUSD",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-13T20:45:18.166757"
+}

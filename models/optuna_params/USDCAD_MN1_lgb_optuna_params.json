@@ -1,0 +1,20 @@
+{
+  "best_params": {
+    "n_estimators": 250,
+    "learning_rate": 0.2536999076681772,
+    "max_depth": 10,
+    "num_leaves": 68,
+    "min_child_samples": 24,
+    "subsample": 0.662397808134481,
+    "colsample_bytree": 0.6232334448672797,
+    "reg_alpha": 0.6245760287469893,
+    "reg_lambda": 0.002570603566117598
+  },
+  "best_pf": 1.2443409115754491,
+  "brain": "lgb_optuna",
+  "pair": "USDCAD",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:49:12.854030"
+}

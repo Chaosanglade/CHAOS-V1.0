@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_d": 31,
+    "n_steps": 6,
+    "gamma": 1.1594866387280263,
+    "n_independent": 2,
+    "n_shared": 3,
+    "lambda_sparse": 0.0009215293872233352,
+    "mask_type": "sparsemax"
+  },
+  "best_pf": 1.740477806635959,
+  "brain": "tabnet_optuna",
+  "pair": "USDCHF",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-17T02:48:48.509318"
+}

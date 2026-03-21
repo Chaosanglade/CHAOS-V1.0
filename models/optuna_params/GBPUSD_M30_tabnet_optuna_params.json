@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_d": 23,
+    "n_steps": 6,
+    "gamma": 1.0205844942958024,
+    "n_independent": 3,
+    "n_shared": 3,
+    "lambda_sparse": 4.335281794951567e-06,
+    "mask_type": "entmax"
+  },
+  "best_pf": 3.547545136359032,
+  "brain": "tabnet_optuna",
+  "pair": "GBPUSD",
+  "tf": "M30",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-17T02:02:32.382186"
+}

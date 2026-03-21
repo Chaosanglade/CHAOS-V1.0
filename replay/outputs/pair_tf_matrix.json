@@ -1,0 +1,853 @@
+{
+  "generated_from_run": "Run 4 \u2014 9 pairs x 4 TFs",
+  "scenarios": {
+    "IBKR_BASE": {
+      "AUDUSD_H1": {
+        "pf": 2.7898,
+        "trades": 211,
+        "pnl": 548.5,
+        "maxdd": 38.75,
+        "wr": 59.2
+      },
+      "AUDUSD_M15": {
+        "pf": 2.6863,
+        "trades": 256,
+        "pnl": 545.25,
+        "maxdd": 22.0,
+        "wr": 48.4
+      },
+      "AUDUSD_M30": {
+        "pf": 2.961,
+        "trades": 698,
+        "pnl": 1596.14,
+        "maxdd": 47.9,
+        "wr": 56.9
+      },
+      "AUDUSD_M5": {
+        "pf": 0.41,
+        "trades": 132,
+        "pnl": -89.0,
+        "maxdd": 93.15,
+        "wr": 29.5
+      },
+      "EURJPY_M30": {
+        "pf": 0.6517,
+        "trades": 14,
+        "pnl": -18.45,
+        "maxdd": 27.4,
+        "wr": 28.6
+      },
+      "EURUSD_H1": {
+        "pf": 6.1783,
+        "trades": 230,
+        "pnl": 1326.75,
+        "maxdd": 54.46,
+        "wr": 60.4
+      },
+      "EURUSD_M15": {
+        "pf": 0.3802,
+        "trades": 18,
+        "pnl": -22.61,
+        "maxdd": 23.07,
+        "wr": 22.2
+      },
+      "EURUSD_M30": {
+        "pf": 2.5503,
+        "trades": 108,
+        "pnl": 157.84,
+        "maxdd": 13.8,
+        "wr": 55.6
+      },
+      "EURUSD_M5": {
+        "pf": 0.229,
+        "trades": 70,
+        "pnl": -55.85,
+        "maxdd": 55.85,
+        "wr": 25.7
+      },
+      "GBPJPY_H1": {
+        "pf": 3.4399,
+        "trades": 144,
+        "pnl": 770.44,
+        "maxdd": 46.07,
+        "wr": 56.2
+      },
+      "GBPUSD_H1": {
+        "pf": 1.3162,
+        "trades": 78,
+        "pnl": 91.79,
+        "maxdd": 55.24,
+        "wr": 55.1
+      },
+      "GBPUSD_M15": {
+        "pf": 1.965,
+        "trades": 70,
+        "pnl": 101.86,
+        "maxdd": 18.89,
+        "wr": 50.0
+      },
+      "GBPUSD_M30": {
+        "pf": 0.1579,
+        "trades": 6,
+        "pnl": -15.37,
+        "maxdd": 18.25,
+        "wr": 16.7
+      },
+      "GBPUSD_M5": {
+        "pf": 0.4178,
+        "trades": 73,
+        "pnl": -55.91,
+        "maxdd": 57.0,
+        "wr": 26.0
+      },
+      "NZDUSD_H1": {
+        "pf": 1.9248,
+        "trades": 212,
+        "pnl": 375.99,
+        "maxdd": 30.89,
+        "wr": 52.4
+      },
+      "NZDUSD_M15": {
+        "pf": 0.142,
+        "trades": 6,
+        "pnl": -7.68,
+        "maxdd": 8.95,
+        "wr": 16.7
+      },
+      "NZDUSD_M30": {
+        "pf": 1.3524,
+        "trades": 64,
+        "pnl": 40.68,
+        "maxdd": 18.36,
+        "wr": 51.6
+      },
+      "NZDUSD_M5": {
+        "pf": 0.73,
+        "trades": 139,
+        "pnl": -51.92,
+        "maxdd": 51.92,
+        "wr": 35.2
+      },
+      "USDCAD_H1": {
+        "pf": 3.857,
+        "trades": 418,
+        "pnl": 1681.58,
+        "maxdd": 74.07,
+        "wr": 61.0
+      },
+      "USDCAD_M15": {
+        "pf": 2.8339,
+        "trades": 276,
+        "pnl": 720.53,
+        "maxdd": 54.13,
+        "wr": 62.7
+      },
+      "USDCAD_M30": {
+        "pf": 3.7009,
+        "trades": 325,
+        "pnl": 1185.6,
+        "maxdd": 34.5,
+        "wr": 61.9
+      },
+      "USDCAD_M5": {
+        "pf": 0.9831,
+        "trades": 115,
+        "pnl": -2.49,
+        "maxdd": 54.55,
+        "wr": 35.6
+      },
+      "USDCHF_H1": {
+        "pf": 0.2441,
+        "trades": 17,
+        "pnl": -49.8,
+        "maxdd": 56.55,
+        "wr": 29.4
+      },
+      "USDCHF_M15": {
+        "pf": 1.6598,
+        "trades": 206,
+        "pnl": 152.44,
+        "maxdd": 18.02,
+        "wr": 50.0
+      },
+      "USDCHF_M30": {
+        "pf": 0.6898,
+        "trades": 56,
+        "pnl": -52.36,
+        "maxdd": 77.26,
+        "wr": 46.4
+      },
+      "USDCHF_M5": {
+        "pf": 0.6291,
+        "trades": 117,
+        "pnl": -55.94,
+        "maxdd": 56.04,
+        "wr": 28.2
+      },
+      "USDJPY_H1": {
+        "pf": 8.0335,
+        "trades": 15,
+        "pnl": 203.93,
+        "maxdd": 15.64,
+        "wr": 60.0
+      },
+      "USDJPY_M15": {
+        "pf": 1.126,
+        "trades": 67,
+        "pnl": 13.23,
+        "maxdd": 24.29,
+        "wr": 43.3
+      },
+      "USDJPY_M30": {
+        "pf": 0.0,
+        "trades": 117,
+        "pnl": -114.66,
+        "maxdd": 114.66,
+        "wr": 0.0
+      },
+      "USDJPY_M5": {
+        "pf": 0.0,
+        "trades": 7,
+        "pnl": -10.95,
+        "maxdd": 10.95,
+        "wr": 0.0
+      }
+    },
+    "BASE_PLUS_25": {
+      "AUDUSD_H1": {
+        "pf": 2.5093,
+        "trades": 211,
+        "pnl": 495.75,
+        "maxdd": 43.2,
+        "wr": 57.4
+      },
+      "AUDUSD_M15": {
+        "pf": 2.3492,
+        "trades": 256,
+        "pnl": 481.25,
+        "maxdd": 24.0,
+        "wr": 47.3
+      },
+      "AUDUSD_M30": {
+        "pf": 2.5932,
+        "trades": 698,
+        "pnl": 1421.64,
+        "maxdd": 125.05,
+        "wr": 53.6
+      },
+      "AUDUSD_M5": {
+        "pf": 0.3015,
+        "trades": 132,
+        "pnl": -122.0,
+        "maxdd": 125.9,
+        "wr": 26.5
+      },
+      "EURJPY_M30": {
+        "pf": 0.594,
+        "trades": 14,
+        "pnl": -22.76,
+        "maxdd": 28.94,
+        "wr": 28.6
+      },
+      "EURUSD_H1": {
+        "pf": 5.5963,
+        "trades": 230,
+        "pnl": 1273.85,
+        "maxdd": 63.89,
+        "wr": 60.4
+      },
+      "EURUSD_M15": {
+        "pf": 0.3262,
+        "trades": 18,
+        "pnl": -26.75,
+        "maxdd": 26.75,
+        "wr": 22.2
+      },
+      "EURUSD_M30": {
+        "pf": 2.1775,
+        "trades": 108,
+        "pnl": 133.0,
+        "maxdd": 14.95,
+        "wr": 54.6
+      },
+      "EURUSD_M5": {
+        "pf": 0.1535,
+        "trades": 70,
+        "pnl": -71.95,
+        "maxdd": 71.95,
+        "wr": 21.4
+      },
+      "GBPJPY_H1": {
+        "pf": 3.1187,
+        "trades": 144,
+        "pnl": 718.24,
+        "maxdd": 50.42,
+        "wr": 54.9
+      },
+      "GBPUSD_H1": {
+        "pf": 1.2331,
+        "trades": 78,
+        "pnl": 69.95,
+        "maxdd": 60.0,
+        "wr": 53.8
+      },
+      "GBPUSD_M15": {
+        "pf": 1.7131,
+        "trades": 70,
+        "pnl": 82.26,
+        "maxdd": 25.25,
+        "wr": 50.0
+      },
+      "GBPUSD_M30": {
+        "pf": 0.1324,
+        "trades": 6,
+        "pnl": -17.05,
+        "maxdd": 19.65,
+        "wr": 16.7
+      },
+      "GBPUSD_M5": {
+        "pf": 0.3131,
+        "trades": 73,
+        "pnl": -76.35,
+        "maxdd": 76.35,
+        "wr": 26.0
+      },
+      "NZDUSD_H1": {
+        "pf": 1.7003,
+        "trades": 212,
+        "pnl": 308.15,
+        "maxdd": 41.7,
+        "wr": 49.1
+      },
+      "NZDUSD_M15": {
+        "pf": 0.0901,
+        "trades": 6,
+        "pnl": -9.6,
+        "maxdd": 10.55,
+        "wr": 16.7
+      },
+      "NZDUSD_M30": {
+        "pf": 1.1607,
+        "trades": 64,
+        "pnl": 20.2,
+        "maxdd": 20.6,
+        "wr": 50.0
+      },
+      "NZDUSD_M5": {
+        "pf": 0.5656,
+        "trades": 139,
+        "pnl": -96.4,
+        "maxdd": 96.4,
+        "wr": 32.4
+      },
+      "USDCAD_H1": {
+        "pf": 3.4438,
+        "trades": 418,
+        "pnl": 1558.27,
+        "maxdd": 91.79,
+        "wr": 59.3
+      },
+      "USDCAD_M15": {
+        "pf": 2.5066,
+        "trades": 276,
+        "pnl": 639.11,
+        "maxdd": 69.18,
+        "wr": 60.1
+      },
+      "USDCAD_M30": {
+        "pf": 3.285,
+        "trades": 325,
+        "pnl": 1089.73,
+        "maxdd": 49.24,
+        "wr": 59.4
+      },
+      "USDCAD_M5": {
+        "pf": 0.7861,
+        "trades": 115,
+        "pnl": -36.41,
+        "maxdd": 80.06,
+        "wr": 30.4
+      },
+      "USDCHF_H1": {
+        "pf": 0.2118,
+        "trades": 17,
+        "pnl": -54.6,
+        "maxdd": 61.07,
+        "wr": 29.4
+      },
+      "USDCHF_M15": {
+        "pf": 1.3616,
+        "trades": 206,
+        "pnl": 94.25,
+        "maxdd": 23.67,
+        "wr": 48.1
+      },
+      "USDCHF_M30": {
+        "pf": 0.6155,
+        "trades": 56,
+        "pnl": -68.18,
+        "maxdd": 90.82,
+        "wr": 44.6
+      },
+      "USDCHF_M5": {
+        "pf": 0.491,
+        "trades": 117,
+        "pnl": -88.99,
+        "maxdd": 88.99,
+        "wr": 25.6
+      },
+      "USDJPY_H1": {
+        "pf": 7.5735,
+        "trades": 15,
+        "pnl": 200.25,
+        "maxdd": 16.86,
+        "wr": 60.0
+      },
+      "USDJPY_M15": {
+        "pf": 0.9722,
+        "trades": 67,
+        "pnl": -3.18,
+        "maxdd": 27.92,
+        "wr": 41.8
+      },
+      "USDJPY_M30": {
+        "pf": 0.0,
+        "trades": 117,
+        "pnl": -143.32,
+        "maxdd": 143.32,
+        "wr": 0.0
+      },
+      "USDJPY_M5": {
+        "pf": 0.0,
+        "trades": 7,
+        "pnl": -12.67,
+        "maxdd": 12.67,
+        "wr": 0.0
+      }
+    },
+    "STRESS_PLUS_75": {
+      "AUDUSD_H1": {
+        "pf": 2.0231,
+        "trades": 192,
+        "pnl": 353.3,
+        "maxdd": 59.35,
+        "wr": 55.7
+      },
+      "AUDUSD_M15": {
+        "pf": 1.9313,
+        "trades": 384,
+        "pnl": 663.75,
+        "maxdd": 95.95,
+        "wr": 41.9
+      },
+      "AUDUSD_M30": {
+        "pf": 1.5935,
+        "trades": 847,
+        "pnl": 804.44,
+        "maxdd": 349.05,
+        "wr": 45.0
+      },
+      "AUDUSD_M5": {
+        "pf": 0.1742,
+        "trades": 208,
+        "pnl": -307.05,
+        "maxdd": 310.45,
+        "wr": 14.9
+      },
+      "EURJPY_M30": {
+        "pf": 0.4958,
+        "trades": 14,
+        "pnl": -31.37,
+        "maxdd": 35.93,
+        "wr": 28.6
+      },
+      "EURUSD_H1": {
+        "pf": 4.8619,
+        "trades": 213,
+        "pnl": 1136.17,
+        "maxdd": 68.84,
+        "wr": 60.1
+      },
+      "EURUSD_M15": {
+        "pf": 0.2084,
+        "trades": 11,
+        "pnl": -20.06,
+        "maxdd": 20.06,
+        "wr": 18.2
+      },
+      "EURUSD_M30": {
+        "pf": 1.4991,
+        "trades": 97,
+        "pnl": 65.03,
+        "maxdd": 18.4,
+        "wr": 50.5
+      },
+      "EURUSD_M5": {
+        "pf": 0.1573,
+        "trades": 180,
+        "pnl": -216.76,
+        "maxdd": 216.76,
+        "wr": 19.4
+      },
+      "GBPJPY_H1": {
+        "pf": 2.8492,
+        "trades": 136,
+        "pnl": 634.24,
+        "maxdd": 59.12,
+        "wr": 54.4
+      },
+      "GBPUSD_H1": {
+        "pf": 1.006,
+        "trades": 72,
+        "pnl": 1.84,
+        "maxdd": 65.55,
+        "wr": 50.0
+      },
+      "GBPUSD_M15": {
+        "pf": 0.8015,
+        "trades": 203,
+        "pnl": -87.98,
+        "maxdd": 181.42,
+        "wr": 33.5
+      },
+      "GBPUSD_M30": {
+        "pf": 0.0909,
+        "trades": 6,
+        "pnl": -20.41,
+        "maxdd": 22.45,
+        "wr": 16.7
+      },
+      "GBPUSD_M5": {
+        "pf": 0.1718,
+        "trades": 69,
+        "pnl": -115.14,
+        "maxdd": 115.14,
+        "wr": 17.4
+      },
+      "NZDUSD_H1": {
+        "pf": 1.1215,
+        "trades": 245,
+        "pnl": 71.6,
+        "maxdd": 158.35,
+        "wr": 47.8
+      },
+      "NZDUSD_M15": {
+        "pf": 0.0226,
+        "trades": 6,
+        "pnl": -13.44,
+        "maxdd": 13.75,
+        "wr": 16.7
+      },
+      "NZDUSD_M30": {
+        "pf": 0.8586,
+        "trades": 60,
+        "pnl": -19.2,
+        "maxdd": 43.23,
+        "wr": 43.3
+      },
+      "NZDUSD_M5": {
+        "pf": 0.2554,
+        "trades": 275,
+        "pnl": -436.35,
+        "maxdd": 436.35,
+        "wr": 27.3
+      },
+      "USDCAD_H1": {
+        "pf": 2.6895,
+        "trades": 375,
+        "pnl": 1188.97,
+        "maxdd": 165.17,
+        "wr": 56.3
+      },
+      "USDCAD_M15": {
+        "pf": 2.152,
+        "trades": 255,
+        "pnl": 496.07,
+        "maxdd": 93.14,
+        "wr": 55.7
+      },
+      "USDCAD_M30": {
+        "pf": 2.6924,
+        "trades": 306,
+        "pnl": 876.96,
+        "maxdd": 123.63,
+        "wr": 54.2
+      },
+      "USDCAD_M5": {
+        "pf": 0.3873,
+        "trades": 110,
+        "pnl": -142.41,
+        "maxdd": 168.52,
+        "wr": 23.6
+      },
+      "USDCHF_H1": {
+        "pf": 0.1895,
+        "trades": 14,
+        "pnl": -48.59,
+        "maxdd": 54.01,
+        "wr": 42.9
+      },
+      "USDCHF_M15": {
+        "pf": 0.4598,
+        "trades": 24,
+        "pnl": -38.24,
+        "maxdd": 38.24,
+        "wr": 20.8
+      },
+      "USDCHF_M30": {
+        "pf": 0.6296,
+        "trades": 50,
+        "pnl": -59.27,
+        "maxdd": 83.93,
+        "wr": 44.0
+      },
+      "USDCHF_M5": {
+        "pf": 0.2736,
+        "trades": 266,
+        "pnl": -354.88,
+        "maxdd": 354.88,
+        "wr": 20.3
+      },
+      "USDJPY_H1": {
+        "pf": 6.3145,
+        "trades": 15,
+        "pnl": 177.52,
+        "maxdd": 19.31,
+        "wr": 60.0
+      },
+      "USDJPY_M15": {
+        "pf": 0.5714,
+        "trades": 167,
+        "pnl": -163.38,
+        "maxdd": 163.38,
+        "wr": 35.3
+      },
+      "USDJPY_M30": {
+        "pf": 0.0,
+        "trades": 110,
+        "pnl": -188.65,
+        "maxdd": 188.65,
+        "wr": 0.0
+      },
+      "USDJPY_M5": {
+        "pf": 0.7705,
+        "trades": 24,
+        "pnl": -10.03,
+        "maxdd": 23.27,
+        "wr": 33.3
+      }
+    },
+    "VOLATILITY_SPIKE": {
+      "AUDUSD_H1": {
+        "pf": 1.3316,
+        "trades": 182,
+        "pnl": 136.1,
+        "maxdd": 172.55,
+        "wr": 44.0
+      },
+      "AUDUSD_M15": {
+        "pf": 1.3456,
+        "trades": 244,
+        "pnl": 194.25,
+        "maxdd": 46.05,
+        "wr": 40.2
+      },
+      "AUDUSD_M30": {
+        "pf": 2.0882,
+        "trades": 394,
+        "pnl": 859.69,
+        "maxdd": 203.9,
+        "wr": 48.0
+      },
+      "AUDUSD_M5": {
+        "pf": 0.0709,
+        "trades": 116,
+        "pnl": -266.65,
+        "maxdd": 269.1,
+        "wr": 9.5
+      },
+      "EURJPY_M30": {
+        "pf": 1.147,
+        "trades": 1110,
+        "pnl": 462.14,
+        "maxdd": 541.93,
+        "wr": 43.1
+      },
+      "EURUSD_H1": {
+        "pf": 1.8196,
+        "trades": 467,
+        "pnl": 690.53,
+        "maxdd": 220.66,
+        "wr": 45.0
+      },
+      "EURUSD_M15": {
+        "pf": 0.1989,
+        "trades": 274,
+        "pnl": -428.44,
+        "maxdd": 428.44,
+        "wr": 26.3
+      },
+      "EURUSD_M30": {
+        "pf": 1.1709,
+        "trades": 143,
+        "pnl": 46.16,
+        "maxdd": 53.0,
+        "wr": 50.3
+      },
+      "EURUSD_M5": {
+        "pf": 0.018,
+        "trades": 56,
+        "pnl": -128.15,
+        "maxdd": 128.15,
+        "wr": 3.6
+      },
+      "GBPJPY_H1": {
+        "pf": 1.9011,
+        "trades": 121,
+        "pnl": 371.09,
+        "maxdd": 80.93,
+        "wr": 46.3
+      },
+      "GBPUSD_H1": {
+        "pf": 0.9804,
+        "trades": 208,
+        "pnl": -17.04,
+        "maxdd": 179.1,
+        "wr": 50.5
+      },
+      "GBPUSD_M15": {
+        "pf": 0.8887,
+        "trades": 103,
+        "pnl": -29.1,
+        "maxdd": 64.8,
+        "wr": 31.1
+      },
+      "GBPUSD_M30": {
+        "pf": 0.0,
+        "trades": 5,
+        "pnl": -29.5,
+        "maxdd": 29.5,
+        "wr": 0.0
+      },
+      "GBPUSD_M5": {
+        "pf": 0.0525,
+        "trades": 65,
+        "pnl": -178.85,
+        "maxdd": 178.85,
+        "wr": 13.9
+      },
+      "NZDUSD_H1": {
+        "pf": 0.8318,
+        "trades": 188,
+        "pnl": -104.15,
+        "maxdd": 286.95,
+        "wr": 35.1
+      },
+      "NZDUSD_M15": {
+        "pf": 0.0,
+        "trades": 6,
+        "pnl": -21.45,
+        "maxdd": 21.45,
+        "wr": 0.0
+      },
+      "NZDUSD_M30": {
+        "pf": 0.6163,
+        "trades": 53,
+        "pnl": -58.5,
+        "maxdd": 65.55,
+        "wr": 32.1
+      },
+      "NZDUSD_M5": {
+        "pf": 0.1572,
+        "trades": 116,
+        "pnl": -289.35,
+        "maxdd": 289.35,
+        "wr": 17.2
+      },
+      "USDCAD_H1": {
+        "pf": 1.7452,
+        "trades": 435,
+        "pnl": 731.5,
+        "maxdd": 355.81,
+        "wr": 47.4
+      },
+      "USDCAD_M15": {
+        "pf": 1.401,
+        "trades": 248,
+        "pnl": 222.46,
+        "maxdd": 150.69,
+        "wr": 48.0
+      },
+      "USDCAD_M30": {
+        "pf": 5.0206,
+        "trades": 102,
+        "pnl": 673.66,
+        "maxdd": 37.82,
+        "wr": 67.7
+      },
+      "USDCAD_M5": {
+        "pf": 0.0861,
+        "trades": 55,
+        "pnl": -146.73,
+        "maxdd": 146.73,
+        "wr": 12.7
+      },
+      "USDCHF_H1": {
+        "pf": 0.3394,
+        "trades": 63,
+        "pnl": -208.6,
+        "maxdd": 212.58,
+        "wr": 23.8
+      },
+      "USDCHF_M15": {
+        "pf": 0.5623,
+        "trades": 179,
+        "pnl": -160.63,
+        "maxdd": 172.57,
+        "wr": 36.9
+      },
+      "USDCHF_M30": {
+        "pf": 0.418,
+        "trades": 46,
+        "pnl": -105.77,
+        "maxdd": 122.09,
+        "wr": 34.8
+      },
+      "USDCHF_M5": {
+        "pf": 0.0978,
+        "trades": 242,
+        "pnl": -612.88,
+        "maxdd": 612.88,
+        "wr": 13.6
+      },
+      "USDJPY_H1": {
+        "pf": 4.7733,
+        "trades": 15,
+        "pnl": 170.6,
+        "maxdd": 30.19,
+        "wr": 53.3
+      },
+      "USDJPY_M15": {
+        "pf": 0.2744,
+        "trades": 38,
+        "pnl": -68.99,
+        "maxdd": 68.99,
+        "wr": 28.9
+      },
+      "USDJPY_M30": {
+        "pf": 0.0,
+        "trades": 101,
+        "pnl": -267.65,
+        "maxdd": 267.65,
+        "wr": 0.0
+      },
+      "USDJPY_M5": {
+        "pf": 0.5436,
+        "trades": 21,
+        "pnl": -22.75,
+        "maxdd": 35.68,
+        "wr": 28.6
+      }
+    }
+  }
+}

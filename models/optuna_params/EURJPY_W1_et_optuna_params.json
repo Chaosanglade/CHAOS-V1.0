@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 172,
+    "max_depth": 7,
+    "min_samples_split": 7,
+    "min_samples_leaf": 6,
+    "max_features": null
+  },
+  "best_pf": 0.3437101907160843,
+  "brain": "et_optuna",
+  "pair": "EURJPY",
+  "tf": "W1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

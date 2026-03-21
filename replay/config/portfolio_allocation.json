@@ -1,0 +1,42 @@
+{
+    "version": "v1.0_post_quarantine",
+    "date": "2026-03-19",
+    "base_risk_per_trade_pct": 0.50,
+    "max_concurrent_positions": 8,
+    "max_per_pair": 1,
+    "max_per_currency_exposure": 2,
+    "pair_weights": {
+        "USDCHF": 0.18,
+        "USDCAD": 0.15,
+        "EURUSD": 0.14,
+        "EURJPY": 0.13,
+        "AUDUSD": 0.12,
+        "GBPJPY": 0.10,
+        "USDJPY": 0.08,
+        "GBPUSD": 0.06,
+        "NZDUSD": 0.04
+    },
+    "tf_split": {
+        "USDCHF": {"H1": 0.95, "M30": 0.05},
+        "USDCAD": {"H1": 0.90, "M30": 0.10},
+        "EURUSD": {"H1": 0.85, "M30": 0.15},
+        "EURJPY": {"H1": 0.70, "M30": 0.30},
+        "AUDUSD": {"H1": 0.60, "M30": 0.40},
+        "GBPJPY": {"H1": 0.30, "M30": 0.70},
+        "USDJPY": {"H1": 0.90, "M30": 0.10},
+        "GBPUSD": {"H1": 0.60, "M30": 0.40},
+        "NZDUSD": {"H1": 0.00, "M30": 1.00}
+    },
+    "tiering": {
+        "tier_1": ["USDCHF", "USDCAD", "EURUSD", "EURJPY", "AUDUSD", "GBPJPY", "USDJPY", "GBPUSD"],
+        "tier_2": ["NZDUSD"],
+        "disabled": []
+    },
+    "regime_scalars": {
+        "REGIME_0": 1.00,
+        "REGIME_1": 0.80,
+        "REGIME_2": 0.50,
+        "REGIME_3": 0.00
+    },
+    "notes": "Colab team final allocation. Weights sum to 1.00. H1 dominant across all pairs except GBPJPY (M30 dominant due to residual_mlp dependency) and NZDUSD (M30 only)."
+}

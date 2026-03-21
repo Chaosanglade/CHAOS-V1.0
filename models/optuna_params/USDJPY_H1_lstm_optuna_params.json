@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 256,
+    "dropout": 0.13462464403384608,
+    "learning_rate": 0.002116534408269177,
+    "batch_size": 64
+  },
+  "best_pf": 4.843681355930418,
+  "brain": "lstm_optuna",
+  "pair": "USDJPY",
+  "tf": "H1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-22T04:21:13.855913"
+}

@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_estimators": 614,
+    "learning_rate": 0.04755282803989186,
+    "max_depth": 8,
+    "num_leaves": 43,
+    "min_child_samples": 59,
+    "reg_alpha": 0.10336003449388356,
+    "reg_lambda": 0.4801943379928181
+  },
+  "best_pf": 2.8362013028048594,
+  "brain": "lgb_v2_optuna",
+  "pair": "USDCAD",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:49:20.913644"
+}

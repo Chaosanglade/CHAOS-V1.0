@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 64,
+    "dropout": 0.11279763046702695,
+    "learning_rate": 0.00020933080577207548,
+    "batch_size": 128
+  },
+  "best_pf": 2.72622160383114,
+  "brain": "wavenet_optuna",
+  "pair": "USDJPY",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-22T10:04:16.458269"
+}

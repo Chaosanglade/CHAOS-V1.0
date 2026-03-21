@@ -1,0 +1,79 @@
+{
+  "source": "Run 4, IBKR_BASE, H1+M30 only",
+  "run_dir": "replay\\outputs\\runs\\20260304T162601Z",
+  "allocations": {
+    "EURUSD": 0.4,
+    "USDCAD": 0.35,
+    "AUDUSD": 0.25,
+    "GBPJPY": 0.1
+  },
+  "per_pair": {
+    "EURUSD": {
+      "trades": 338,
+      "final_pnl": 1484.6,
+      "max_dd": 54.46,
+      "pf": 5.15
+    },
+    "USDCAD": {
+      "trades": 743,
+      "final_pnl": 2867.19,
+      "max_dd": 74.07,
+      "pf": 3.79
+    },
+    "AUDUSD": {
+      "trades": 909,
+      "final_pnl": 2144.64,
+      "max_dd": 53.95,
+      "pf": 2.91
+    },
+    "GBPJPY": {
+      "trades": 144,
+      "final_pnl": 770.44,
+      "max_dd": 46.07,
+      "pf": 3.44
+    }
+  },
+  "correlation_matrix": {
+    "pairs": [
+      "EURUSD",
+      "USDCAD",
+      "AUDUSD",
+      "GBPJPY"
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.11081106888647525,
+        0.1455653480718555,
+        0.2381728902068963
+      ],
+      [
+        0.11081106888647525,
+        1.0,
+        0.2907134700458005,
+        0.28504512018196415
+      ],
+      [
+        0.1455653480718555,
+        0.2907134700458005,
+        1.0,
+        0.1893380165740585
+      ],
+      [
+        0.2381728902068963,
+        0.28504512018196415,
+        0.1893380165740585,
+        1.0
+      ]
+    ]
+  },
+  "portfolio": {
+    "sharpe": 7.14,
+    "total_pnl": 2009.6,
+    "max_dd": 27.03,
+    "win_days": 161,
+    "loss_days": 67,
+    "flat_days": 81,
+    "win_day_ratio": 70.6
+  }
+}

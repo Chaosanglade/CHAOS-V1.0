@@ -1,0 +1,88 @@
+{
+  "production_timeframes": [
+    "M5",
+    "M15",
+    "M30",
+    "H1"
+  ],
+  "pair_tf_total": 36,
+  "pair_tf_ready_for_21_brain": 0,
+  "pair_tf_partial_coverage": 31,
+  "pair_tf_zero_coverage": 5,
+  "brains_ready": 327,
+  "brains_needs_export": 912,
+  "brains_missing": 399,
+  "production_coverage_pct": 35.9,
+  "top_10_missing_pair_tf": [
+    {
+      "pair_tf": "EURJPY_M5",
+      "ready": 0,
+      "needs_export": 0,
+      "missing": 21,
+      "gap": 21
+    },
+    {
+      "pair_tf": "EURJPY_M15",
+      "ready": 0,
+      "needs_export": 0,
+      "missing": 21,
+      "gap": 21
+    },
+    {
+      "pair_tf": "GBPJPY_M5",
+      "ready": 0,
+      "needs_export": 0,
+      "missing": 21,
+      "gap": 21
+    },
+    {
+      "pair_tf": "GBPJPY_M15",
+      "ready": 0,
+      "needs_export": 0,
+      "missing": 21,
+      "gap": 21
+    },
+    {
+      "pair_tf": "GBPJPY_M30",
+      "ready": 0,
+      "needs_export": 0,
+      "missing": 21,
+      "gap": 21
+    },
+    {
+      "pair_tf": "USDCAD_M5",
+      "ready": 2,
+      "needs_export": 0,
+      "missing": 19,
+      "gap": 19
+    },
+    {
+      "pair_tf": "USDCAD_M15",
+      "ready": 2,
+      "needs_export": 0,
+      "missing": 19,
+      "gap": 19
+    },
+    {
+      "pair_tf": "USDCAD_M30",
+      "ready": 2,
+      "needs_export": 0,
+      "missing": 19,
+      "gap": 19
+    },
+    {
+      "pair_tf": "USDCHF_M5",
+      "ready": 2,
+      "needs_export": 0,
+      "missing": 19,
+      "gap": 19
+    },
+    {
+      "pair_tf": "USDCHF_M15",
+      "ready": 2,
+      "needs_export": 0,
+      "missing": 19,
+      "gap": 19
+    }
+  ]
+}

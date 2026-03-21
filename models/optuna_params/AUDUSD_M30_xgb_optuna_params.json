@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "n_estimators": 477,
+    "learning_rate": 0.09241958257780225,
+    "max_depth": 12,
+    "min_child_weight": 2,
+    "subsample": 0.7509670803069355,
+    "colsample_bytree": 0.7418844834411663,
+    "reg_alpha": 2.95824739619041e-07,
+    "reg_lambda": 0.0023546017696140864
+  },
+  "best_pf": 7.7523884202347375,
+  "brain": "xgb_optuna",
+  "pair": "AUDUSD",
+  "tf": "M30",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-26T20:26:06.311965"
+}

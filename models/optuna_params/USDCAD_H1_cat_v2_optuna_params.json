@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "iterations": 380,
+    "learning_rate": 0.07401822687315587,
+    "depth": 5,
+    "l2_leaf_reg": 3.4128536677829
+  },
+  "best_pf": 4.051889194988503,
+  "brain": "cat_v2_optuna",
+  "pair": "USDCAD",
+  "tf": "H1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-03T00:04:01.180617"
+}

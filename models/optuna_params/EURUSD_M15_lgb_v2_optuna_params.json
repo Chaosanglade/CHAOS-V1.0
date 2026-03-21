@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_estimators": 670,
+    "learning_rate": 0.017640634798014265,
+    "max_depth": 8,
+    "num_leaves": 45,
+    "min_child_samples": 125,
+    "reg_alpha": 2.770639351979244,
+    "reg_lambda": 0.9748301969103126
+  },
+  "best_pf": 2.7499572787649367,
+  "brain": "lgb_v2_optuna",
+  "pair": "EURUSD",
+  "tf": "M15",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-10T22:33:21.465515"
+}

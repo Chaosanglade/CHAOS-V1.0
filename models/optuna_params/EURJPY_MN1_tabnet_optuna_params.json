@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_d": 10,
+    "n_steps": 3,
+    "gamma": 1.045227288910538,
+    "n_independent": 1,
+    "n_shared": 2,
+    "lambda_sparse": 6.516990611177181e-06,
+    "mask_type": "sparsemax"
+  },
+  "best_pf": 13.573755229801426,
+  "brain": "tabnet_optuna",
+  "pair": "EURJPY",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:39:24.633433"
+}

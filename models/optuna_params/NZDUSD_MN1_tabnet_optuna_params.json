@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_d": 8,
+    "n_steps": 7,
+    "gamma": 1.7068573438476171,
+    "n_independent": 3,
+    "n_shared": 3,
+    "lambda_sparse": 1.6677615430197902e-06,
+    "mask_type": "sparsemax"
+  },
+  "best_pf": 4.747774194219678,
+  "brain": "tabnet_optuna",
+  "pair": "NZDUSD",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:46:13.937108"
+}

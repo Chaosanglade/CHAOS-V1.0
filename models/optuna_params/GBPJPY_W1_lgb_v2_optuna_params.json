@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_estimators": 311,
+    "learning_rate": 0.09129115219600122,
+    "max_depth": 7,
+    "num_leaves": 48,
+    "min_child_samples": 181,
+    "reg_alpha": 6.218704727769076,
+    "reg_lambda": 58.293845429947346
+  },
+  "best_pf": 0.88266654428077,
+  "brain": "lgb_v2_optuna",
+  "pair": "GBPJPY",
+  "tf": "W1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:17:20.562675"
+}

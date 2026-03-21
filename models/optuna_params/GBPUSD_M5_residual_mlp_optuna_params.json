@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 256,
+    "dropout": 0.2168953862007946,
+    "learning_rate": 0.00030112104580959825,
+    "batch_size": 128
+  },
+  "best_pf": 1.8464623906921835,
+  "brain": "residual_mlp_optuna",
+  "pair": "GBPUSD",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-15T21:19:37.413296"
+}

@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 256,
+    "dropout": 0.3746256032842081,
+    "learning_rate": 0.00923787650710468,
+    "batch_size": 256
+  },
+  "best_pf": 4.662230103178136,
+  "brain": "mlp_optuna",
+  "pair": "EURUSD",
+  "tf": "H1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-12T09:58:11.093768"
+}

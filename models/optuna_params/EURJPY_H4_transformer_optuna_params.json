@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 64,
+    "dropout": 0.13304437416021267,
+    "learning_rate": 0.007139796923487935,
+    "batch_size": 256
+  },
+  "best_pf": 3.396283373664067,
+  "brain": "transformer_optuna",
+  "pair": "EURJPY",
+  "tf": "H4",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-02T00:59:56.813147"
+}

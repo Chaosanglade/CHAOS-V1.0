@@ -1,0 +1,201 @@
+{
+  "generated": "2026-02-09",
+  "project": "CHAOS V1.0",
+  "location": "G:\\My Drive\\chaos_v1.0",
+
+  "codebase_stats": {
+    "total_python_files": 20,
+    "total_lines_of_code": 15000,
+    "core_file_lines": 10800,
+    "gpu_training_lines": 2800,
+    "rf_et_training_lines": 847
+  },
+
+  "model_types": [
+    "lgb_optuna",
+    "lgb_v2_optuna",
+    "xgb_optuna",
+    "xgb_v2_optuna",
+    "cat_optuna",
+    "cat_v2_optuna",
+    "tabnet_optuna",
+    "mlp_optuna",
+    "lstm_optuna",
+    "gru_optuna",
+    "transformer_optuna",
+    "cnn1d_optuna",
+    "tcn_optuna",
+    "wavenet_optuna",
+    "attention_net_optuna",
+    "residual_mlp_optuna",
+    "ensemble_nn_optuna",
+    "nbeats_optuna",
+    "tft_optuna",
+    "rf_optuna",
+    "et_optuna"
+  ],
+
+  "model_categories": {
+    "gradient_boosting_gpu": ["lgb_optuna", "lgb_v2_optuna", "xgb_optuna", "xgb_v2_optuna", "cat_optuna", "cat_v2_optuna", "tabnet_optuna"],
+    "neural_networks_gpu": ["mlp_optuna", "lstm_optuna", "gru_optuna", "transformer_optuna", "cnn1d_optuna", "tcn_optuna", "wavenet_optuna", "attention_net_optuna", "residual_mlp_optuna", "ensemble_nn_optuna", "nbeats_optuna", "tft_optuna"],
+    "tree_based_cpu": ["rf_optuna", "et_optuna"]
+  },
+
+  "training_grid": {
+    "pairs": ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD", "EURJPY", "GBPJPY"],
+    "timeframes": ["M1", "M5", "M15", "M30", "H1", "H4", "D1", "W1", "MN1"],
+    "total_combinations": 1701
+  },
+
+  "validation_method": {
+    "type": "Chronological split",
+    "train_pct": 0.80,
+    "val_pct": 0.20,
+    "execution_lag_bars": 1,
+    "purged_cv": false,
+    "walk_forward": false
+  },
+
+  "optimization": {
+    "framework": "Optuna",
+    "sampler": "TPESampler",
+    "metric": "Profit Factor",
+    "direction": "maximize",
+    "early_stopping_patience": 30,
+    "trade_frequency_penalty": {
+      "min_trade_ratio": 0.10,
+      "penalty_applied": "PF = 0.5 * (trade_ratio / 0.10)"
+    }
+  },
+
+  "class_handling": {
+    "num_classes": 3,
+    "labels": ["SHORT (0)", "FLAT (1)", "LONG (2)"],
+    "target_horizon_bars": 8,
+    "target_column": "target_3class_8",
+    "returns_column": "target_return_8",
+    "class_imbalance_handling": "balanced class weights"
+  },
+
+  "feature_engineering": {
+    "total_features": 275,
+    "feature_categories": [
+      "microstructure",
+      "behavioral",
+      "technical",
+      "volatility",
+      "momentum",
+      "regime"
+    ]
+  },
+
+  "cost_modeling": {
+    "slippage": {
+      "type": "Gaussian",
+      "EURUSD_mean_pips": 0.25,
+      "EURUSD_std_pips": 0.15
+    },
+    "spread_costs": false,
+    "commission": false,
+    "market_impact": false
+  },
+
+  "ensemble_method": {
+    "implemented": false,
+    "voting": null,
+    "stacking": null,
+    "diversity_filtering": null
+  },
+
+  "known_issues": [
+    {
+      "severity": "Critical",
+      "issue": "No purged cross-validation in production training",
+      "location": "chaos_gpu_training.py:516-523",
+      "impact": "Potential overfitting due to temporal leakage"
+    },
+    {
+      "severity": "Critical",
+      "issue": "No walk-forward validation",
+      "location": "All training scripts",
+      "impact": "Cannot assess model performance over time"
+    },
+    {
+      "severity": "Major",
+      "issue": "Potential lookahead bias in feature generation",
+      "location": "generate_missing_phase2.py:137,164",
+      "impact": ".shift(-4) uses future data"
+    },
+    {
+      "severity": "Major",
+      "issue": "RF/ET models showing suspicious PF (4.4 avg vs 1.6 for GPU)",
+      "location": "chaos_rf_et_training.py",
+      "impact": "Likely overfitting due to max_depth=18-20"
+    },
+    {
+      "severity": "Major",
+      "issue": "No transaction costs in PF calculation",
+      "location": "chaos_gpu_training.py:560-615",
+      "impact": "Overstated profitability"
+    },
+    {
+      "severity": "Major",
+      "issue": "No ensemble combination logic",
+      "location": "N/A",
+      "impact": "21 models trained but not combined"
+    },
+    {
+      "severity": "Minor",
+      "issue": "M1 timeframe excluded from local RF/ET training",
+      "location": "chaos_rf_et_training.py:61",
+      "impact": "M1 only trained on GPU"
+    }
+  ],
+
+  "recommended_approach": {
+    "type": "Hybrid",
+    "phase1": "Surgical fix for CV and cost model",
+    "phase2": "Parallel development of ensemble logic",
+    "phase3": "Walk-forward validation implementation",
+    "priority_files": [
+      "chaos_gpu_training.py",
+      "chaos_rf_et_training.py"
+    ]
+  },
+
+  "key_files": {
+    "main_training_gpu": "chaos_gpu_training.py",
+    "main_training_cpu": "chaos_rf_et_training.py",
+    "feature_engineering": "chaos_v1_0_core_FIXED.py",
+    "verification": ["verify_oom_fix.py", "verify_neural_networks.py", "preflight_check.py"],
+    "tests": "chaos_test_suite.py"
+  },
+
+  "hardware_requirements": {
+    "gpu": "NVIDIA RTX 4060 / T4 / V100 (8GB+ VRAM)",
+    "ram": "16GB minimum, 32GB for M1 timeframe",
+    "storage": "60GB (50GB features + 10GB models)"
+  },
+
+  "dependencies": {
+    "required": [
+      "numpy>=1.24.0",
+      "pandas>=2.0.0",
+      "torch>=2.1.0",
+      "lightgbm>=4.0.0",
+      "xgboost>=2.0.0",
+      "catboost>=1.2.0",
+      "pytorch_tabnet",
+      "optuna>=3.4.0",
+      "scikit-learn",
+      "joblib",
+      "pyarrow>=14.0.0"
+    ],
+    "optional": [
+      "shap>=0.44.0",
+      "hmmlearn>=0.3.0",
+      "networkx",
+      "psutil>=5.9.0"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 128,
+    "dropout": 0.4637281608315128,
+    "learning_rate": 0.00032927591344236165,
+    "batch_size": 64
+  },
+  "best_pf": 12.867136610112718,
+  "brain": "cnn1d_optuna",
+  "pair": "USDCAD",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:48:57.070687"
+}

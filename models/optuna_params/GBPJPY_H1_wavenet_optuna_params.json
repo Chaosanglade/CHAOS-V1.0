@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 128,
+    "dropout": 0.43341494010195447,
+    "learning_rate": 0.0019527969992803363,
+    "batch_size": 64
+  },
+  "best_pf": 2.463589685066359,
+  "brain": "wavenet_optuna",
+  "pair": "GBPJPY",
+  "tf": "H1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-02T17:56:06.636770"
+}

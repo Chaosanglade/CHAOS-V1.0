@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_d": 25,
+    "n_steps": 3,
+    "gamma": 1.5769962459094071,
+    "n_independent": 1,
+    "n_shared": 2,
+    "lambda_sparse": 3.725143688528499e-05,
+    "mask_type": "sparsemax"
+  },
+  "best_pf": 1.6950821035142503,
+  "brain": "tabnet_optuna",
+  "pair": "GBPJPY",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-13T06:44:09.504480"
+}

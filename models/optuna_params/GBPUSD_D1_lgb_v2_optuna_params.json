@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_estimators": 311,
+    "learning_rate": 0.09129115219600122,
+    "max_depth": 7,
+    "num_leaves": 48,
+    "min_child_samples": 181,
+    "reg_alpha": 6.218704727769076,
+    "reg_lambda": 58.293845429947346
+  },
+  "best_pf": 1.1171420641194754,
+  "brain": "lgb_v2_optuna",
+  "pair": "GBPUSD",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-17T23:21:28.558696"
+}

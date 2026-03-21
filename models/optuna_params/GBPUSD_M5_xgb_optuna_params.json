@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "n_estimators": 402,
+    "learning_rate": 0.16990460966986484,
+    "max_depth": 12,
+    "min_child_weight": 1,
+    "subsample": 0.9776783735622724,
+    "colsample_bytree": 0.6059978020268306,
+    "reg_alpha": 2.429475938475863e-07,
+    "reg_lambda": 2.618971243347772e-05
+  },
+  "best_pf": 3.006663981638999,
+  "brain": "xgb_optuna",
+  "pair": "GBPUSD",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-14T22:10:12.726034"
+}

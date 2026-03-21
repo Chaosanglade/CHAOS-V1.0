@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 365,
+    "max_depth": 20,
+    "min_samples_split": 4,
+    "min_samples_leaf": 2,
+    "max_features": null
+  },
+  "best_pf": 6.379385092228799,
+  "brain": "et_optuna",
+  "pair": "GBPUSD",
+  "tf": "M30",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

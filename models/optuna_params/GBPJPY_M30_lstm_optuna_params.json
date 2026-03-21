@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 256,
+    "dropout": 0.3536542205479984,
+    "learning_rate": 0.0006638590885934726,
+    "batch_size": 64
+  },
+  "best_pf": 4.445223574075333,
+  "brain": "lstm_optuna",
+  "pair": "GBPJPY",
+  "tf": "M30",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-04T06:46:50.756540"
+}

@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "iterations": 500,
+    "learning_rate": 0.20231673121871155,
+    "depth": 10,
+    "l2_leaf_reg": 0.0021545014604835637
+  },
+  "best_pf": 3.7189205444094986,
+  "brain": "cat_optuna",
+  "pair": "USDCHF",
+  "tf": "M15",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-09T23:17:29.138411"
+}

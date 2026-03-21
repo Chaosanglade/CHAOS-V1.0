@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "n_estimators": 378,
+    "learning_rate": 0.014501430006127596,
+    "max_depth": 8,
+    "min_child_weight": 2,
+    "subsample": 0.8080320114567721,
+    "colsample_bytree": 0.9187008589087277,
+    "reg_alpha": 0.00010396761370918986,
+    "reg_lambda": 0.0007641803830640891
+  },
+  "best_pf": 2.202347881698029,
+  "brain": "xgb_optuna",
+  "pair": "EURUSD",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-13T02:20:57.222372"
+}

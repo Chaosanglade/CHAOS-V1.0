@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 113,
+    "max_depth": 19,
+    "min_samples_split": 6,
+    "min_samples_leaf": 7,
+    "max_features": null
+  },
+  "best_pf": 4.64858798167033,
+  "brain": "et_optuna",
+  "pair": "AUDUSD",
+  "tf": "M15",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

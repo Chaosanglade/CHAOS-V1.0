@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 64,
+    "dropout": 0.1023988731823269,
+    "learning_rate": 0.003972192845559751,
+    "batch_size": 128
+  },
+  "best_pf": 2.2168442211445853,
+  "brain": "nbeats_optuna",
+  "pair": "GBPJPY",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-13T03:43:30.784760"
+}

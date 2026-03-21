@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 256,
+    "dropout": 0.26162871467236254,
+    "learning_rate": 0.00023371653022160785,
+    "batch_size": 128
+  },
+  "best_pf": 1.4704343125797998,
+  "brain": "attention_net_optuna",
+  "pair": "NZDUSD",
+  "tf": "M1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-21T04:53:11.349724"
+}

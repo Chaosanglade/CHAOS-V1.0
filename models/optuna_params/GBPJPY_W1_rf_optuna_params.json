@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 449,
+    "max_depth": 6,
+    "min_samples_split": 12,
+    "min_samples_leaf": 9,
+    "max_features": null
+  },
+  "best_pf": 1.1951040095369938,
+  "brain": "rf_optuna",
+  "pair": "GBPJPY",
+  "tf": "W1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

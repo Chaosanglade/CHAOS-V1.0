@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_estimators": 565,
+    "learning_rate": 0.06296400616550088,
+    "max_depth": 4,
+    "num_leaves": 20,
+    "min_child_samples": 151,
+    "reg_alpha": 0.971525064550355,
+    "reg_lambda": 0.5376876170705374
+  },
+  "best_pf": 2.387193128963945,
+  "brain": "lgb_v2_optuna",
+  "pair": "NZDUSD",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T22:19:35.242971"
+}

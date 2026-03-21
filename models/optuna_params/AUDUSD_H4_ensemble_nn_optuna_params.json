@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 64,
+    "dropout": 0.11549007998447322,
+    "learning_rate": 0.009423326114108493,
+    "batch_size": 64
+  },
+  "best_pf": 1.7051495246816137,
+  "brain": "ensemble_nn_optuna",
+  "pair": "AUDUSD",
+  "tf": "H4",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-27T13:25:27.081632"
+}

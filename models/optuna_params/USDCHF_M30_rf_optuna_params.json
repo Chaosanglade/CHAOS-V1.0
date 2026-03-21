@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 113,
+    "max_depth": 19,
+    "min_samples_split": 6,
+    "min_samples_leaf": 7,
+    "max_features": null
+  },
+  "best_pf": 7.363882691828057,
+  "brain": "rf_optuna",
+  "pair": "USDCHF",
+  "tf": "M30",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

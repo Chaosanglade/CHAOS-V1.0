@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 128,
+    "dropout": 0.4879639408647978,
+    "learning_rate": 0.004622589001020831,
+    "batch_size": 64
+  },
+  "best_pf": 5.933473155917637,
+  "brain": "nbeats_optuna",
+  "pair": "USDCAD",
+  "tf": "H1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-03T02:50:23.286897"
+}

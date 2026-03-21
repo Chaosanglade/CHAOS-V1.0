@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 64,
+    "dropout": 0.24198524085129103,
+    "learning_rate": 0.00044868088795315536,
+    "batch_size": 256
+  },
+  "best_pf": 3.5746015393304695,
+  "brain": "residual_mlp_optuna",
+  "pair": "EURJPY",
+  "tf": "M15",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-06T14:50:33.633289"
+}

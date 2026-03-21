@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_estimators": 425,
+    "learning_rate": 0.0862735828664018,
+    "max_depth": 7,
+    "num_leaves": 34,
+    "min_child_samples": 48,
+    "reg_alpha": 0.2937538457632829,
+    "reg_lambda": 0.14936568554617632
+  },
+  "best_pf": 2.224201892136638,
+  "brain": "lgb_v2_optuna",
+  "pair": "AUDUSD",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-27T14:00:24.741200"
+}

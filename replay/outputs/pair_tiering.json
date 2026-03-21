@@ -1,0 +1,144 @@
+{
+  "tiering_scenario": "STRESS_PLUS_75",
+  "tiering_rules": {
+    "tier_1": "PF >= 1.30 AND trades >= 200 (H1+M30 combined)",
+    "tier_2": "PF 1.15-1.30 (H1+M30 combined)",
+    "tier_3": "PF < 1.15 or inconsistent (H1+M30 combined)"
+  },
+  "tiers": {
+    "tier_1": [
+      {
+        "pair": "AUDUSD",
+        "stress_pf": 1.6807,
+        "trades": 1039,
+        "total_pnl": 1157.74,
+        "max_dd": 349.05,
+        "h1_pf": 2.0231,
+        "m30_pf": 1.5935,
+        "h1_trades": 192,
+        "m30_trades": 847,
+        "reasoning": "PF 1.68 >= 1.30, 1039 trades >= 200"
+      },
+      {
+        "pair": "EURUSD",
+        "stress_pf": 3.8297,
+        "trades": 310,
+        "total_pnl": 1201.2,
+        "max_dd": 68.84,
+        "h1_pf": 4.8619,
+        "m30_pf": 1.4991,
+        "h1_trades": 213,
+        "m30_trades": 97,
+        "reasoning": "PF 3.83 >= 1.30, 310 trades >= 200"
+      },
+      {
+        "pair": "USDCAD",
+        "stress_pf": 2.6907,
+        "trades": 681,
+        "total_pnl": 2065.93,
+        "max_dd": 165.17,
+        "h1_pf": 2.6895,
+        "m30_pf": 2.6924,
+        "h1_trades": 375,
+        "m30_trades": 306,
+        "reasoning": "PF 2.69 >= 1.30, 681 trades >= 200"
+      }
+    ],
+    "tier_2": [
+      {
+        "pair": "GBPJPY",
+        "stress_pf": 2.8492,
+        "trades": 136,
+        "total_pnl": 634.24,
+        "max_dd": 59.12,
+        "h1_pf": 2.8492,
+        "m30_pf": null,
+        "h1_trades": 136,
+        "m30_trades": 0,
+        "reasoning": "PF 2.85 in 1.15-1.30 range"
+      }
+    ],
+    "tier_3": [
+      {
+        "pair": "EURJPY",
+        "stress_pf": 0.4958,
+        "trades": 14,
+        "total_pnl": -31.37,
+        "max_dd": 35.93,
+        "h1_pf": null,
+        "m30_pf": 0.4958,
+        "h1_trades": 0,
+        "m30_trades": 14,
+        "reasoning": "PF 0.50 < 1.15, only 14 trades"
+      },
+      {
+        "pair": "GBPUSD",
+        "stress_pf": 0.9436,
+        "trades": 78,
+        "total_pnl": -18.57,
+        "max_dd": 65.55,
+        "h1_pf": 1.006,
+        "m30_pf": 0.0909,
+        "h1_trades": 72,
+        "m30_trades": 6,
+        "reasoning": "PF 0.94 < 1.15, only 78 trades"
+      },
+      {
+        "pair": "NZDUSD",
+        "stress_pf": 1.0723,
+        "trades": 305,
+        "total_pnl": 52.4,
+        "max_dd": 158.35,
+        "h1_pf": 1.1215,
+        "m30_pf": 0.8586,
+        "h1_trades": 245,
+        "m30_trades": 60,
+        "reasoning": "PF 1.07 < 1.15"
+      },
+      {
+        "pair": "USDCHF",
+        "stress_pf": 0.5097,
+        "trades": 64,
+        "total_pnl": -107.86,
+        "max_dd": 83.93,
+        "h1_pf": 0.1895,
+        "m30_pf": 0.6296,
+        "h1_trades": 14,
+        "m30_trades": 50,
+        "reasoning": "PF 0.51 < 1.15, only 64 trades"
+      },
+      {
+        "pair": "USDJPY",
+        "stress_pf": 0.9499,
+        "trades": 125,
+        "total_pnl": -11.13,
+        "max_dd": 188.65,
+        "h1_pf": 6.3145,
+        "m30_pf": 0.0,
+        "h1_trades": 15,
+        "m30_trades": 110,
+        "reasoning": "PF 0.95 < 1.15, only 125 trades"
+      }
+    ]
+  },
+  "summary": {
+    "tier_1_count": 3,
+    "tier_2_count": 1,
+    "tier_3_count": 5,
+    "tier_1_pairs": [
+      "AUDUSD",
+      "EURUSD",
+      "USDCAD"
+    ],
+    "tier_2_pairs": [
+      "GBPJPY"
+    ],
+    "disabled_pairs": [
+      "EURJPY",
+      "GBPUSD",
+      "NZDUSD",
+      "USDCHF",
+      "USDJPY"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 235,
+    "max_depth": 16,
+    "min_samples_split": 9,
+    "min_samples_leaf": 8,
+    "max_features": null
+  },
+  "best_pf": 6.3867882538012255,
+  "brain": "rf_optuna",
+  "pair": "EURUSD",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

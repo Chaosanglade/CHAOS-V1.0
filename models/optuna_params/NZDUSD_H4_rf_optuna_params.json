@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "n_estimators": 195,
+    "max_depth": 17,
+    "min_samples_split": 12,
+    "min_samples_leaf": 2,
+    "max_features": "log2"
+  },
+  "best_pf": 2.0195128489802396,
+  "brain": "rf_optuna",
+  "pair": "NZDUSD",
+  "tf": "H4",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8"
+}

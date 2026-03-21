@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 64,
+    "dropout": 0.11549007998447322,
+    "learning_rate": 0.0012431847161914872,
+    "batch_size": 128
+  },
+  "best_pf": 139.5977933403724,
+  "brain": "gru_optuna",
+  "pair": "GBPUSD",
+  "tf": "W1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-17T23:35:48.585125"
+}

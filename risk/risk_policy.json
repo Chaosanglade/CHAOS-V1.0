@@ -1,0 +1,45 @@
+{
+  "description": "Deterministic risk policy for V3.5 paper trading and V5 live trading. All limits are hard — no override permitted. Pre-RL: these are fixed rules. V4 RL will learn to optimize within these constraints.",
+  "version": "1.0.0",
+
+  "position_limits": {
+    "max_simultaneous_positions": 6,
+    "max_positions_per_pair": 1,
+    "max_positions_per_timeframe": 4,
+    "justification": "6 simultaneous positions across 9 pairs limits maximum correlated drawdown. 1 per pair prevents pyramiding. 4 per timeframe prevents timeframe concentration."
+  },
+
+  "exposure_limits": {
+    "max_usd_correlated_positions": 3,
+    "correlation_groups": {
+      "USD_long": ["EURUSD_SHORT", "GBPUSD_SHORT", "AUDUSD_SHORT", "NZDUSD_SHORT", "USDCAD_LONG", "USDCHF_LONG", "USDJPY_LONG"],
+      "USD_short": ["EURUSD_LONG", "GBPUSD_LONG", "AUDUSD_LONG", "NZDUSD_LONG", "USDCAD_SHORT", "USDCHF_SHORT", "USDJPY_SHORT"],
+      "JPY_long": ["USDJPY_SHORT", "EURJPY_SHORT", "GBPJPY_SHORT"],
+      "JPY_short": ["USDJPY_LONG", "EURJPY_LONG", "GBPJPY_LONG"]
+    },
+    "justification": "Max 3 USD-correlated positions caps portfolio beta to USD at ~60%. Same logic for JPY crosses. Based on correlation analysis: EUR/GBP/AUD/NZD pairs have 0.6-0.85 correlation to USD direction."
+  },
+
+  "drawdown_limits": {
+    "max_daily_drawdown_pips": 100,
+    "max_weekly_drawdown_pips": 250,
+    "max_total_drawdown_pips": 500,
+    "circuit_breaker_action": "close_all_and_halt",
+    "circuit_breaker_cooldown_hours": 24,
+    "justification": "Daily limit at 100 pips prevents single-day catastrophic loss. Weekly limit at 250 pips allows recovery. Total limit at 500 pips is the absolute stop — forces manual review before resuming."
+  },
+
+  "cooldown": {
+    "consecutive_losses_trigger": 5,
+    "cooldown_bars": 10,
+    "regime_hostile_cooldown_bars": 20,
+    "justification": "5 consecutive losses suggests regime change or model failure. 10-bar cooldown allows regime to stabilize. Hostile regime gets 20 bars — roughly 10 hours on M30."
+  },
+
+  "position_sizing": {
+    "method": "equal_weight",
+    "notes": "V3.5 uses equal weight (fixed lot size). V4 RL will optimize sizing. Do not implement Kelly or volatility sizing until RL layer is built.",
+    "max_lot_size": 0.5,
+    "min_lot_size": 0.01
+  }
+}

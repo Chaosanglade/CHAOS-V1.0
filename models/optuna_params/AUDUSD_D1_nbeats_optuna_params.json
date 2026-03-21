@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "hidden_size": 256,
+    "dropout": 0.4522760276352612,
+    "learning_rate": 0.0009326674852799085,
+    "batch_size": 64
+  },
+  "best_pf": 1.866398148209923,
+  "brain": "nbeats_optuna",
+  "pair": "AUDUSD",
+  "tf": "D1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-27T13:52:28.002571"
+}

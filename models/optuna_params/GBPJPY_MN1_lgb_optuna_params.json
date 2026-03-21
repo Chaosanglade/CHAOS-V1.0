@@ -1,0 +1,20 @@
+{
+  "best_params": {
+    "n_estimators": 383,
+    "learning_rate": 0.010725209743171997,
+    "max_depth": 12,
+    "num_leaves": 87,
+    "min_child_samples": 29,
+    "subsample": 0.6727299868828402,
+    "colsample_bytree": 0.6733618039413735,
+    "reg_alpha": 5.472429642032198e-06,
+    "reg_lambda": 0.00052821153945323
+  },
+  "best_pf": 0.3363374408940077,
+  "brain": "lgb_optuna",
+  "pair": "GBPJPY",
+  "tf": "MN1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-01T23:42:21.907032"
+}

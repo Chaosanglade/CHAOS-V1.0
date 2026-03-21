@@ -1,0 +1,18 @@
+{
+  "best_params": {
+    "n_d": 21,
+    "n_steps": 3,
+    "gamma": 1.9695846277645586,
+    "n_independent": 3,
+    "n_shared": 3,
+    "lambda_sparse": 0.00048359527764659497,
+    "mask_type": "entmax"
+  },
+  "best_pf": 3.221234852498406,
+  "brain": "tabnet_optuna",
+  "pair": "AUDUSD",
+  "tf": "M30",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-26T21:28:44.323675"
+}

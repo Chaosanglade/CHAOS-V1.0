@@ -1,0 +1,20 @@
+{
+  "best_params": {
+    "n_estimators": 378,
+    "learning_rate": 0.03420458410554987,
+    "max_depth": 8,
+    "num_leaves": 96,
+    "min_child_samples": 78,
+    "subsample": 0.8854318931882738,
+    "colsample_bytree": 0.6906842113783569,
+    "reg_alpha": 0.00033640322714725515,
+    "reg_lambda": 5.551095813652446e-08
+  },
+  "best_pf": 1.7233380965351186,
+  "brain": "lgb_optuna",
+  "pair": "GBPUSD",
+  "tf": "M1",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-02-13T05:13:59.558587"
+}

@@ -1,0 +1,779 @@
+{
+  "version": "ABLATION_V1_20260319",
+  "windows": {
+    "W1": {
+      "window": {
+        "name": "W1",
+        "test_start": "2024-01-01",
+        "test_end": "2024-03-31",
+        "label": "2024-01 to 03"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.067,
+          "trades": 1085,
+          "pnl": 1754.54,
+          "max_dd": 0.1432,
+          "sharpe_proxy": 1494.21,
+          "gross_win": 3398.94,
+          "gross_loss": 1644.4
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.3902,
+          "trades": 1231,
+          "pnl": 959.14,
+          "max_dd": 0.3108,
+          "sharpe_proxy": 564.47,
+          "gross_win": 3417.27,
+          "gross_loss": 2458.13
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.916,
+          "trades": 1122,
+          "pnl": -250.07,
+          "max_dd": 0.4595,
+          "sharpe_proxy": 0,
+          "gross_win": 2726.14,
+          "gross_loss": 2976.21
+        },
+        "gate": "PASS"
+      }
+    },
+    "W2": {
+      "window": {
+        "name": "W2",
+        "test_start": "2024-02-01",
+        "test_end": "2024-04-30",
+        "label": "2024-02 to 04"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.9164,
+          "trades": 1066,
+          "pnl": 1444.87,
+          "max_dd": 0.1337,
+          "sharpe_proxy": 1270.51,
+          "gross_win": 3021.46,
+          "gross_loss": 1576.6
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.3655,
+          "trades": 894,
+          "pnl": 590.96,
+          "max_dd": 0.2341,
+          "sharpe_proxy": 398.71,
+          "gross_win": 2208.01,
+          "gross_loss": 1617.04
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.8098,
+          "trades": 911,
+          "pnl": -426.79,
+          "max_dd": 0.4067,
+          "sharpe_proxy": 0,
+          "gross_win": 1816.7,
+          "gross_loss": 2243.49
+        },
+        "gate": "PASS"
+      }
+    },
+    "W3": {
+      "window": {
+        "name": "W3",
+        "test_start": "2024-03-01",
+        "test_end": "2024-05-31",
+        "label": "2024-03 to 05"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.6055,
+          "trades": 1095,
+          "pnl": 1015.9,
+          "max_dd": 0.1777,
+          "sharpe_proxy": 781.62,
+          "gross_win": 2693.57,
+          "gross_loss": 1677.67
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.1104,
+          "trades": 1022,
+          "pnl": 215.58,
+          "max_dd": 0.3961,
+          "sharpe_proxy": 112.77,
+          "gross_win": 2168.04,
+          "gross_loss": 1952.46
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.5135,
+          "trades": 936,
+          "pnl": -1282.82,
+          "max_dd": 0.8399,
+          "sharpe_proxy": 0,
+          "gross_win": 1354.22,
+          "gross_loss": 2637.03
+        },
+        "gate": "PASS"
+      }
+    },
+    "W4": {
+      "window": {
+        "name": "W4",
+        "test_start": "2024-04-01",
+        "test_end": "2024-06-30",
+        "label": "2024-04 to 06"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.7797,
+          "trades": 1257,
+          "pnl": 1463.43,
+          "max_dd": 0.1209,
+          "sharpe_proxy": 1348.28,
+          "gross_win": 3340.38,
+          "gross_loss": 1876.96
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.1996,
+          "trades": 1154,
+          "pnl": 447.51,
+          "max_dd": 0.2796,
+          "sharpe_proxy": 277.19,
+          "gross_win": 2689.11,
+          "gross_loss": 2241.6
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.7512,
+          "trades": 1289,
+          "pnl": -812.83,
+          "max_dd": 0.5725,
+          "sharpe_proxy": 0,
+          "gross_win": 2454.78,
+          "gross_loss": 3267.61
+        },
+        "gate": "PASS"
+      }
+    },
+    "W5": {
+      "window": {
+        "name": "W5",
+        "test_start": "2024-05-01",
+        "test_end": "2024-07-31",
+        "label": "2024-05 to 07"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.7579,
+          "trades": 1082,
+          "pnl": 1101.1,
+          "max_dd": 0.0587,
+          "sharpe_proxy": 1400.32,
+          "gross_win": 2553.87,
+          "gross_loss": 1452.77
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.1085,
+          "trades": 994,
+          "pnl": 189.76,
+          "max_dd": 0.216,
+          "sharpe_proxy": 133.05,
+          "gross_win": 1939.24,
+          "gross_loss": 1749.48
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.5995,
+          "trades": 1119,
+          "pnl": -1065.95,
+          "max_dd": 0.8235,
+          "sharpe_proxy": 0,
+          "gross_win": 1595.37,
+          "gross_loss": 2661.33
+        },
+        "gate": "PASS"
+      }
+    },
+    "W6": {
+      "window": {
+        "name": "W6",
+        "test_start": "2024-06-01",
+        "test_end": "2024-08-31",
+        "label": "2024-06 to 08"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 3.1474,
+          "trades": 736,
+          "pnl": 2160.16,
+          "max_dd": 0.0812,
+          "sharpe_proxy": 2384.33,
+          "gross_win": 3166.1,
+          "gross_loss": 1005.94
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.6435,
+          "trades": 894,
+          "pnl": 1157.44,
+          "max_dd": 0.2831,
+          "sharpe_proxy": 712.64,
+          "gross_win": 2956.12,
+          "gross_loss": 1798.68
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.9506,
+          "trades": 944,
+          "pnl": -130.87,
+          "max_dd": 0.9335,
+          "sharpe_proxy": 0,
+          "gross_win": 2520.63,
+          "gross_loss": 2651.5
+        },
+        "gate": "PASS"
+      }
+    },
+    "W7": {
+      "window": {
+        "name": "W7",
+        "test_start": "2024-07-01",
+        "test_end": "2024-09-30",
+        "label": "2024-07 to 09"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.9477,
+          "trades": 959,
+          "pnl": 1304.47,
+          "max_dd": 0.13,
+          "sharpe_proxy": 1162.11,
+          "gross_win": 2680.95,
+          "gross_loss": 1376.48
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.1445,
+          "trades": 1020,
+          "pnl": 289.5,
+          "max_dd": 0.3143,
+          "sharpe_proxy": 169.45,
+          "gross_win": 2292.94,
+          "gross_loss": 2003.44
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.6119,
+          "trades": 1035,
+          "pnl": -1090.51,
+          "max_dd": 0.6395,
+          "sharpe_proxy": 0,
+          "gross_win": 1719.31,
+          "gross_loss": 2809.83
+        },
+        "gate": "PASS"
+      }
+    },
+    "W8": {
+      "window": {
+        "name": "W8",
+        "test_start": "2024-08-01",
+        "test_end": "2024-10-31",
+        "label": "2024-08 to 10"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.6019,
+          "trades": 1251,
+          "pnl": 2981.77,
+          "max_dd": 0.0825,
+          "sharpe_proxy": 3268.0,
+          "gross_win": 4843.14,
+          "gross_loss": 1861.38
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.6324,
+          "trades": 1423,
+          "pnl": 1701.12,
+          "max_dd": 0.3351,
+          "sharpe_proxy": 965.25,
+          "gross_win": 4390.96,
+          "gross_loss": 2689.84
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.0638,
+          "trades": 1293,
+          "pnl": 211.9,
+          "max_dd": 0.5928,
+          "sharpe_proxy": 90.98,
+          "gross_win": 3534.14,
+          "gross_loss": 3322.23
+        },
+        "gate": "PASS"
+      }
+    },
+    "W9": {
+      "window": {
+        "name": "W9",
+        "test_start": "2024-09-01",
+        "test_end": "2024-11-30",
+        "label": "2024-09 to 11"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.917,
+          "trades": 1538,
+          "pnl": 4596.18,
+          "max_dd": 0.0772,
+          "sharpe_proxy": 5188.21,
+          "gross_win": 6993.78,
+          "gross_loss": 2397.61
+        },
+        "STRESS_PLUS_75": {
+          "pf": 2.3539,
+          "trades": 1280,
+          "pnl": 3207.79,
+          "max_dd": 0.2532,
+          "sharpe_proxy": 2084.21,
+          "gross_win": 5577.03,
+          "gross_loss": 2369.23
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.3867,
+          "trades": 1312,
+          "pnl": 1334.29,
+          "max_dd": 0.5074,
+          "sharpe_proxy": 618.32,
+          "gross_win": 4784.78,
+          "gross_loss": 3450.48
+        },
+        "gate": "PASS"
+      }
+    },
+    "W10": {
+      "window": {
+        "name": "W10",
+        "test_start": "2024-10-01",
+        "test_end": "2024-12-31",
+        "label": "2024-10 to 12"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.6668,
+          "trades": 1228,
+          "pnl": 3112.53,
+          "max_dd": 0.0687,
+          "sharpe_proxy": 3698.33,
+          "gross_win": 4979.85,
+          "gross_loss": 1867.32
+        },
+        "STRESS_PLUS_75": {
+          "pf": 2.1694,
+          "trades": 919,
+          "pnl": 1973.51,
+          "max_dd": 0.1972,
+          "sharpe_proxy": 1445.18,
+          "gross_win": 3661.15,
+          "gross_loss": 1687.64
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.4246,
+          "trades": 1044,
+          "pnl": 1061.06,
+          "max_dd": 0.6426,
+          "sharpe_proxy": 437.82,
+          "gross_win": 3559.95,
+          "gross_loss": 2498.89
+        },
+        "gate": "PASS"
+      }
+    },
+    "W11": {
+      "window": {
+        "name": "W11",
+        "test_start": "2024-11-01",
+        "test_end": "2025-01-31",
+        "label": "2024-11 to 01"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 3.0117,
+          "trades": 1500,
+          "pnl": 4391.69,
+          "max_dd": 0.0914,
+          "sharpe_proxy": 4597.17,
+          "gross_win": 6574.81,
+          "gross_loss": 2183.12
+        },
+        "STRESS_PLUS_75": {
+          "pf": 2.0547,
+          "trades": 1445,
+          "pnl": 2903.98,
+          "max_dd": 0.2802,
+          "sharpe_proxy": 1796.9,
+          "gross_win": 5657.3,
+          "gross_loss": 2753.31
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.3909,
+          "trades": 1444,
+          "pnl": 1481.42,
+          "max_dd": 0.4049,
+          "sharpe_proxy": 766.63,
+          "gross_win": 5270.73,
+          "gross_loss": 3789.31
+        },
+        "gate": "PASS"
+      }
+    },
+    "W12": {
+      "window": {
+        "name": "W12",
+        "test_start": "2024-12-01",
+        "test_end": "2025-02-28",
+        "label": "2024-12 to 02"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.7905,
+          "trades": 1300,
+          "pnl": 4240.44,
+          "max_dd": 0.1624,
+          "sharpe_proxy": 3404.25,
+          "gross_win": 6608.8,
+          "gross_loss": 2368.36
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.9607,
+          "trades": 1478,
+          "pnl": 3133.94,
+          "max_dd": 0.3573,
+          "sharpe_proxy": 1723.69,
+          "gross_win": 6396.02,
+          "gross_loss": 3262.07
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.4222,
+          "trades": 1337,
+          "pnl": 1648.79,
+          "max_dd": 0.4207,
+          "sharpe_proxy": 837.44,
+          "gross_win": 5554.28,
+          "gross_loss": 3905.49
+        },
+        "gate": "PASS"
+      }
+    },
+    "W13": {
+      "window": {
+        "name": "W13",
+        "test_start": "2025-01-01",
+        "test_end": "2025-03-31",
+        "label": "2025-01 to 03"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 4.4481,
+          "trades": 701,
+          "pnl": 3891.38,
+          "max_dd": 0.0617,
+          "sharpe_proxy": 4844.2,
+          "gross_win": 5019.93,
+          "gross_loss": 1128.56
+        },
+        "STRESS_PLUS_75": {
+          "pf": 3.4344,
+          "trades": 655,
+          "pnl": 3203.6,
+          "max_dd": 0.0933,
+          "sharpe_proxy": 3322.51,
+          "gross_win": 4519.56,
+          "gross_loss": 1315.96
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.8734,
+          "trades": 887,
+          "pnl": 2072.52,
+          "max_dd": 0.5296,
+          "sharpe_proxy": 940.46,
+          "gross_win": 4445.43,
+          "gross_loss": 2372.91
+        },
+        "gate": "PASS"
+      }
+    },
+    "W14": {
+      "window": {
+        "name": "W14",
+        "test_start": "2025-02-01",
+        "test_end": "2025-04-30",
+        "label": "2025-02 to 04"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.2898,
+          "trades": 1079,
+          "pnl": 2854.68,
+          "max_dd": 0.2814,
+          "sharpe_proxy": 1762.75,
+          "gross_win": 5067.91,
+          "gross_loss": 2213.23
+        },
+        "STRESS_PLUS_75": {
+          "pf": 2.0785,
+          "trades": 794,
+          "pnl": 2154.61,
+          "max_dd": 0.1034,
+          "sharpe_proxy": 2132.75,
+          "gross_win": 4152.36,
+          "gross_loss": 1997.75
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.3315,
+          "trades": 769,
+          "pnl": 841.99,
+          "max_dd": 0.1875,
+          "sharpe_proxy": 631.54,
+          "gross_win": 3382.13,
+          "gross_loss": 2540.14
+        },
+        "gate": "PASS"
+      }
+    },
+    "W15": {
+      "window": {
+        "name": "W15",
+        "test_start": "2025-03-01",
+        "test_end": "2025-05-31",
+        "label": "2025-03 to 05"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.1461,
+          "trades": 817,
+          "pnl": 2217.57,
+          "max_dd": 0.1076,
+          "sharpe_proxy": 2155.53,
+          "gross_win": 4152.44,
+          "gross_loss": 1934.86
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.7048,
+          "trades": 765,
+          "pnl": 1569.17,
+          "max_dd": 0.165,
+          "sharpe_proxy": 1250.34,
+          "gross_win": 3795.63,
+          "gross_loss": 2226.46
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.1673,
+          "trades": 723,
+          "pnl": 413.03,
+          "max_dd": 0.3455,
+          "sharpe_proxy": 230.91,
+          "gross_win": 2881.85,
+          "gross_loss": 2468.82
+        },
+        "gate": "PASS"
+      }
+    },
+    "W16": {
+      "window": {
+        "name": "W16",
+        "test_start": "2025-04-01",
+        "test_end": "2025-06-30",
+        "label": "2025-04 to 06"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.0207,
+          "trades": 606,
+          "pnl": 1250.76,
+          "max_dd": 0.0559,
+          "sharpe_proxy": 1624.08,
+          "gross_win": 2476.19,
+          "gross_loss": 1225.43
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.1583,
+          "trades": 895,
+          "pnl": 351.08,
+          "max_dd": 0.4135,
+          "sharpe_proxy": 179.83,
+          "gross_win": 2568.71,
+          "gross_loss": 2217.64
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.7628,
+          "trades": 764,
+          "pnl": -584.1,
+          "max_dd": 0.8666,
+          "sharpe_proxy": 0,
+          "gross_win": 1877.93,
+          "gross_loss": 2462.03
+        },
+        "gate": "PASS"
+      }
+    },
+    "W17": {
+      "window": {
+        "name": "W17",
+        "test_start": "2025-05-01",
+        "test_end": "2025-07-31",
+        "label": "2025-05 to 07"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.0113,
+          "trades": 916,
+          "pnl": 1836.98,
+          "max_dd": 0.1755,
+          "sharpe_proxy": 1421.71,
+          "gross_win": 3653.35,
+          "gross_loss": 1816.37
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.5114,
+          "trades": 824,
+          "pnl": 1038.48,
+          "max_dd": 0.2815,
+          "sharpe_proxy": 641.14,
+          "gross_win": 3069.09,
+          "gross_loss": 2030.61
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.9687,
+          "trades": 891,
+          "pnl": -86.26,
+          "max_dd": 0.643,
+          "sharpe_proxy": 0,
+          "gross_win": 2670.64,
+          "gross_loss": 2756.9
+        },
+        "gate": "PASS"
+      }
+    },
+    "W18": {
+      "window": {
+        "name": "W18",
+        "test_start": "2025-06-01",
+        "test_end": "2025-08-31",
+        "label": "2025-06 to 08"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.8064,
+          "trades": 1007,
+          "pnl": 1477.99,
+          "max_dd": 0.1761,
+          "sharpe_proxy": 1142.03,
+          "gross_win": 3310.74,
+          "gross_loss": 1832.76
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.3333,
+          "trades": 940,
+          "pnl": 702.5,
+          "max_dd": 0.2765,
+          "sharpe_proxy": 437.49,
+          "gross_win": 2810.19,
+          "gross_loss": 2107.69
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.7397,
+          "trades": 1185,
+          "pnl": -903.69,
+          "max_dd": 0.8439,
+          "sharpe_proxy": 0,
+          "gross_win": 2567.6,
+          "gross_loss": 3471.3
+        },
+        "gate": "PASS"
+      }
+    },
+    "W19": {
+      "window": {
+        "name": "W19",
+        "test_start": "2025-07-01",
+        "test_end": "2025-09-30",
+        "label": "2025-07 to 09"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 1.8766,
+          "trades": 905,
+          "pnl": 1229.2,
+          "max_dd": 0.133,
+          "sharpe_proxy": 1083.51,
+          "gross_win": 2631.43,
+          "gross_loss": 1402.23
+        },
+        "STRESS_PLUS_75": {
+          "pf": 2.1172,
+          "trades": 933,
+          "pnl": 2066.91,
+          "max_dd": 0.3255,
+          "sharpe_proxy": 1189.47,
+          "gross_win": 3916.91,
+          "gross_loss": 1850.0
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 1.4829,
+          "trades": 766,
+          "pnl": 994.22,
+          "max_dd": 0.4392,
+          "sharpe_proxy": 494.47,
+          "gross_win": 3052.97,
+          "gross_loss": 2058.76
+        },
+        "gate": "PASS"
+      }
+    },
+    "W20": {
+      "window": {
+        "name": "W20",
+        "test_start": "2025-08-01",
+        "test_end": "2025-10-31",
+        "label": "2025-08 to 10"
+      },
+      "results": {
+        "IBKR_BASE": {
+          "pf": 2.0958,
+          "trades": 1498,
+          "pnl": 2226.65,
+          "max_dd": 0.1109,
+          "sharpe_proxy": 2134.61,
+          "gross_win": 4258.66,
+          "gross_loss": 2032.01
+        },
+        "STRESS_PLUS_75": {
+          "pf": 1.4229,
+          "trades": 1331,
+          "pnl": 994.72,
+          "max_dd": 0.3328,
+          "sharpe_proxy": 566.32,
+          "gross_win": 3346.68,
+          "gross_loss": 2351.95
+        },
+        "VOLATILITY_SPIKE": {
+          "pf": 0.8599,
+          "trades": 1151,
+          "pnl": -370.28,
+          "max_dd": 0.6785,
+          "sharpe_proxy": 0,
+          "gross_win": 2271.94,
+          "gross_loss": 2642.22
+        },
+        "gate": "PASS"
+      }
+    }
+  },
+  "aggregate": {
+    "mean_pf_ibkr": 2.3452,
+    "mean_pf_stress": 1.6947,
+    "mean_pf_vol": 1.0513,
+    "worst_window": "W3",
+    "worst_pf": 1.6055,
+    "best_window": "W13",
+    "best_pf": 4.4481,
+    "windows_pass": 20,
+    "windows_total": 20,
+    "consistency_pct": 65.0,
+    "gate_verdict": "PASS"
+  },
+  "elapsed_seconds": 142911.0
+}

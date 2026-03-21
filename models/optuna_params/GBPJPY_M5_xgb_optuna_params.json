@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "n_estimators": 447,
+    "learning_rate": 0.11959898419480831,
+    "max_depth": 11,
+    "min_child_weight": 3,
+    "subsample": 0.762083644594574,
+    "colsample_bytree": 0.9387909100493431,
+    "reg_alpha": 1.0381768828260508e-07,
+    "reg_lambda": 0.003406654746843869
+  },
+  "best_pf": 2.9290587428730746,
+  "brain": "xgb_optuna",
+  "pair": "GBPJPY",
+  "tf": "M5",
+  "target_col": "target_3class_8",
+  "returns_col": "target_return_8",
+  "timestamp": "2026-03-13T17:53:03.113903"
+}
