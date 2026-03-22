@@ -1,0 +1,21 @@
+CHAOS PRODUCTION RUNBOOK
+
+1. Start VPS
+2. Launch IB Gateway
+3. Log in to paper account
+4. Confirm API enabled and port 7497
+5. Open PowerShell
+6. Run C:\CHAOS_PRODUCTION\runbooks\start_chaos_env.ps1
+7. Run C:\CHAOS_PRODUCTION\runbooks\run_connection_test.ps1
+8. Confirm CONNECTED / True
+9. Start inference server
+10. Start MT5
+11. Attach EA in paper mode only
+12. Verify logs in C:\CHAOS_PRODUCTION\logs
+
+FAIL CONDITIONS:
+- No API connection
+- Wrong port
+- Missing log entries
+- Unexpected duplicate orders
+- Trade outside H1/M30 role rules
