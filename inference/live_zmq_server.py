@@ -51,6 +51,11 @@ def load_production_handler():
     with open(PROJECT_ROOT / 'replay' / 'config' / 'portfolio_allocation.json') as f:
         portfolio_cfg = json.load(f)
 
+    with open(PROJECT_ROOT / 'replay' / 'config' / 'defensive_mode.json') as f:
+        defensive_cfg = json.load(f)
+    with open(PROJECT_ROOT / 'risk' / 'config' / 'instrument_specs.json') as f:
+        instrument_specs = json.load(f)
+
     logger.info(f"Quarantine: {quarantine_cfg['quarantine_version']}")
     logger.info(f"Global quarantine: {quarantine_cfg['global_quarantine']}")
 
@@ -104,6 +109,8 @@ def load_production_handler():
         quarantine_config=quarantine_cfg,
         portfolio_config=portfolio_cfg,
         feature_engine=feature_engine,
+        defensive_config=defensive_cfg,
+        instrument_specs=instrument_specs,
     )
 
     logger.info("Production handler ready")

@@ -222,12 +222,13 @@ class LiveFeatureEngine:
 class LiveInferenceHandler:
     """
     Receives raw bars from MT5 EA via ZeroMQ.
-    Computes features, runs ensemble inference, returns trade signal.
+    Computes features, runs ensemble inference, applies risk engine, returns trade signal.
     """
 
     def __init__(self, model_loader, regime_sim, ensemble_engine,
                  risk_controller, portfolio_state, quarantine_config,
-                 portfolio_config, feature_engine=None):
+                 portfolio_config, feature_engine=None,
+                 defensive_config=None, instrument_specs=None):
         self.model_loader = model_loader
         self.regime_sim = regime_sim
         self.ensemble = ensemble_engine
@@ -236,8 +237,18 @@ class LiveInferenceHandler:
         self.quarantine = quarantine_config
         self.portfolio_config = portfolio_config
         self.feature_engine = feature_engine or LiveFeatureEngine()
+        self.defensive_config = defensive_config or {}
+        self.instrument_specs = instrument_specs or {}
         self._confirm_signals = {}
-        logger.info("LiveInferenceHandler initialized")
+        self._defensive_active = False
+
+        # Pre-compute tiering sets for fast lookup
+        tiering = self.portfolio_config.get('tiering', {})
+        self._tier_1 = set(tiering.get('tier_1', []))
+        self._tier_2 = set(tiering.get('tier_2', []))
+        self._all_tradeable = self._tier_1 | self._tier_2
+
+        logger.info("LiveInferenceHandler initialized (risk engine + lot sizing wired)")
 
     def is_quarantined(self, brain_name, pair, tf):
         block_key = f"{pair}_{tf}"
@@ -256,8 +267,57 @@ class LiveInferenceHandler:
         return [(name, backend) for name, backend in models.items()
                 if not self.is_quarantined(name, pair, tf)]
 
+    def set_defensive_mode(self, active):
+        """Toggle defensive mode (triggered by volatility spike / spread blow-out)."""
+        if active != self._defensive_active:
+            self._defensive_active = active
+            logger.warning(f"DEFENSIVE MODE {'ACTIVATED' if active else 'DEACTIVATED'}")
+
+    def _compute_lot_size(self, pair, tf, regime_state, equity_usd):
+        """
+        Compute lot size using portfolio allocation weights + regime scalars.
+        EA may override with its own risk-based sizing, but we provide the
+        server-side suggestion for paper mode and logging.
+        """
+        pair_weight = self.portfolio_config.get('pair_weights', {}).get(pair, 0.05)
+        tf_split = self.portfolio_config.get('tf_split', {}).get(pair, {}).get(tf, 0.5)
+        regime_key = f'REGIME_{regime_state}'
+        regime_scalar = self.portfolio_config.get('regime_scalars', {}).get(regime_key, 0.5)
+        base_risk_pct = self.portfolio_config.get('base_risk_per_trade_pct', 0.50) / 100.0
+
+        if self._defensive_active:
+            regime_scalar *= self.defensive_config.get('rules', {}).get('risk_scalar', 0.5)
+
+        risk_amount = equity_usd * base_risk_pct * pair_weight * tf_split * regime_scalar
+
+        pip_value = self.instrument_specs.get('pip_value_usd_per_standard_lot', {}).get(pair, 10.0)
+        stop_pips = 50  # Conservative estimate; EA refines with ATR
+        lot_size = risk_amount / (stop_pips * pip_value) if pip_value > 0 else 0.01
+
+        min_lot = self.instrument_specs.get('min_lot', 0.01)
+        max_lot = self.instrument_specs.get('max_lot', 10.0)
+        lot_step = self.instrument_specs.get('lot_step', 0.01)
+        lot_size = max(min_lot, min(max_lot, lot_size))
+        lot_size = round(round(lot_size / lot_step) * lot_step, 2)
+        return lot_size
+
     def process_request(self, request):
-        """Process a live inference request from MT5 EA."""
+        """
+        Process a live inference request from MT5 EA.
+
+        Full pipeline:
+        1. Compute features from raw bars
+        2. Regime gating (4 states, confidence floor 0.60)
+        3. Quarantined 14-brain ensemble (trimmed mean + agreement)
+        4. TF role enforcement (H1/M30 trade, M15/M5 confirm)
+        5. Defensive mode check
+        6. Risk engine (7-level ExposureController)
+        7. Portfolio state tracking
+        8. Lot sizing from allocation weights
+        """
+        from datetime import datetime, timezone
+        from risk.engine.exposure_controller import OrderIntent
+
         pair = request.get('pair') or request.get('symbol', '')
         tf = request.get('tf') or request.get('timeframe', '')
         request_id = request.get('request_id', '')
@@ -266,6 +326,7 @@ class LiveInferenceHandler:
         t0 = time.perf_counter()
 
         try:
+            # --- Step 1: Compute features ---
             if request_type == 'RAW_BARS':
                 bars_dfs = self.feature_engine.bars_to_dataframe(request.get('bars', {}))
                 feature_vector = self.feature_engine.compute_features(bars_dfs, pair, tf)
@@ -274,26 +335,31 @@ class LiveInferenceHandler:
             else:
                 raise ValueError(f"Unknown request_type: {request_type}")
 
-            # Sanitize features
             feature_vector = np.nan_to_num(feature_vector, nan=0.0, posinf=0.0, neginf=0.0)
 
-            # Get active models (quarantine applied)
-            active_models = self.get_active_models(pair, tf)
+            # --- Step 2: Pair tiering check ---
+            if pair not in self._all_tradeable:
+                return self._skip_response(request_id, 'PAIR_NOT_IN_TIER', t0)
 
+            if self._defensive_active and pair not in self._tier_1:
+                return self._skip_response(request_id, 'DEFENSIVE_TIER_BLOCKED', t0)
+
+            # --- Step 3: Get active models (quarantine applied) ---
+            active_models = self.get_active_models(pair, tf)
             if not active_models:
                 return self._skip_response(request_id, 'NO_MODELS_AVAILABLE', t0)
 
-            # Regime check
+            # --- Step 4: Regime gating ---
             regime_state, regime_confidence = self.regime_sim.get_regime_state(pair, tf, 0)
             enabled_models = self.regime_sim.get_enabled_models(
                 {name: backend for name, backend in active_models},
                 tf, regime_state, regime_confidence
             )
-
             if not enabled_models:
-                return self._skip_response(request_id, 'REGIME_BLOCKED', t0, regime_state=regime_state)
+                return self._skip_response(request_id, 'REGIME_BLOCKED', t0,
+                                          regime_state=regime_state)
 
-            # Ensemble inference
+            # --- Step 5: Ensemble inference ---
             result = self.ensemble.run_inference(enabled_models, feature_vector)
 
             signal = result.get('signal_side', 0)
@@ -303,10 +369,15 @@ class LiveInferenceHandler:
             models_agreed = result.get('models_agreed', 0)
             reason_codes = []
 
-            # TF role check
+            # --- Step 6: TF role check ---
             tf_roles = {'H1': 'TRADE_ENABLED', 'M30': 'TRADE_ENABLED',
                         'M15': 'CONFIRM_ONLY', 'M5': 'CONFIRM_ONLY'}
             role = tf_roles.get(tf, 'CONFIRM_ONLY')
+
+            if self._defensive_active:
+                defensive_enabled = self.defensive_config.get('rules', {}).get('enabled_tfs', ['H1'])
+                if tf not in defensive_enabled:
+                    role = 'CONFIRM_ONLY'
 
             if role == 'CONFIRM_ONLY':
                 self._confirm_signals.setdefault(pair, {})[tf] = signal
@@ -316,68 +387,150 @@ class LiveInferenceHandler:
                                           models_voted=models_voted,
                                           models_agreed=models_agreed)
 
-            # Determine action
+            # --- Step 7: Agreement check ---
             min_agreement = self.ensemble.min_agreement
+            if self._defensive_active:
+                adj = self.defensive_config.get('rules', {}).get('agreement_threshold_adjustment', '+0.10')
+                min_agreement += float(adj.replace('+', ''))
+
             if agreement < min_agreement:
                 reason_codes.append('AGREEMENT_FAILED')
-                action = 'SKIP'
-            elif signal == 0:
-                action = 'HOLD'
-                reason_codes.append('SIGNAL_FLAT')
-            else:
-                # Check if we already have a position
-                has_pos = self.portfolio.has_position(pair, tf)
-                if signal != 0 and not has_pos:
-                    action = 'OPEN'
-                    reason_codes.append('AGREEMENT_PASS')
-                elif has_pos:
-                    # Check if signal reversed
+                return self._make_response(
+                    request_id, t0, signal=signal, confidence=confidence,
+                    agreement=agreement, regime_state=regime_state,
+                    action='SKIP', risk_approved=False,
+                    risk_reason='AGREEMENT_FAILED', reason_codes=['AGREEMENT_FAILED'],
+                    lot_size=0.0, models_voted=models_voted, models_agreed=models_agreed)
+
+            # --- Step 8: Determine action from signal + position state ---
+            has_pos = self.portfolio.has_position(pair, tf)
+            current_pos = self.portfolio.get_position(pair, tf)
+            action = 'HOLD'
+            reason_codes.append('AGREEMENT_PASS')
+
+            if signal == 0:
+                if has_pos:
                     action = 'CLOSE'
-                    reason_codes.append('SIGNAL_REVERSAL')
+                    reason_codes.append('SIGNAL_FLAT_CLOSE')
                 else:
                     action = 'HOLD'
+                    reason_codes.append('SIGNAL_FLAT')
+            elif has_pos:
+                if current_pos.side == signal:
+                    action = 'HOLD'  # Already aligned
+                    reason_codes.append('POSITION_ALIGNED')
+                else:
+                    action = 'CLOSE'  # Signal reversed
+                    reason_codes.append('SIGNAL_REVERSAL')
+            else:
+                action = 'OPEN'
 
-            # Lot size from portfolio config
-            pair_weight = self.portfolio_config.get('pair_weights', {}).get(pair, 0.05)
-            lot_size = round(pair_weight * 0.1, 2)  # Simplified; EA overrides with risk-based sizing
+            # --- Step 9: Risk engine check (for OPEN only) ---
+            equity_usd = 100000.0  # Default; EA has real equity
+            lot_size = 0.0
+            risk_reason = ''
+
+            if action == 'OPEN':
+                lot_size = self._compute_lot_size(pair, tf, regime_state, equity_usd)
+
+                # Defensive mode position cap
+                if self._defensive_active:
+                    max_def_pos = self.defensive_config.get('rules', {}).get('max_simultaneous_positions', 3)
+                    if self.portfolio.get_position_count() >= max_def_pos:
+                        return self._make_response(
+                            request_id, t0, signal=signal, confidence=confidence,
+                            agreement=agreement, regime_state=regime_state,
+                            action='SKIP', risk_approved=False,
+                            risk_reason='DEFENSIVE_POSITION_CAP',
+                            reason_codes=reason_codes + ['DEFENSIVE_POSITION_CAP'],
+                            lot_size=0.0, models_voted=models_voted,
+                            models_agreed=models_agreed)
+
+                # Run 7-level risk engine
+                now_utc = datetime.now(timezone.utc)
+                intent = OrderIntent(
+                    pair=pair, tf=tf, side=signal,
+                    qty_lots=lot_size,
+                    price=0.0  # Price not available server-side; EA has it
+                )
+                risk_result = self.risk.check(
+                    self.portfolio, intent, now_utc,
+                    regime_state=regime_state, equity_usd=equity_usd
+                )
+
+                if not risk_result['approved']:
+                    risk_reason = risk_result['reason']
+                    reason_codes.append(risk_reason)
+                    return self._make_response(
+                        request_id, t0, signal=signal, confidence=confidence,
+                        agreement=agreement, regime_state=regime_state,
+                        action='SKIP', risk_approved=False,
+                        risk_reason=risk_reason, reason_codes=reason_codes,
+                        lot_size=0.0, models_voted=models_voted,
+                        models_agreed=models_agreed)
+
+                # Risk approved — track the position
+                now_utc = datetime.now(timezone.utc)
+                trade_id = self.portfolio.allocate_trade_id(pair, tf, 'LIVE', now_utc)
+                self.portfolio.open_position(
+                    pair, tf, signal, lot_size, 0.0, now_utc, trade_id=trade_id
+                )
+                logger.info(f"OPEN {pair}_{tf} side={signal} lot={lot_size} trade={trade_id}")
+
+            elif action == 'CLOSE' and has_pos:
+                # Close tracked position
+                now_utc = datetime.now(timezone.utc)
+                self.portfolio.close_position(pair, tf, 0.0, now_utc)
+                logger.info(f"CLOSE {pair}_{tf}")
 
             latency_ms = (time.perf_counter() - t0) * 1000
+            risk_approved = action in ('OPEN', 'CLOSE')
 
-            return {
-                'signal': signal,
-                'confidence': round(confidence, 4),
-                'agreement_score': round(agreement, 4),
-                'regime_state': regime_state,
-                'risk_approved': action in ('OPEN', 'CLOSE'),
-                'risk_reason': '',
-                'action': action,
-                'reason_codes': '|'.join(sorted(reason_codes)),
-                'lot_size': lot_size,
-                'models_voted': models_voted,
-                'models_agreed': models_agreed,
-                'request_id': request_id,
-                'server_latency_ms': round(latency_ms, 2),
-            }
+            logger.info(f"{pair}_{tf}: signal={signal} conf={confidence:.2f} "
+                        f"agree={agreement:.2f} regime={regime_state} "
+                        f"action={action} lot={lot_size} "
+                        f"positions={self.portfolio.get_position_count()} "
+                        f"latency={latency_ms:.1f}ms")
+
+            return self._make_response(
+                request_id, t0, signal=signal, confidence=confidence,
+                agreement=agreement, regime_state=regime_state,
+                action=action, risk_approved=risk_approved,
+                risk_reason=risk_reason, reason_codes=reason_codes,
+                lot_size=lot_size, models_voted=models_voted,
+                models_agreed=models_agreed)
 
         except Exception as e:
             logger.error(f"Inference error for {pair}_{tf}: {e}", exc_info=True)
-            return self._skip_response(request_id, f'INFERENCE_ERROR', t0)
+            return self._skip_response(request_id, 'INFERENCE_ERROR', t0)
 
-    def _skip_response(self, request_id, reason, t0, signal=0, confidence=0.0,
-                       regime_state=1, models_voted=0, models_agreed=0):
+    def _make_response(self, request_id, t0, signal=0, confidence=0.0,
+                       agreement=0.0, regime_state=1, action='SKIP',
+                       risk_approved=False, risk_reason='', reason_codes=None,
+                       lot_size=0.0, models_voted=0, models_agreed=0):
+        """Build response in the exact format the EA expects."""
         latency_ms = (time.perf_counter() - t0) * 1000
+        codes = reason_codes or []
         return {
             'signal': signal,
-            'confidence': confidence,
-            'agreement_score': 0.0,
+            'confidence': round(confidence, 4),
+            'agreement_score': round(agreement, 4),
             'regime_state': regime_state,
-            'risk_approved': False,
-            'risk_reason': reason,
-            'action': 'SKIP',
-            'reason_codes': reason,
-            'lot_size': 0.0,
+            'risk_approved': risk_approved,
+            'risk_reason': risk_reason,
+            'action': action,
+            'reason_codes': '|'.join(sorted(codes)) if isinstance(codes, list) else str(codes),
+            'lot_size': lot_size,
             'models_voted': models_voted,
             'models_agreed': models_agreed,
             'request_id': request_id,
             'server_latency_ms': round(latency_ms, 2),
         }
+
+    def _skip_response(self, request_id, reason, t0, signal=0, confidence=0.0,
+                       regime_state=1, models_voted=0, models_agreed=0):
+        return self._make_response(
+            request_id, t0, signal=signal, confidence=confidence,
+            regime_state=regime_state, risk_reason=reason,
+            reason_codes=[reason], models_voted=models_voted,
+            models_agreed=models_agreed)
