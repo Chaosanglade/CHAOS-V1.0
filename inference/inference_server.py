@@ -141,15 +141,15 @@ class ChaosInferenceServer:
     def _load_scaler(self, models_path, pair, tf, brain):
         """Try to load the scaler from the original checkpoint."""
         import joblib as jl
-        import torch
 
-        # Try .pt first (neural network models)
+        # Try .pt first (neural network models) — requires torch
         pt_path = models_path / f"{pair}_{tf}_{brain}.pt"
         if pt_path.exists():
             try:
+                import torch
                 checkpoint = torch.load(str(pt_path), map_location='cpu', weights_only=False)
                 return checkpoint.get('scaler', None)
-            except Exception:
+            except (ImportError, Exception):
                 return None
 
         # Try .joblib (tree models)

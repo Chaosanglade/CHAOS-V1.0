@@ -34,9 +34,20 @@ logger = logging.getLogger('onnx_export')
 # =============================================================================
 # NEURAL NETWORK ARCHITECTURES (replicated from chaos_gpu_training.py)
 # These must match the training script EXACTLY for state_dict loading.
+# torch is optional — only needed for export functions, NOT for inference backends.
+# OnnxBackend and SklearnBackend work without torch installed.
 # =============================================================================
-import torch
-import torch.nn as nn
+try:
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
+except (ImportError, OSError):
+    TORCH_AVAILABLE = False
+    # Provide dummy nn.Module so class definitions parse without crashing.
+    # Classes will be defined but non-functional (never instantiated without torch).
+    import types
+    torch = None
+    nn = types.SimpleNamespace(Module=object)
 
 
 class MLPClassifier(nn.Module):
@@ -446,6 +457,7 @@ def _infer_model_params(brain, checkpoint, n_features):
     Infer model constructor parameters from checkpoint state_dict.
     The training script does not save model_config, so we must infer
     from the state_dict shapes.
+    Requires torch.
     """
     state_dict = checkpoint.get('model_state_dict', checkpoint)
 
@@ -560,6 +572,8 @@ def export_pytorch_to_onnx(model_path, output_path, input_size=None):
     Returns:
         output_path on success
     """
+    if not TORCH_AVAILABLE:
+        raise RuntimeError("torch is required for PyTorch ONNX export but is not installed")
     checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)
 
     if not isinstance(checkpoint, dict) or 'model_state_dict' not in checkpoint:
@@ -814,6 +828,8 @@ def validate_onnx_parity(pytorch_model, onnx_path, test_data, scaler=None, toler
     Returns:
         (bool, max_diff, mean_diff)
     """
+    if not TORCH_AVAILABLE:
+        raise RuntimeError("torch is required for parity validation but is not installed")
     import onnxruntime as ort
 
     # Scale if needed
