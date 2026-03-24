@@ -7,6 +7,7 @@ feature engine, runs ensemble inference with quarantine, and returns trade signa
 This bridges the gap between MT5 (which sends raw bars) and the ensemble
 (which expects 273-feature vectors).
 """
+import os
 import json
 import time
 import logging
@@ -16,7 +17,7 @@ from pathlib import Path
 
 logger = logging.getLogger('live_inference')
 
-PROJECT_ROOT = Path('G:/My Drive/chaos_v1.0')
+PROJECT_ROOT = Path(os.environ.get('CHAOS_BASE_DIR', os.getcwd()))
 
 
 class LiveFeatureEngine:

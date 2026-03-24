@@ -31,7 +31,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger('live_zmq_server')
 
-PROJECT_ROOT = Path('G:/My Drive/chaos_v1.0')
+PROJECT_ROOT = Path(os.environ.get('CHAOS_BASE_DIR', os.getcwd()))
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / 'inference'))
 
@@ -277,6 +277,8 @@ def run_file_bridge(bridge_dir=None):
 
 
 def main():
+    global PROJECT_ROOT
+
     parser = argparse.ArgumentParser(description='CHAOS V1.0 Live Inference Server')
     parser.add_argument('--mode', choices=['zmq', 'file_bridge'], default='zmq',
                        help='Communication mode (default: zmq)')
@@ -284,7 +286,17 @@ def main():
                        help='ZeroMQ endpoint (default: tcp://127.0.0.1:5555)')
     parser.add_argument('--bridge-dir', default=None,
                        help='File bridge directory (default: CHAOS_Bridge/)')
+    parser.add_argument('--base-dir', default=None,
+                       help='Project root (default: CHAOS_BASE_DIR env or cwd)')
     args = parser.parse_args()
+
+    if args.base_dir:
+        PROJECT_ROOT = Path(args.base_dir)
+        os.environ['CHAOS_BASE_DIR'] = args.base_dir
+        sys.path.insert(0, str(PROJECT_ROOT))
+        sys.path.insert(0, str(PROJECT_ROOT / 'inference'))
+
+    logger.info(f"Base directory: {PROJECT_ROOT}")
 
     if args.mode == 'zmq':
         run_zmq_server(args.endpoint)
