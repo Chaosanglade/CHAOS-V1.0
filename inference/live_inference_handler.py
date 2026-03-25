@@ -243,6 +243,15 @@ class LiveInferenceHandler:
         self._confirm_signals = {}
         self._defensive_active = False
 
+        # Load 273-feature adapter (replaces basic ~50-feature computation)
+        try:
+            from inference.live_feature_adapter import LiveFeatureAdapter
+            self._feature_adapter = LiveFeatureAdapter()
+            logger.info(f"273-feature adapter loaded ({self._feature_adapter.n_features} features)")
+        except Exception as e:
+            logger.warning(f"273-feature adapter not available, using basic features: {e}")
+            self._feature_adapter = None
+
         # Pre-compute tiering sets for fast lookup
         tiering = self.portfolio_config.get('tiering', {})
         self._tier_1 = set(tiering.get('tier_1', []))
@@ -329,8 +338,16 @@ class LiveInferenceHandler:
         try:
             # --- Step 1: Compute features ---
             if request_type == 'RAW_BARS':
-                bars_dfs = self.feature_engine.bars_to_dataframe(request.get('bars', {}))
-                feature_vector = self.feature_engine.compute_features(bars_dfs, pair, tf)
+                bars_raw = request.get('bars', {})
+                if self._feature_adapter is not None:
+                    feature_vector = self._feature_adapter.compute(pair, tf, bars_raw)
+                    if feature_vector is None:
+                        # Fallback to basic features
+                        bars_dfs = self.feature_engine.bars_to_dataframe(bars_raw)
+                        feature_vector = self.feature_engine.compute_features(bars_dfs, pair, tf)
+                else:
+                    bars_dfs = self.feature_engine.bars_to_dataframe(bars_raw)
+                    feature_vector = self.feature_engine.compute_features(bars_dfs, pair, tf)
             elif request_type == 'FEATURES':
                 feature_vector = np.array(request.get('features', []), dtype=np.float32)
             else:
