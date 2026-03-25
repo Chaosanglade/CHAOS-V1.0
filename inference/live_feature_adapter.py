@@ -141,7 +141,7 @@ class LiveFeatureAdapter:
         logger.info(f"LiveFeatureAdapter loaded: {self.n_features} features from schema")
 
     # -----------------------------------------------------------------------
-    def compute(self, pair, tf, bars_by_tf):
+    def compute(self, pair, tf, bars_by_tf, cross_pair_closes=None):
         """
         Compute 273 features from raw OHLCV bars.
 
@@ -150,6 +150,9 @@ class LiveFeatureAdapter:
             tf: primary timeframe e.g. 'H1'
             bars_by_tf: dict {tf_name: [bar_dicts]}
                 Each bar dict has: time, open, high, low, close, volume
+            cross_pair_closes: dict {pair_name: [close_prices]}
+                from BarCache.get_all_pair_closes(); used for USD/JPY index
+                and cross-pair correlations. None = zeros for cross features.
 
         Returns:
             np.array of shape (273,) ordered by schema, or None on failure
@@ -623,18 +626,8 @@ class LiveFeatureAdapter:
             F['wknd_hours_since_open'] = min(hrs_since_open, 120) / 120.0
             F['wknd_gap_risk'] = F['exec_gap_risk']
 
-            # Cross-asset (not available in single-pair mode — use momentum proxy)
-            F['corr_USDJPY_20'] = 0.0  # Would need USDJPY data
-            F['rel_strength'] = _roll_sum(ret, 20)[-1]
-            F['rel_strength_cum'] = _roll_sum(ret, 50)[-1]
-            F['rel_strength_rank'] = 0.5  # No cross-pair ranking available
-            F['usd_index'] = 0.0  # Would need USD index
-            F['usd_index_ma'] = 0.0
-            F['jpy_index'] = 0.0
-            F['jpy_index_ma'] = 0.0
-            F['cross_momentum_div_5'] = 0.0
-            F['cross_momentum_div_20'] = 0.0
-            F['vol_vs_basket'] = 1.0
+            # Cross-asset features from bar cache
+            F.update(self._compute_cross_asset(pair, ret, c, cross_pair_closes))
 
             # === Assemble into schema-ordered vector ===
             result = np.zeros(self.n_features, dtype=np.float32)
@@ -659,6 +652,130 @@ class LiveFeatureAdapter:
         except Exception as e:
             logger.error(f"Feature computation error for {pair}_{tf}: {e}", exc_info=True)
             return None
+
+    # ------------------------------------------------------------------
+    # Cross-asset features (USD/JPY index, correlations, rel strength)
+    # ------------------------------------------------------------------
+    # USD index weights: approximate DXY-like basket.
+    # Pairs where USD is BASE (USDXXX) contribute +weight to index when
+    # the pair rises; pairs where USD is QUOTE (XXXUSD) contribute -weight.
+    _USD_WEIGHTS = {
+        'EURUSD': -0.576, 'GBPUSD': -0.119, 'USDJPY': 0.136,
+        'USDCAD': 0.091, 'USDCHF': 0.036, 'AUDUSD': -0.021,
+        'NZDUSD': -0.011,
+    }
+    # JPY index: average of JPY crosses (inverted so higher = stronger JPY)
+    _JPY_PAIRS = {'USDJPY': -1.0, 'EURJPY': -1.0, 'GBPJPY': -1.0}
+
+    def _compute_cross_asset(self, pair, ret, close, cross_pair_closes):
+        """Compute the 11 cross-asset features using cached close prices."""
+        F = {}
+
+        if not cross_pair_closes:
+            cross_pair_closes = {}
+
+        # --- USD Index proxy ---
+        usd_rets = []
+        for p, w in self._USD_WEIGHTS.items():
+            closes = cross_pair_closes.get(p)
+            if closes and len(closes) >= 2:
+                arr = np.array(closes, dtype=np.float64)
+                r = np.diff(np.log(np.maximum(arr, 1e-10)))
+                usd_rets.append(w * r)
+        if usd_rets:
+            min_len = min(len(r) for r in usd_rets)
+            usd_idx = sum(r[-min_len:] for r in usd_rets)
+            usd_cum = np.cumsum(usd_idx)
+            F['usd_index'] = usd_cum[-1]
+            F['usd_index_ma'] = float(np.mean(usd_cum[-20:])) if len(usd_cum) >= 20 else usd_cum[-1]
+        else:
+            F['usd_index'] = 0.0
+            F['usd_index_ma'] = 0.0
+
+        # --- JPY Index proxy ---
+        jpy_rets = []
+        for p, w in self._JPY_PAIRS.items():
+            closes = cross_pair_closes.get(p)
+            if closes and len(closes) >= 2:
+                arr = np.array(closes, dtype=np.float64)
+                r = np.diff(np.log(np.maximum(arr, 1e-10)))
+                jpy_rets.append(w * r)
+        if jpy_rets:
+            min_len = min(len(r) for r in jpy_rets)
+            jpy_idx = sum(r[-min_len:] for r in jpy_rets)
+            jpy_cum = np.cumsum(jpy_idx)
+            F['jpy_index'] = jpy_cum[-1]
+            F['jpy_index_ma'] = float(np.mean(jpy_cum[-20:])) if len(jpy_cum) >= 20 else jpy_cum[-1]
+        else:
+            F['jpy_index'] = 0.0
+            F['jpy_index_ma'] = 0.0
+
+        # --- Cross-pair correlation with USDJPY ---
+        usdjpy_closes = cross_pair_closes.get('USDJPY')
+        if usdjpy_closes and len(usdjpy_closes) >= 22 and len(ret) >= 20:
+            usdjpy_arr = np.array(usdjpy_closes, dtype=np.float64)
+            usdjpy_ret = np.diff(np.log(np.maximum(usdjpy_arr, 1e-10)))
+            min_n = min(len(usdjpy_ret), len(ret))
+            if min_n >= 20:
+                corr = np.corrcoef(ret[-20:], usdjpy_ret[-20:])[0, 1]
+                F['corr_USDJPY_20'] = 0.0 if np.isnan(corr) else float(corr)
+            else:
+                F['corr_USDJPY_20'] = 0.0
+        else:
+            F['corr_USDJPY_20'] = 0.0
+
+        # --- Relative strength vs basket ---
+        pair_mom_20 = float(np.sum(ret[-20:])) if len(ret) >= 20 else 0.0
+        pair_mom_50 = float(np.sum(ret[-50:])) if len(ret) >= 50 else 0.0
+        F['rel_strength'] = pair_mom_20
+        F['rel_strength_cum'] = pair_mom_50
+
+        # Rank this pair's 20-bar momentum among all available pairs
+        all_mom_20 = []
+        for p, closes in cross_pair_closes.items():
+            if closes and len(closes) >= 22:
+                arr = np.array(closes, dtype=np.float64)
+                r = np.diff(np.log(np.maximum(arr, 1e-10)))
+                all_mom_20.append(float(np.sum(r[-20:])))
+        if all_mom_20 and len(all_mom_20) > 1:
+            rank = sum(1 for m in all_mom_20 if m < pair_mom_20) / len(all_mom_20)
+            F['rel_strength_rank'] = rank
+        else:
+            F['rel_strength_rank'] = 0.5
+
+        # --- Cross-momentum divergence ---
+        if all_mom_20:
+            basket_mom_20 = np.mean(all_mom_20)
+            F['cross_momentum_div_20'] = pair_mom_20 - basket_mom_20
+        else:
+            F['cross_momentum_div_20'] = 0.0
+
+        all_mom_5 = []
+        for p, closes in cross_pair_closes.items():
+            if closes and len(closes) >= 7:
+                arr = np.array(closes, dtype=np.float64)
+                r = np.diff(np.log(np.maximum(arr, 1e-10)))
+                all_mom_5.append(float(np.sum(r[-5:])))
+        pair_mom_5 = float(np.sum(ret[-5:])) if len(ret) >= 5 else 0.0
+        if all_mom_5:
+            F['cross_momentum_div_5'] = pair_mom_5 - np.mean(all_mom_5)
+        else:
+            F['cross_momentum_div_5'] = 0.0
+
+        # --- Volatility vs basket ---
+        pair_vol = float(np.std(ret[-20:])) if len(ret) >= 20 else 0.0
+        basket_vols = []
+        for p, closes in cross_pair_closes.items():
+            if closes and len(closes) >= 22:
+                arr = np.array(closes, dtype=np.float64)
+                r = np.diff(np.log(np.maximum(arr, 1e-10)))
+                basket_vols.append(float(np.std(r[-20:])))
+        if basket_vols:
+            F['vol_vs_basket'] = _safe_div(pair_vol, np.mean(basket_vols) + 1e-10)
+        else:
+            F['vol_vs_basket'] = 1.0
+
+        return F
 
     def get_feature_count(self):
         return self.n_features

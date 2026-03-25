@@ -220,6 +220,55 @@ class LiveFeatureEngine:
         return np.array(features[:self.n_features], dtype=np.float32)
 
 
+class BarCache:
+    """
+    Stores latest N bars per pair+TF as requests arrive from the EA.
+    Provides cross-pair data to the feature adapter for USD/JPY index
+    and cross-pair correlation features.
+    """
+
+    MAX_BARS = 500
+
+    def __init__(self):
+        self._cache = {}  # key: "EURUSD_H1" -> list of bar dicts
+
+    def update(self, pair, tf, bars_by_tf):
+        """Store bars from an EA request. Each TF in bars_by_tf is cached."""
+        for tf_key, bar_list in bars_by_tf.items():
+            if not bar_list:
+                continue
+            cache_key = f"{pair}_{tf_key}"
+            self._cache[cache_key] = bar_list[-self.MAX_BARS:]
+
+    def get_closes(self, pair, tf, n=500):
+        """Return last n close prices for a pair+TF, or None if unavailable."""
+        bars = self._cache.get(f"{pair}_{tf}")
+        if not bars:
+            return None
+        closes = []
+        for b in bars[-n:]:
+            c = b.get('close', b.get('Close'))
+            if c is not None:
+                closes.append(float(c))
+        return closes if len(closes) >= 20 else None
+
+    def get_all_pair_closes(self, tf, n=500):
+        """Return {pair: [closes]} for all pairs that have data on this TF."""
+        result = {}
+        for key, bars in self._cache.items():
+            if not key.endswith(f"_{tf}"):
+                continue
+            pair = key[: -(len(tf) + 1)]
+            closes = self.get_closes(pair, tf, n)
+            if closes is not None:
+                result[pair] = closes
+        return result
+
+    @property
+    def pairs_available(self):
+        return set(k.rsplit('_', 1)[0] for k in self._cache)
+
+
 class LiveInferenceHandler:
     """
     Receives raw bars from MT5 EA via ZeroMQ.
@@ -242,6 +291,9 @@ class LiveInferenceHandler:
         self.instrument_specs = instrument_specs or {}
         self._confirm_signals = {}
         self._defensive_active = False
+
+        # Bar cache for cross-pair features
+        self._bar_cache = BarCache()
 
         # Load 273-feature adapter (replaces basic ~50-feature computation)
         try:
@@ -339,10 +391,13 @@ class LiveInferenceHandler:
             # --- Step 1: Compute features ---
             if request_type == 'RAW_BARS':
                 bars_raw = request.get('bars', {})
+                # Update bar cache with this request's data
+                self._bar_cache.update(pair, tf, bars_raw)
                 if self._feature_adapter is not None:
-                    feature_vector = self._feature_adapter.compute(pair, tf, bars_raw)
+                    cross_closes = self._bar_cache.get_all_pair_closes(tf)
+                    feature_vector = self._feature_adapter.compute(
+                        pair, tf, bars_raw, cross_pair_closes=cross_closes)
                     if feature_vector is None:
-                        # Fallback to basic features
                         bars_dfs = self.feature_engine.bars_to_dataframe(bars_raw)
                         feature_vector = self.feature_engine.compute_features(bars_dfs, pair, tf)
                 else:
