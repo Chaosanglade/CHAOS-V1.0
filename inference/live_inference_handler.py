@@ -385,6 +385,14 @@ class LiveInferenceHandler:
         request_id = request.get('request_id', '')
         request_type = request.get('request_type', 'RAW_BARS')
 
+        # Fallback: extract pair/tf from request_id ("GBPUSD_H1_2026...")
+        if not pair and request_id:
+            parts = request_id.split('_')
+            if len(parts) >= 2:
+                pair = parts[0]
+                if not tf:
+                    tf = parts[1]
+
         t0 = time.perf_counter()
 
         try:

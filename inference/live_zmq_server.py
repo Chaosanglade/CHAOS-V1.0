@@ -147,8 +147,15 @@ def run_zmq_server(endpoint="tcp://127.0.0.1:5555"):
                 message = socket.recv_string()
                 request = json.loads(message)
 
+                # Unwrap file-bridge "payload" envelope if present
+                if 'payload' in request and isinstance(request['payload'], dict):
+                    inner = request['payload']
+                    if 'request_id' not in inner and 'request_id' in request:
+                        inner['request_id'] = request['request_id']
+                    request = inner
+
                 # Heartbeat
-                if request.get('type') == 'HEARTBEAT':
+                if request.get('type') in ('HEARTBEAT', 'heartbeat'):
                     socket.send_string(json.dumps({
                         'status': 'ALIVE',
                         'uptime_requests': request_count,
@@ -235,8 +242,16 @@ def run_file_bridge(bridge_dir=None):
                 # Acknowledge (prevents re-read)
                 ack_path.touch()
 
+                # File bridge wraps EA request inside "payload" — unwrap it
+                if 'payload' in request and isinstance(request['payload'], dict):
+                    inner = request['payload']
+                    # Carry over request_id from wrapper if missing in payload
+                    if 'request_id' not in inner and 'request_id' in request:
+                        inner['request_id'] = request['request_id']
+                    request = inner
+
                 # Heartbeat
-                if request.get('type') == 'HEARTBEAT':
+                if request.get('type') == 'HEARTBEAT' or request.get('type') == 'heartbeat':
                     response = {
                         'status': 'ALIVE',
                         'uptime_requests': request_count,
