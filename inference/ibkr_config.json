@@ -1,0 +1,29 @@
+{
+  "host": "127.0.0.1",
+  "port_paper": 7497,
+  "port_live": 7496,
+  "client_id": 1,
+  "pairs": {
+    "EURUSD": "EUR.USD",
+    "GBPUSD": "GBP.USD",
+    "USDJPY": "USD.JPY",
+    "AUDUSD": "AUD.USD",
+    "USDCAD": "USD.CAD",
+    "USDCHF": "USD.CHF",
+    "NZDUSD": "NZD.USD",
+    "EURJPY": "EUR.JPY",
+    "GBPJPY": "GBP.JPY"
+  },
+  "timeframes": ["H1", "M30"],
+  "bars_to_request": 500,
+  "order_type": "MKT",
+  "lot_to_units": 100000,
+  "kill_switch": {
+    "max_daily_loss_usd": 500,
+    "max_daily_trades": 50,
+    "max_open_positions": 8
+  },
+  "dashboard_interval_sec": 30,
+  "reconnect_delay_sec": 5,
+  "pacing_delay_sec": 2
+}
