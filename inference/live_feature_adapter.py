@@ -131,13 +131,24 @@ class LiveFeatureAdapter:
         # vec is np.array shape (273,) matching schema ordering
     """
 
-    def __init__(self, schema_path=None):
+    def __init__(self, schema_path=None, column_order_path=None):
         schema_path = schema_path or PROJECT_ROOT / 'schema' / 'feature_schema.json'
         with open(schema_path) as f:
             schema = json.load(f)
         self._feature_list = [entry['name'] for entry in schema['features']]
         self.n_features = len(self._feature_list)
         self._name_to_idx = {n: i for i, n in enumerate(self._feature_list)}
+
+        # Load per-pair+TF column ordering (maps schema features → model feature positions)
+        self._column_orders = {}
+        col_path = column_order_path or PROJECT_ROOT / 'schema' / 'feature_columns_by_pair_tf.json'
+        try:
+            with open(col_path) as f:
+                self._column_orders = json.load(f)
+            logger.info(f"Feature column orders loaded for {len(self._column_orders)} pair+TF combos")
+        except FileNotFoundError:
+            logger.warning("feature_columns_by_pair_tf.json not found — using schema order (may misalign)")
+
         logger.info(f"LiveFeatureAdapter loaded: {self.n_features} features from schema")
 
     # -----------------------------------------------------------------------
@@ -655,6 +666,33 @@ class LiveFeatureAdapter:
         except Exception as e:
             logger.error(f"Feature computation error for {pair}_{tf}: {e}", exc_info=True)
             return None
+
+    def reorder_for_model(self, schema_vec, pair, tf):
+        """
+        Reorder a 273-element schema-ordered vector into the training column
+        order expected by models for this pair+TF.
+
+        Models were trained on pair-specific feature sets (275-448 columns)
+        where pair-specific features are interleaved with the 273 schema
+        features.  This method maps schema features to their correct
+        positions and fills pair-specific slots with 0.
+
+        Returns np.array of shape (n_model_features,) or the original
+        schema_vec if no column order mapping is available.
+        """
+        key = f"{pair}_{tf}"
+        col_order = self._column_orders.get(key)
+        if col_order is None:
+            return schema_vec  # No mapping — use schema order as-is
+
+        n_model = len(col_order)
+        result = np.zeros(n_model, dtype=np.float32)
+        for j, col_name in enumerate(col_order):
+            if col_name in self._name_to_idx:
+                result[j] = schema_vec[self._name_to_idx[col_name]]
+            # else: pair-specific feature → stays 0
+
+        return result
 
     # ------------------------------------------------------------------
     # Cross-asset features (USD/JPY index, correlations, rel strength)

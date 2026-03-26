@@ -405,7 +405,11 @@ class LiveInferenceHandler:
                     cross_closes = self._bar_cache.get_all_pair_closes(tf)
                     feature_vector = self._feature_adapter.compute(
                         pair, tf, bars_raw, cross_pair_closes=cross_closes)
-                    if feature_vector is None:
+                    if feature_vector is not None:
+                        # Reorder from 273 schema order → training column order for this pair+TF
+                        feature_vector = self._feature_adapter.reorder_for_model(
+                            feature_vector, pair, tf)
+                    else:
                         bars_dfs = self.feature_engine.bars_to_dataframe(bars_raw)
                         feature_vector = self.feature_engine.compute_features(bars_dfs, pair, tf)
                 else:
