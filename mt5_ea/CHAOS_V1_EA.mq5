@@ -115,7 +115,7 @@ int OnInit()
    else
       Print("WARNING: Server not responding. Will retry on timer.");
 
-   // Validate symbols
+   // Validate symbols and prime history for all pairs + TFs
    int validPairs = 0;
    for(int i = 0; i < CHAOS_NUM_PAIRS; i++)
    {
@@ -123,6 +123,15 @@ int OnInit()
       if(SymbolSelect(sym, true))
       {
          validPairs++;
+         // Force MT5 to load history for each TF by requesting 1 bar.
+         // Without this, iTime() returns 0 for non-chart symbols.
+         MqlRates rates[];
+         int copied_h1  = CopyRates(sym, PERIOD_H1,  0, 1, rates);
+         int copied_m30 = CopyRates(sym, PERIOD_M30, 0, 1, rates);
+         int copied_m15 = CopyRates(sym, PERIOD_M15, 0, 1, rates);
+         int copied_m5  = CopyRates(sym, PERIOD_M5,  0, 1, rates);
+         Print("  ", sym, " history loaded: H1=", copied_h1, " M30=", copied_m30,
+               " M15=", copied_m15, " M5=", copied_m5);
       }
       else
       {

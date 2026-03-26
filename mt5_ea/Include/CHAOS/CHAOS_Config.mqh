@@ -14,6 +14,7 @@
 //| EA Identity                                                       |
 //+------------------------------------------------------------------+
 #define CHAOS_MAGIC_NUMBER     20260306
+#define CHAOS_MAGIC            CHAOS_MAGIC_NUMBER
 #define CHAOS_EA_COMMENT       "CHAOS_V1"
 
 //+------------------------------------------------------------------+
@@ -90,6 +91,7 @@ const string CHAOS_TF_NAMES[] = {
 //| Data Settings                                                     |
 //+------------------------------------------------------------------+
 #define BARS_TO_SEND           500    // bars per TF sent to Python server
+#define CHAOS_BARS_TO_SEND     BARS_TO_SEND
 
 //+------------------------------------------------------------------+
 //| Baseline Spreads (pips) — used for spread spike detection         |
