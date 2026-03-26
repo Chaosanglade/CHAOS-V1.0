@@ -1,0 +1,111 @@
+{
+  "version": "THIN_V1_20260326",
+  "description": "Eligible-only ensemble from brain_audit. 17 brains across 12 blocks. Single-brain blocks bypass agreement; 2-brain blocks require unanimous.",
+  "source": "inference/brain_audit_results.json",
+  "agreement_rules": {
+    "single_brain": "direct_signal",
+    "two_brains": "unanimous",
+    "three_plus": "majority_0.50"
+  },
+  "blocks": {
+    "EURUSD_H1": {
+      "brains": ["cat_v2_optuna", "lgb_v2_optuna"],
+      "rule": "unanimous",
+      "note": "cat_v2 50.8%F/49.2%S, lgb_v2 65.6%F/20.6%L/13.8%S"
+    },
+    "EURUSD_M30": {
+      "brains": [],
+      "rule": "disabled",
+      "note": "No eligible brains"
+    },
+    "GBPUSD_H1": {
+      "brains": ["lgb_optuna"],
+      "rule": "direct_signal",
+      "note": "43.6%F/4.0%L/52.4%S, 1002 trades"
+    },
+    "GBPUSD_M30": {
+      "brains": ["lgb_v2_optuna"],
+      "rule": "direct_signal",
+      "note": "27.6%F/72.4%S, 2206 trades"
+    },
+    "USDJPY_H1": {
+      "brains": ["cat_v2_optuna"],
+      "rule": "direct_signal",
+      "note": "63.0%F/9.6%L/27.4%S, 3129 trades"
+    },
+    "USDJPY_M30": {
+      "brains": [],
+      "rule": "disabled",
+      "note": "No eligible brains"
+    },
+    "AUDUSD_H1": {
+      "brains": [],
+      "rule": "disabled",
+      "note": "No eligible brains"
+    },
+    "AUDUSD_M30": {
+      "brains": ["xgb_v2_optuna"],
+      "rule": "direct_signal",
+      "note": "29.8%F/69.8%S, 4838 trades"
+    },
+    "USDCAD_H1": {
+      "brains": ["cat_v2_optuna", "xgb_v2_optuna"],
+      "rule": "unanimous",
+      "note": "cat_v2 66.2%F/33.0%S, xgb_v2 62.8%F/36.8%S"
+    },
+    "USDCAD_M30": {
+      "brains": [],
+      "rule": "disabled",
+      "note": "No eligible brains"
+    },
+    "USDCHF_H1": {
+      "brains": ["lgb_v2_optuna", "xgb_v2_optuna"],
+      "rule": "unanimous",
+      "note": "lgb_v2 62.8%F/26.2%L/11.0%S, xgb_v2 63.2%F/36.4%S"
+    },
+    "USDCHF_M30": {
+      "brains": [],
+      "rule": "disabled",
+      "note": "No eligible brains"
+    },
+    "NZDUSD_H1": {
+      "brains": ["cat_v2_optuna"],
+      "rule": "direct_signal",
+      "note": "63.8%F/25.2%L/11.0%S, 2793 trades"
+    },
+    "NZDUSD_M30": {
+      "brains": [],
+      "rule": "disabled",
+      "note": "No eligible brains"
+    },
+    "EURJPY_H1": {
+      "brains": ["cat_v2_optuna"],
+      "rule": "direct_signal",
+      "note": "63.6%F/33.0%L/3.4%S, 2254 trades"
+    },
+    "EURJPY_M30": {
+      "brains": ["lgb_v2_optuna", "xgb_v2_optuna"],
+      "rule": "unanimous",
+      "note": "lgb_v2 56.2%F/41.6%L, xgb_v2 53.2%F/15.4%L/31.4%S"
+    },
+    "GBPJPY_H1": {
+      "brains": ["cat_optuna", "cat_v2_optuna"],
+      "rule": "unanimous",
+      "note": "cat 13.6%F/84.6%S, cat_v2 67.0%F/32.2%S"
+    },
+    "GBPJPY_M30": {
+      "brains": ["lgb_v2_optuna"],
+      "rule": "direct_signal",
+      "note": "66.0%F/28.8%L/5.2%S, 4206 trades"
+    }
+  },
+  "coverage_summary": {
+    "total_blocks": 18,
+    "enabled_blocks": 12,
+    "disabled_blocks": 6,
+    "single_brain_blocks": 7,
+    "two_brain_blocks": 5,
+    "unique_brains": ["cat_optuna", "cat_v2_optuna", "lgb_optuna", "lgb_v2_optuna", "xgb_v2_optuna"],
+    "disabled_list": ["EURUSD_M30", "USDJPY_M30", "AUDUSD_H1", "USDCAD_M30", "USDCHF_M30", "NZDUSD_M30"]
+  }
+}

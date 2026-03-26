@@ -304,6 +304,22 @@ class LiveInferenceHandler:
             logger.warning(f"273-feature adapter not available, using basic features: {e}")
             self._feature_adapter = None
 
+        # Load thin ensemble config (eligible brains only)
+        self._thin_ensemble = None
+        try:
+            import os as _os
+            _base = Path(_os.environ.get('CHAOS_BASE_DIR', _os.getcwd()))
+            _thin_path = _base / 'replay' / 'config' / 'thin_ensemble.json'
+            if _thin_path.exists():
+                with open(_thin_path) as _f:
+                    self._thin_ensemble = json.load(_f)
+                n_enabled = sum(1 for b in self._thin_ensemble.get('blocks', {}).values()
+                                if b.get('rule') != 'disabled')
+                logger.info(f"Thin ensemble loaded: {n_enabled} enabled blocks "
+                            f"(v={self._thin_ensemble.get('version', '?')})")
+        except Exception as e:
+            logger.warning(f"Thin ensemble not loaded, using full ensemble: {e}")
+
         # Pre-compute tiering sets for fast lookup
         tiering = self.portfolio_config.get('tiering', {})
         self._tier_1 = set(tiering.get('tier_1', []))
@@ -429,63 +445,154 @@ class LiveInferenceHandler:
             if self._defensive_active and pair not in self._tier_1:
                 return self._skip_response(request_id, 'DEFENSIVE_TIER_BLOCKED', t0)
 
-            # --- Step 3: Get active models (quarantine applied) ---
-            active_models = self.get_active_models(pair, tf)
-            if not active_models:
-                return self._skip_response(request_id, 'NO_MODELS_AVAILABLE', t0)
-
-            # --- Step 4: Regime gating ---
-            regime_state, regime_confidence = self.regime_sim.get_regime_state(pair, tf, 0)
-            enabled_models = self.regime_sim.get_enabled_models(
-                {name: backend for name, backend in active_models},
-                tf, regime_state, regime_confidence
-            )
-            if not enabled_models:
-                return self._skip_response(request_id, 'REGIME_BLOCKED', t0,
-                                          regime_state=regime_state)
-
-            # --- Step 5: Ensemble inference ---
-            result = self.ensemble.run_inference(enabled_models, feature_vector)
-
-            signal = result.get('signal_side', 0)
-            confidence = result.get('confidence', 0)
-            agreement = result.get('agreement_score', 0)
-            models_voted = result.get('models_voted', 0)
-            models_agreed = result.get('models_agreed', 0)
-            reason_codes = []
-
-            # --- Step 6: TF role check ---
+            # --- Step 3: TF role check ---
             tf_roles = {'H1': 'TRADE_ENABLED', 'M30': 'TRADE_ENABLED',
                         'M15': 'CONFIRM_ONLY', 'M5': 'CONFIRM_ONLY'}
             role = tf_roles.get(tf, 'CONFIRM_ONLY')
-
             if self._defensive_active:
                 defensive_enabled = self.defensive_config.get('rules', {}).get('enabled_tfs', ['H1'])
                 if tf not in defensive_enabled:
                     role = 'CONFIRM_ONLY'
-
             if role == 'CONFIRM_ONLY':
-                self._confirm_signals.setdefault(pair, {})[tf] = signal
-                return self._skip_response(request_id, 'TF_CONFIRM_ONLY', t0,
-                                          signal=signal, confidence=confidence,
-                                          regime_state=regime_state,
-                                          models_voted=models_voted,
-                                          models_agreed=models_agreed)
+                return self._skip_response(request_id, 'TF_CONFIRM_ONLY', t0)
 
-            # --- Step 7: Agreement check ---
-            min_agreement = self.ensemble.min_agreement
-            if self._defensive_active:
-                adj = self.defensive_config.get('rules', {}).get('agreement_threshold_adjustment', '+0.10')
-                min_agreement += float(adj.replace('+', ''))
+            # --- Step 4: Regime gating ---
+            regime_state, regime_confidence = self.regime_sim.get_regime_state(pair, tf, 0)
 
-            if agreement < min_agreement:
-                reason_codes.append('AGREEMENT_FAILED')
-                return self._make_response(
-                    request_id, t0, signal=signal, confidence=confidence,
-                    agreement=agreement, regime_state=regime_state,
-                    action='SKIP', risk_approved=False,
-                    risk_reason='AGREEMENT_FAILED', reason_codes=['AGREEMENT_FAILED'],
-                    lot_size=0.0, models_voted=models_voted, models_agreed=models_agreed)
+            # --- Step 5: Thin ensemble inference ---
+            block_key = f"{pair}_{tf}"
+            thin_block = (self._thin_ensemble or {}).get('blocks', {}).get(block_key)
+
+            if thin_block and thin_block.get('rule') != 'disabled':
+                # Thin ensemble path: use ONLY eligible brains
+                eligible_brains = thin_block.get('brains', [])
+                rule = thin_block.get('rule', 'direct_signal')
+
+                if not eligible_brains:
+                    return self._skip_response(request_id, 'THIN_NO_BRAINS', t0,
+                                              regime_state=regime_state)
+
+                # Load only eligible models
+                pair_tf = f"{pair}_{tf}"
+                all_models = self.model_loader.get_models(pair_tf) or {}
+                selected = {name: backend for name, backend in all_models.items()
+                            if name in eligible_brains}
+
+                if not selected:
+                    return self._skip_response(request_id, 'THIN_MODELS_NOT_LOADED', t0,
+                                              regime_state=regime_state)
+
+                # Run each eligible brain
+                predictions = {}
+                for brain_name, backend in selected.items():
+                    try:
+                        fv = feature_vector.reshape(1, -1).astype(np.float32)
+                        n_expected = getattr(backend, 'n_features_', None)
+                        if n_expected is None:
+                            try:
+                                n_expected = backend.session.get_inputs()[0].shape[1]
+                            except Exception:
+                                n_expected = fv.shape[1]
+                        if fv.shape[1] > n_expected:
+                            fv = fv[:, :n_expected]
+                        elif fv.shape[1] < n_expected:
+                            padded = np.zeros((1, n_expected), dtype=np.float32)
+                            padded[:, :fv.shape[1]] = fv
+                            fv = padded
+                        probs = backend.predict_proba(fv)[0]
+                        if len(probs) >= 3:
+                            predictions[brain_name] = probs
+                    except Exception as e:
+                        logger.debug(f"Thin ensemble: {brain_name} failed: {e}")
+
+                if not predictions:
+                    return self._skip_response(request_id, 'THIN_INFERENCE_FAILED', t0,
+                                              regime_state=regime_state)
+
+                models_voted = len(predictions)
+                signal_map = {0: -1, 1: 0, 2: 1}  # SHORT, FLAT, LONG
+                reason_codes = []
+
+                if rule == 'direct_signal' and models_voted == 1:
+                    # Single brain: its prediction IS the signal
+                    brain_name, probs = next(iter(predictions.items()))
+                    pred_class = int(np.argmax(probs))
+                    signal = signal_map[pred_class]
+                    confidence = float(probs[pred_class])
+                    agreement = 1.0
+                    models_agreed = 1
+                    reason_codes.append('THIN_DIRECT')
+
+                elif rule == 'unanimous' and models_voted >= 2:
+                    # All brains must agree on the same class
+                    classes = [int(np.argmax(p)) for p in predictions.values()]
+                    if len(set(classes)) == 1:
+                        pred_class = classes[0]
+                        all_probs = np.array(list(predictions.values()))
+                        signal = signal_map[pred_class]
+                        confidence = float(np.mean(all_probs[:, pred_class]))
+                        agreement = 1.0
+                        models_agreed = models_voted
+                        reason_codes.append('THIN_UNANIMOUS')
+                    else:
+                        # Disagreement → FLAT
+                        signal = 0
+                        confidence = 0.0
+                        agreement = 0.0
+                        models_agreed = 0
+                        reason_codes.append('THIN_DISAGREE')
+
+                else:
+                    # Fallback: majority with 0.50 threshold
+                    all_probs = np.array(list(predictions.values()))
+                    avg_probs = all_probs.mean(axis=0)
+                    pred_class = int(np.argmax(avg_probs))
+                    agreed = sum(1 for p in all_probs if np.argmax(p) == pred_class)
+                    agreement = agreed / models_voted
+                    if agreement >= 0.50:
+                        signal = signal_map[pred_class]
+                        confidence = float(avg_probs[pred_class])
+                        models_agreed = agreed
+                        reason_codes.append('THIN_MAJORITY')
+                    else:
+                        signal = 0
+                        confidence = 0.0
+                        models_agreed = 0
+                        reason_codes.append('THIN_NO_MAJORITY')
+
+            else:
+                # No thin ensemble config or block disabled — fall back to full ensemble
+                active_models = self.get_active_models(pair, tf)
+                if not active_models:
+                    return self._skip_response(request_id, 'NO_MODELS_AVAILABLE', t0)
+
+                enabled_models = self.regime_sim.get_enabled_models(
+                    {name: backend for name, backend in active_models},
+                    tf, regime_state, regime_confidence
+                )
+                if not enabled_models:
+                    return self._skip_response(request_id, 'REGIME_BLOCKED', t0,
+                                              regime_state=regime_state)
+
+                result = self.ensemble.run_inference(enabled_models, feature_vector)
+                signal = result.get('signal_side', 0)
+                confidence = result.get('confidence', 0)
+                agreement = result.get('agreement_score', 0)
+                models_voted = result.get('models_voted', 0)
+                models_agreed = result.get('models_agreed', 0)
+                reason_codes = []
+
+                min_agreement = self.ensemble.min_agreement
+                if self._defensive_active:
+                    adj = self.defensive_config.get('rules', {}).get('agreement_threshold_adjustment', '+0.10')
+                    min_agreement += float(adj.replace('+', ''))
+                if agreement < min_agreement:
+                    return self._make_response(
+                        request_id, t0, signal=signal, confidence=confidence,
+                        agreement=agreement, regime_state=regime_state,
+                        action='SKIP', risk_approved=False,
+                        risk_reason='AGREEMENT_FAILED', reason_codes=['AGREEMENT_FAILED'],
+                        lot_size=0.0, models_voted=models_voted, models_agreed=models_agreed)
 
             # --- Step 8: Determine action from signal + position state ---
             has_pos = self.portfolio.has_position(pair, tf)
