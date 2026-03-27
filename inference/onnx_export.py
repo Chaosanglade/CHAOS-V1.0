@@ -778,6 +778,16 @@ class OnnxBackend:
         X = features.astype(np.float32)
         if self.scaler is not None:
             X = self.scaler.transform(X).astype(np.float32)
+        # Zero-pad or truncate if model expects different feature count
+        expected = self.session.get_inputs()[0].shape
+        if len(expected) > 1 and expected[1] is not None and isinstance(expected[1], int):
+            n_expected = expected[1]
+            if X.shape[1] < n_expected:
+                padded = np.zeros((X.shape[0], n_expected), dtype=np.float32)
+                padded[:, :X.shape[1]] = X
+                X = padded
+            elif X.shape[1] > n_expected:
+                X = X[:, :n_expected]
         ort_input = {self.input_name: X}
         results = self.session.run(None, ort_input)
 

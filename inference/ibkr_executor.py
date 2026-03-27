@@ -68,6 +68,13 @@ class _OnnxBackendLite:
 
     def predict_proba(self, X):
         X = np.nan_to_num(X.astype(np.float32), nan=0, posinf=0, neginf=0)
+        # Zero-pad if model expects more features than provided
+        if self.n_features_ and X.shape[1] < self.n_features_:
+            padded = np.zeros((X.shape[0], self.n_features_), dtype=np.float32)
+            padded[:, :X.shape[1]] = X
+            X = padded
+        elif self.n_features_ and X.shape[1] > self.n_features_:
+            X = X[:, :self.n_features_]
         results = self.session.run(None, {self.session.get_inputs()[0].name: X})
         if len(results) >= 2:
             probs_raw = results[1]
