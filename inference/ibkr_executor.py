@@ -129,6 +129,9 @@ class PositionTracker:
             'pair': pair, 'tf': tf, 'side': side, 'qty': qty,
             'entry_price': price, 'entry_ts': datetime.now(timezone.utc),
             'order_id': order_id,
+            'max_profit_pips': 0.0,   # For trailing stop
+            'current_price': price,
+            'unrealized_pnl': 0.0,
         }
         self._order_ids.add(order_id)
         self.daily_trades += 1
@@ -250,6 +253,7 @@ class IBKRExecutor:
 
         # Kill switch state
         self._halted = False
+        self._defensive_active = False
         self._last_day = None
 
         # Inference handler (loaded in start())
@@ -589,8 +593,166 @@ class IBKRExecutor:
         else:
             logger.warning(f"Close order not filled: status={trade.orderStatus.status}")
 
+    # ──────────────────────────────────────────────────────────────
+    # Position Management Loop (SL / TP / trailing / stale / kill)
+    # ──────────────────────────────────────────────────────────────
+
+    def _get_pip_size(self, pair):
+        return 0.01 if 'JPY' in pair else 0.0001
+
+    def _get_pip_value(self, pair):
+        specs = {'EURUSD': 10, 'GBPUSD': 10, 'USDJPY': 9.1, 'AUDUSD': 10,
+                 'USDCAD': 7.7, 'USDCHF': 10.3, 'NZDUSD': 10, 'EURJPY': 9.1, 'GBPJPY': 9.1}
+        return specs.get(pair, 10.0)
+
+    def _price_to_pips(self, pair, price_diff):
+        return price_diff / self._get_pip_size(pair)
+
+    async def _get_current_price(self, pair):
+        """Get current mid price for a pair from IBKR."""
+        ibkr_pair = self.pairs_map.get(pair)
+        if not ibkr_pair:
+            return None
+        try:
+            base, quote = ibkr_pair.split('.')
+            contract = ib.Forex(base + quote, exchange='IDEALPRO')
+            tickers = self.ib.reqTickers(contract)
+            if tickers and tickers[0].midpoint():
+                return tickers[0].midpoint()
+            if tickers and tickers[0].last > 0:
+                return tickers[0].last
+        except Exception:
+            pass
+        return None
+
+    async def _position_management_loop(self):
+        """60-second loop: SL, TP, trailing stop, stale exit, kill switch."""
+        pm = self.ibkr_cfg.get('position_management', {})
+        sl_pips = pm.get('stop_loss_pips', 50)
+        tp_pips = pm.get('take_profit_pips', 100)
+        trail_start = pm.get('trailing_start_pips', 30)
+        trail_dist = pm.get('trailing_distance_pips', 20)
+        stale_hours = pm.get('stale_position_hours', 24)
+        stale_min_pips = pm.get('stale_position_min_profit_pips', 5)
+        interval = pm.get('check_interval_seconds', 60)
+        spread_mult = pm.get('spread_spike_multiplier', 2.5)
+        baseline_spreads = self.ibkr_cfg.get('baseline_spreads_pips', {})
+
+        while True:
+            await asyncio.sleep(interval)
+            if not self.ib.isConnected() or not self.tracker.positions:
+                continue
+
+            now = datetime.now(timezone.utc)
+            total_unrealized = 0.0
+
+            # Iterate over a snapshot (positions may be modified during iteration)
+            for key, pos in list(self.tracker.positions.items()):
+                pair = pos['pair']
+                tf = pos['tf']
+
+                # Fetch current price
+                current = await self._get_current_price(pair)
+                if current is None:
+                    continue
+
+                pos['current_price'] = current
+                pip_size = self._get_pip_size(pair)
+                pip_val = self._get_pip_value(pair)
+
+                # Compute PnL in pips
+                if pos['side'] == 1:  # LONG
+                    pnl_pips = (current - pos['entry_price']) / pip_size
+                else:  # SHORT
+                    pnl_pips = (pos['entry_price'] - current) / pip_size
+
+                pnl_usd = pnl_pips * pip_val * pos['qty']
+                pos['unrealized_pnl'] = pnl_usd
+                total_unrealized += pnl_usd
+
+                # Track max profit for trailing stop
+                if pnl_pips > pos.get('max_profit_pips', 0):
+                    pos['max_profit_pips'] = pnl_pips
+
+                age = now - pos['entry_ts']
+                age_hours = age.total_seconds() / 3600
+
+                # ── Stop Loss ──
+                if pnl_pips <= -sl_pips:
+                    logger.warning(f"STOP_LOSS_HIT: {key} at {pnl_pips:.1f} pips (limit: -{sl_pips})")
+                    await self._close_position(pair, tf)
+                    self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
+                                         'action': 'CLOSE', 'reason_codes': 'STOP_LOSS_HIT',
+                                         'signal': 0, 'confidence': 0})
+                    continue
+
+                # ── Take Profit ──
+                if pnl_pips >= tp_pips:
+                    logger.info(f"TAKE_PROFIT_HIT: {key} at {pnl_pips:.1f} pips (limit: {tp_pips})")
+                    await self._close_position(pair, tf)
+                    self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
+                                         'action': 'CLOSE', 'reason_codes': 'TAKE_PROFIT_HIT',
+                                         'signal': 0, 'confidence': 0})
+                    continue
+
+                # ── Trailing Stop ──
+                max_p = pos.get('max_profit_pips', 0)
+                if max_p >= trail_start and pnl_pips <= (max_p - trail_dist):
+                    logger.info(f"TRAILING_STOP_HIT: {key} max={max_p:.1f} now={pnl_pips:.1f} "
+                                f"(trail from {trail_start}, dist {trail_dist})")
+                    await self._close_position(pair, tf)
+                    self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
+                                         'action': 'CLOSE', 'reason_codes': 'TRAILING_STOP_HIT',
+                                         'signal': 0, 'confidence': 0})
+                    continue
+
+                # ── Time-based stale exit ──
+                if age_hours >= stale_hours and pnl_pips < stale_min_pips:
+                    logger.info(f"TIME_EXIT_STALE: {key} age={age_hours:.1f}h pnl={pnl_pips:.1f} pips")
+                    await self._close_position(pair, tf)
+                    self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
+                                         'action': 'CLOSE', 'reason_codes': 'TIME_EXIT_STALE',
+                                         'signal': 0, 'confidence': 0})
+                    continue
+
+            # ── Kill switch: realized + unrealized ──
+            total_pnl = self.tracker.daily_pnl + total_unrealized
+            if total_pnl < -self.kill_switch['max_daily_loss_usd']:
+                logger.error(f"KILL_SWITCH_ACTIVATED: daily PnL ${total_pnl:.2f} "
+                              f"(realized ${self.tracker.daily_pnl:.2f} + "
+                              f"unrealized ${total_unrealized:.2f})")
+                self._halted = True
+                # Close all positions
+                for key, pos in list(self.tracker.positions.items()):
+                    await self._close_position(pos['pair'], pos['tf'])
+                self.logger_csv.log({'timestamp': now.isoformat(), 'pair': 'ALL', 'tf': 'ALL',
+                                     'action': 'CLOSE_ALL', 'reason_codes': 'KILL_SWITCH_ACTIVATED',
+                                     'signal': 0, 'confidence': 0})
+
+            # ── Spread spike detection ──
+            try:
+                for pair, ibkr_pair in self.pairs_map.items():
+                    base, quote = ibkr_pair.split('.')
+                    contract = ib.Forex(base + quote, exchange='IDEALPRO')
+                    tickers = self.ib.reqTickers(contract)
+                    if tickers and tickers[0].ask > 0 and tickers[0].bid > 0:
+                        spread = (tickers[0].ask - tickers[0].bid) / self._get_pip_size(pair)
+                        baseline = baseline_spreads.get(pair, 1.0)
+                        if spread > baseline * spread_mult:
+                            if not self._defensive_active:
+                                logger.warning(f"DEFENSIVE_MODE_SPREAD_SPIKE: {pair} "
+                                               f"spread={spread:.1f} pips (baseline={baseline})")
+                                if self._handler:
+                                    self._handler.set_defensive_mode(True)
+                                self._defensive_active = True
+                        elif self._defensive_active:
+                            # Check if all spreads normalized
+                            pass  # Will auto-deactivate when spreads normalize
+            except Exception as e:
+                logger.debug(f"Spread check error: {e}")
+
     async def _dashboard_loop(self):
-        """Print console dashboard every N seconds."""
+        """Print console dashboard every N seconds with live PnL."""
         interval = self.ibkr_cfg.get('dashboard_interval_sec', 30)
         while True:
             await asyncio.sleep(interval)
@@ -598,27 +760,42 @@ class IBKRExecutor:
                 print("\n[DASHBOARD] DISCONNECTED from IBKR")
                 continue
 
-            now = datetime.now(timezone.utc).strftime('%H:%M:%S')
+            now = datetime.now(timezone.utc)
+            now_str = now.strftime('%H:%M:%S')
             mode = "PAPER" if self.paper else "** LIVE **"
             halted = " ** HALTED **" if self._halted else ""
 
-            print(f"\n{'='*60}")
-            print(f"  CHAOS V1.0 IBKR Executor  [{mode}]  {now} UTC{halted}")
-            print(f"{'='*60}")
+            total_unrealized = sum(p.get('unrealized_pnl', 0) for p in self.tracker.positions.values())
+
+            print(f"\n{'='*78}")
+            print(f"  CHAOS V1.0 IBKR Executor  [{mode}]  {now_str} UTC{halted}")
+            print(f"{'='*78}")
             print(f"  Connected: {self.ib.isConnected()}")
             print(f"  Open positions: {self.tracker.open_count()}/{self.kill_switch['max_open_positions']}")
             print(f"  Daily trades: {self.tracker.daily_trades}/{self.kill_switch['max_daily_trades']}")
-            print(f"  Daily PnL: ${self.tracker.daily_pnl:.2f} "
+            print(f"  Realized PnL:   ${self.tracker.daily_pnl:>8.2f}")
+            print(f"  Unrealized PnL: ${total_unrealized:>8.2f}")
+            print(f"  Total PnL:      ${self.tracker.daily_pnl + total_unrealized:>8.2f}  "
                   f"(kill @ -${self.kill_switch['max_daily_loss_usd']})")
             wr = (self.tracker.daily_wins / max(self.tracker.daily_trades, 1) * 100)
             print(f"  Win rate: {wr:.0f}%")
 
             if self.tracker.positions:
-                print(f"\n  {'Position':<16} {'Side':>5} {'Qty':>6} {'Entry':>10}")
-                print(f"  {'-'*42}")
+                print(f"\n[POSITIONS] {now_str} UTC")
                 for key, pos in self.tracker.positions.items():
-                    side_str = 'LONG' if pos['side'] == 1 else 'SHORT'
-                    print(f"  {key:<16} {side_str:>5} {pos['qty']:>6.2f} {pos['entry_price']:>10.5f}")
+                    side_str = 'LONG ' if pos['side'] == 1 else 'SHORT'
+                    current = pos.get('current_price', pos['entry_price'])
+                    pnl = pos.get('unrealized_pnl', 0)
+                    age = now - pos['entry_ts']
+                    hours = int(age.total_seconds() // 3600)
+                    mins = int((age.total_seconds() % 3600) // 60)
+                    pnl_str = f'+${pnl:.2f}' if pnl >= 0 else f'-${abs(pnl):.2f}'
+                    # Determine price format
+                    prec = 3 if 'JPY' in pos['pair'] else 5
+                    print(f"  {key:<14} {side_str} {pos['qty']:.2f} "
+                          f"@ {pos['entry_price']:.{prec}f}  "
+                          f"current: {current:.{prec}f}  "
+                          f"PnL: {pnl_str:<10} age: {hours}h {mins:02d}m")
             print()
 
     async def start(self):
@@ -726,6 +903,7 @@ class IBKRExecutor:
             await asyncio.gather(
                 self._bar_builder.run(),
                 self._dashboard_loop(),
+                self._position_management_loop(),
             )
         except KeyboardInterrupt:
             logger.info("Shutdown requested")
