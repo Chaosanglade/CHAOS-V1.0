@@ -262,6 +262,8 @@ class IBKRExecutor:
 
         # Qualified contracts (populated in Step 7, keyed by CHAOS pair name)
         self._qualified_contracts = {}
+        # Live market data tickers (streaming, keyed by CHAOS pair name)
+        self._live_tickers = {}
 
         # Next order ID
         self._next_order_id = 1
@@ -610,18 +612,27 @@ class IBKRExecutor:
         return self._qualified_contracts.get(pair)
 
     async def _get_current_price(self, pair):
-        """Get current mid price for a pair from IBKR using qualified contract."""
-        contract = self._get_qualified_contract(pair)
-        if not contract:
+        """Get current price from streaming market data ticker."""
+        ticker = self._live_tickers.get(pair)
+        if not ticker:
+            logger.debug(f"{pair} ticker: no subscription")
             return None
         try:
-            tickers = self.ib.reqTickers(contract)
-            if tickers and tickers[0].midpoint():
-                return tickers[0].midpoint()
-            if tickers and tickers[0].last > 0:
-                return tickers[0].last
-        except Exception:
-            pass
+            # marketPrice() returns best available: last, close, or mid
+            mp = ticker.marketPrice()
+            if mp and mp == mp and mp > 0:  # not NaN, not zero
+                return float(mp)
+            # Fallback: midpoint
+            mid = ticker.midpoint()
+            if mid and mid == mid and mid > 0:
+                return float(mid)
+            # Fallback: bid/ask average
+            if ticker.bid > 0 and ticker.ask > 0:
+                return float((ticker.bid + ticker.ask) / 2)
+            logger.debug(f"{pair} ticker: no valid price (bid={ticker.bid} ask={ticker.ask} "
+                         f"last={ticker.last} close={ticker.close})")
+        except Exception as e:
+            logger.debug(f"{pair} ticker error: {e}")
         return None
 
     async def _position_management_loop(self):
@@ -650,10 +661,12 @@ class IBKRExecutor:
                 pair = pos['pair']
                 tf = pos['tf']
 
-                # Fetch current price
+                # Fetch current price from streaming market data
                 current = await self._get_current_price(pair)
                 if current is None:
+                    logger.warning(f"[POS_MGMT] {key}: no live price available, skipping checks")
                     continue
+                logger.info(f"[POS_MGMT] {key}: live={current:.5f} entry={pos['entry_price']:.5f}")
 
                 pos['current_price'] = current
                 pip_size = self._get_pip_size(pair)
@@ -728,15 +741,14 @@ class IBKRExecutor:
                                      'action': 'CLOSE_ALL', 'reason_codes': 'KILL_SWITCH_ACTIVATED',
                                      'signal': 0, 'confidence': 0})
 
-            # ── Spread spike detection ──
+            # ── Spread spike detection (from streaming tickers) ──
             try:
                 for pair in self.pairs_map:
-                    contract = self._get_qualified_contract(pair)
-                    if not contract:
+                    ticker = self._live_tickers.get(pair)
+                    if not ticker:
                         continue
-                    tickers = self.ib.reqTickers(contract)
-                    if tickers and tickers[0].ask > 0 and tickers[0].bid > 0:
-                        spread = (tickers[0].ask - tickers[0].bid) / self._get_pip_size(pair)
+                    if ticker.ask > 0 and ticker.bid > 0:
+                        spread = (ticker.ask - ticker.bid) / self._get_pip_size(pair)
                         baseline = baseline_spreads.get(pair, 1.0)
                         if spread > baseline * spread_mult:
                             if not self._defensive_active:
@@ -873,11 +885,14 @@ class IBKRExecutor:
                 contract = ib.Forex(base + quote, exchange='IDEALPRO')
                 result = await self.ib.qualifyContractsAsync(contract)
                 if result:
-                    self._qualified_contracts[chaos_pair] = result[0]
-                    self._bar_builder._contracts[chaos_pair] = result[0]
+                    qc = result[0]
+                    self._qualified_contracts[chaos_pair] = qc
+                    self._bar_builder._contracts[chaos_pair] = qc
+                    # Subscribe to streaming market data for live prices
+                    self._live_tickers[chaos_pair] = self.ib.reqMktData(qc, '', False, False)
                     qualified_count += 1
                     logger.info(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... "
-                                f"OK (conId={result[0].conId})")
+                                f"OK (conId={qc.conId}, mktData subscribed)")
                 else:
                     logger.warning(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... FAILED")
             except Exception as e:
