@@ -34,7 +34,8 @@ _log_dir = PROJECT_ROOT / 'CHAOS_Logs'
 _log_dir.mkdir(parents=True, exist_ok=True)
 _log_file = _log_dir / f"ibkr_session_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.log"
 
-_formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+_formatter = logging.Formatter('%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s: %(message)s',
+                              datefmt='%Y-%m-%d %H:%M:%S')
 
 _console_handler = logging.StreamHandler(sys.stdout)
 _console_handler.setFormatter(_formatter)
@@ -236,8 +237,9 @@ class IBKRExecutor:
     runs inference pipeline, executes trades.
     """
 
-    def __init__(self, paper: bool = True):
+    def __init__(self, paper: bool = True, thin_only: bool = False):
         self.paper = paper
+        self.thin_only = thin_only
 
         # Load configs
         with open(PROJECT_ROOT / 'inference' / 'ibkr_config.json') as f:
@@ -294,10 +296,28 @@ class IBKRExecutor:
 
         # Step 2: Load models one by one with verbose output
         t_step = _time.perf_counter()
-        logger.info("[STARTUP] Step 2/8: Loading models...")
         quarantined_brains = set(quarantine_cfg.get('global_quarantine', []))
         pairs = list(self.pairs_map.keys())
         tfs = self.ibkr_cfg.get('timeframes', ['H1', 'M30'])
+
+        # --thin-only: build set of brains we actually need
+        thin_needed = None  # None means load everything
+        if self.thin_only:
+            thin_path = PROJECT_ROOT / 'replay' / 'config' / 'thin_ensemble.json'
+            if thin_path.exists():
+                with open(thin_path) as _f:
+                    thin_cfg = json.load(_f)
+                thin_needed = set()
+                for block_key, block in thin_cfg.get('blocks', {}).items():
+                    if block.get('rule') != 'disabled':
+                        for b in block.get('brains', []):
+                            thin_needed.add(b)
+                logger.info(f"[STARTUP] Step 2/8: Loading models (--thin-only: {len(thin_needed)} brains)...")
+            else:
+                logger.warning("[STARTUP] --thin-only but thin_ensemble.json not found, loading all")
+                logger.info("[STARTUP] Step 2/8: Loading models...")
+        else:
+            logger.info("[STARTUP] Step 2/8: Loading models...")
 
         # Discover all model files
         model_files = []
@@ -325,8 +345,13 @@ class IBKRExecutor:
             skip_brains = quarantined_brains | {'tabnet_optuna'}
             if brain in skip_brains:
                 reason = 'quarantined' if brain in quarantined_brains else 'tabnet/torch'
-                logger.info(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
-                            f"SKIP ({reason})")
+                logger.debug(f"[{idx:>3}/{total}] {os.path.basename(path)}... SKIP ({reason})")
+                skipped += 1
+                continue
+
+            # --thin-only: skip brains not in thin ensemble
+            if thin_needed is not None and brain not in thin_needed:
+                logger.debug(f"[{idx:>3}/{total}] {os.path.basename(path)}... SKIP (not in thin ensemble)")
                 skipped += 1
                 continue
 
@@ -430,8 +455,10 @@ class IBKRExecutor:
 
     async def _on_bar_close(self, pair: str, tf: str, bars: list):
         """Called by bar builder when a bar closes. Runs full pipeline."""
+        logger.info(f"[BAR_CLOSE] {pair}_{tf}: {len(bars)} bars received, "
+                     f"last={bars[-1]['time'] if bars else '?'}")
         if self._halted:
-            logger.warning(f"HALTED — skipping {pair}_{tf}")
+            logger.warning(f"[BAR_CLOSE] HALTED — skipping {pair}_{tf}")
             return
 
         # Daily reset
@@ -439,7 +466,7 @@ class IBKRExecutor:
         if self._last_day != today:
             self._last_day = today
             self.tracker.reset_daily()
-            logger.info("Daily stats reset")
+            logger.info("[DAILY_RESET] Daily stats reset")
 
         t0 = _time.perf_counter()
 
@@ -467,8 +494,11 @@ class IBKRExecutor:
         models_voted = response.get('models_voted', 0)
         models_agreed = response.get('models_agreed', 0)
 
-        logger.info(f"{pair}_{tf}: action={action} signal={sig} conf={confidence:.2f} "
-                     f"agree={agreement:.2f} lot={lot_size} reason={reason} "
+        sig_str = {-1: 'SHORT', 0: 'FLAT', 1: 'LONG'}.get(sig, str(sig))
+        logger.info(f"[INFERENCE] {pair}_{tf}: signal={sig_str} conf={confidence:.3f} "
+                     f"agree={agreement:.3f} voted={models_voted} agreed={models_agreed} "
+                     f"regime={response.get('regime_state', '?')} action={action} "
+                     f"risk_ok={risk_approved} lot={lot_size} reason={reason} "
                      f"latency={latency:.0f}ms")
 
         # Log to CSV
@@ -522,61 +552,54 @@ class IBKRExecutor:
         """Place a market order on IBKR using pre-qualified contract."""
         contract = self._get_qualified_contract(pair)
         if not contract:
-            logger.error(f"No qualified contract for {pair}")
+            logger.error(f"[ORDER] REJECTED: no qualified contract for {pair}")
             return
         ibkr_pair = self.pairs_map.get(pair, pair)
 
         units = round(lot_size * self.ibkr_cfg.get('lot_to_units', 100000))
         if units < 1:
-            units = 20000  # Minimum IBKR FX order
+            units = 20000
 
         order_action = 'BUY' if side == 1 else 'SELL'
         order = ib.MarketOrder(order_action, units)
         order.tif = 'IOC'
 
-        logger.info(f"PLACING ORDER: {order_action} {units} {ibkr_pair} (lot={lot_size})")
+        # Get pre-trade price for slippage calculation
+        pre_price = await self._get_current_price(pair)
+        logger.info(f"[ORDER] SUBMITTING: {order_action} {units} {ibkr_pair} "
+                     f"lot={lot_size} pre_price={pre_price}")
 
-        if self.paper:
-            # Paper mode: place on paper account
-            trade = self.ib.placeOrder(contract, order)
-            # Wait for fill
-            for _ in range(50):  # Up to 5 seconds
-                await asyncio.sleep(0.1)
-                if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
-                    break
+        trade = self.ib.placeOrder(contract, order)
+        max_wait = 100 if not self.paper else 50
+        for _ in range(max_wait):
+            await asyncio.sleep(0.1)
+            if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
+                break
 
-            if trade.orderStatus.status == 'Filled':
-                fill_price = trade.orderStatus.avgFillPrice
-                self.tracker.open_position(pair, tf, side, lot_size,
-                                           fill_price, trade.order.orderId)
-                logger.info(f"FILLED: {order_action} {units} {ibkr_pair} @ {fill_price}")
-            else:
-                logger.warning(f"Order not filled: status={trade.orderStatus.status}")
+        status = trade.orderStatus.status
+        if status == 'Filled':
+            fill_price = trade.orderStatus.avgFillPrice
+            order_id = trade.order.orderId
+            slippage = 0.0
+            if pre_price and pre_price > 0:
+                slippage = abs(fill_price - pre_price) / self._get_pip_size(pair)
+            self.tracker.open_position(pair, tf, side, lot_size, fill_price, order_id)
+            logger.info(f"[ORDER] FILLED: {order_action} {units} {ibkr_pair} "
+                         f"@ {fill_price} (slippage={slippage:.1f} pips, "
+                         f"orderId={order_id})")
         else:
-            # Live mode: same flow
-            trade = self.ib.placeOrder(contract, order)
-            for _ in range(100):
-                await asyncio.sleep(0.1)
-                if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
-                    break
-            if trade.orderStatus.status == 'Filled':
-                fill_price = trade.orderStatus.avgFillPrice
-                self.tracker.open_position(pair, tf, side, lot_size,
-                                           fill_price, trade.order.orderId)
-                logger.info(f"FILLED: {order_action} {units} {ibkr_pair} @ {fill_price}")
-            else:
-                logger.warning(f"Order not filled: status={trade.orderStatus.status}")
+            logger.warning(f"[ORDER] NOT_FILLED: {order_action} {units} {ibkr_pair} "
+                            f"status={status}")
 
     async def _close_position(self, pair: str, tf: str):
         """Close an existing position."""
         pos = self.tracker.get_position(pair, tf)
         if not pos:
-            logger.debug(f"No position to close for {pair}_{tf}")
             return
 
         contract = self._get_qualified_contract(pair)
         if not contract:
-            logger.error(f"No qualified contract for {pair}")
+            logger.error(f"[CLOSE] REJECTED: no qualified contract for {pair}")
             return
         ibkr_pair = self.pairs_map.get(pair, pair)
 
@@ -585,7 +608,9 @@ class IBKRExecutor:
         order = ib.MarketOrder(close_action, units)
         order.tif = 'IOC'
 
-        logger.info(f"CLOSING: {close_action} {units} {ibkr_pair}")
+        side_str = 'LONG' if pos['side'] == 1 else 'SHORT'
+        logger.info(f"[CLOSE] SUBMITTING: {close_action} {units} {ibkr_pair} "
+                     f"(was {side_str} @ {pos['entry_price']})")
 
         trade = self.ib.placeOrder(contract, order)
         for _ in range(100):
@@ -595,9 +620,13 @@ class IBKRExecutor:
 
         if trade.orderStatus.status == 'Filled':
             fill_price = trade.orderStatus.avgFillPrice
-            self.tracker.close_position(pair, tf, fill_price, trade.order.orderId)
+            order_id = trade.order.orderId
+            result = self.tracker.close_position(pair, tf, fill_price, order_id)
+            pnl = result['pnl_usd'] if result else 0
+            logger.info(f"[CLOSE] FILLED: {pair}_{tf} exit={fill_price} "
+                         f"pnl=${pnl:.2f} orderId={order_id}")
         else:
-            logger.warning(f"Close order not filled: status={trade.orderStatus.status}")
+            logger.warning(f"[CLOSE] NOT_FILLED: {pair}_{tf} status={trade.orderStatus.status}")
 
     # ──────────────────────────────────────────────────────────────
     # Position Management Loop (SL / TP / trailing / stale / kill)
@@ -951,6 +980,8 @@ def main():
                         help='Connect to paper trading (port 7497)')
     parser.add_argument('--live', action='store_true',
                         help='Connect to live trading (port 7496) — REAL MONEY')
+    parser.add_argument('--thin-only', action='store_true',
+                        help='Only load models in thin_ensemble.json (~30 instead of ~400)')
     parser.add_argument('--host', default=None, help='Override IBKR host')
     parser.add_argument('--port', type=int, default=None, help='Override IBKR port')
     parser.add_argument('--client-id', type=int, default=None, help='Override client ID')
@@ -963,7 +994,7 @@ def main():
         logger.warning("  *** LIVE TRADING MODE — REAL MONEY ***")
         logger.warning("=" * 60)
 
-    executor = IBKRExecutor(paper=is_paper)
+    executor = IBKRExecutor(paper=is_paper, thin_only=args.thin_only)
 
     if args.host:
         executor.host = args.host
