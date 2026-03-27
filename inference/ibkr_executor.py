@@ -173,7 +173,7 @@ class PositionTracker:
 
     async def reconcile(self, ib_client: ib.IB, pairs_map: dict):
         """Reconcile Python state with IBKR on connect/reconnect."""
-        ibkr_positions = await ib_client.positionsAsync()
+        ibkr_positions = ib_client.positions()
         logger.info(f"IBKR reports {len(ibkr_positions)} positions, "
                      f"Python tracks {len(self.positions)}")
         for p in ibkr_positions:
@@ -529,7 +529,7 @@ class IBKRExecutor:
 
         if self.paper:
             # Paper mode: place on paper account
-            trade = await self.ib.placeOrderAsync(contract, order)
+            trade = self.ib.placeOrder(contract, order)
             # Wait for fill
             for _ in range(50):  # Up to 5 seconds
                 await asyncio.sleep(0.1)
@@ -545,7 +545,7 @@ class IBKRExecutor:
                 logger.warning(f"Order not filled: status={trade.orderStatus.status}")
         else:
             # Live mode: same flow
-            trade = await self.ib.placeOrderAsync(contract, order)
+            trade = self.ib.placeOrder(contract, order)
             for _ in range(100):
                 await asyncio.sleep(0.1)
                 if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
@@ -581,7 +581,7 @@ class IBKRExecutor:
 
         logger.info(f"CLOSING: {close_action} {units} {ibkr_pair}")
 
-        trade = await self.ib.placeOrderAsync(contract, order)
+        trade = self.ib.placeOrder(contract, order)
         for _ in range(100):
             await asyncio.sleep(0.1)
             if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
