@@ -35,16 +35,76 @@ PROJECT_ROOT = Path(os.environ.get('CHAOS_BASE_DIR', os.getcwd()))
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / 'inference'))
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-)
+# Dual logging: console + file
+_log_dir = PROJECT_ROOT / 'CHAOS_Logs'
+_log_dir.mkdir(parents=True, exist_ok=True)
+_log_file = _log_dir / f"ibkr_session_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.log"
+
+_formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(name)s: %(message)s')
+
+_console_handler = logging.StreamHandler(sys.stdout)
+_console_handler.setFormatter(_formatter)
+_console_handler.setLevel(logging.INFO)
+
+_file_handler = logging.FileHandler(str(_log_file), mode='a', encoding='utf-8')
+_file_handler.setFormatter(_formatter)
+_file_handler.setLevel(logging.DEBUG)
+
+logging.basicConfig(level=logging.DEBUG, handlers=[_console_handler, _file_handler])
 logger = logging.getLogger('ibkr_executor')
+logger.info(f"Log file: {_log_file}")
 
 import ib_async as ib
 import numpy as np
+import joblib
 
 from inference.ibkr_bar_builder import IBKRBarBuilder
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Lightweight model backend shims (avoid importing the full onnx_export)
+# ──────────────────────────────────────────────────────────────────────
+
+class _OnnxBackendLite:
+    """Minimal wrapper around an onnxruntime session."""
+    def __init__(self, session):
+        self.session = session
+        inp = session.get_inputs()[0]
+        self.n_features_ = inp.shape[1] if len(inp.shape) > 1 else None
+
+    def predict_proba(self, X):
+        X = np.nan_to_num(X.astype(np.float32), nan=0, posinf=0, neginf=0)
+        results = self.session.run(None, {self.session.get_inputs()[0].name: X})
+        if len(results) >= 2:
+            probs_raw = results[1]
+            if isinstance(probs_raw, list) and isinstance(probs_raw[0], dict):
+                return np.array([[p.get(0, 0), p.get(1, 0), p.get(2, 0)] for p in probs_raw])
+            probs = np.array(probs_raw)
+        else:
+            probs = np.array(results[0])
+        if probs.ndim == 2 and not np.allclose(probs.sum(axis=1), 1.0, atol=0.05):
+            exp_p = np.exp(probs - probs.max(axis=1, keepdims=True))
+            probs = exp_p / exp_p.sum(axis=1, keepdims=True)
+        return probs
+
+
+class _SklearnBackendLite:
+    """Minimal wrapper around a sklearn model."""
+    def __init__(self, model):
+        self.model = model
+        self.n_features_ = getattr(model, 'n_features_in_', None)
+
+    def predict_proba(self, X):
+        return self.model.predict_proba(np.nan_to_num(X.astype(np.float64), nan=0, posinf=0, neginf=0))
+
+
+class _ModelLoaderShim:
+    """Shim that looks like ModelLoader but uses our pre-loaded registry."""
+    def __init__(self, registry):
+        self.models = registry
+
+    def get_models(self, pair_tf):
+        return self.models.get(pair_tf, {})
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -206,14 +266,12 @@ class IBKRExecutor:
         self._next_order_id = 1
 
     def _load_inference_handler(self):
-        """Load the full production inference pipeline."""
-        from replay.runners.run_replay import ModelLoader, RegimeSimulator, EnsembleEngine
-        from risk.engine.portfolio_state import PortfolioState
-        from risk.engine.exposure_controller import ExposureController
-        from inference.live_inference_handler import LiveInferenceHandler, LiveFeatureEngine
+        """Load the full production inference pipeline with verbose per-model logging."""
+        import glob as _glob
 
-        logger.info("Loading production inference pipeline...")
-
+        # Step 1: Configs
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 1/8: Loading configs...")
         with open(PROJECT_ROOT / 'replay' / 'config' / 'brain_quarantine.json') as f:
             quarantine_cfg = json.load(f)
         with open(PROJECT_ROOT / 'replay' / 'config' / 'portfolio_allocation.json') as f:
@@ -222,42 +280,128 @@ class IBKRExecutor:
             defensive_cfg = json.load(f)
         with open(PROJECT_ROOT / 'risk' / 'config' / 'instrument_specs.json') as f:
             instrument_specs = json.load(f)
+        logger.info(f"[STARTUP] Step 1/8: Loading configs... OK ({_time.perf_counter()-t_step:.1f}s)")
 
+        # Step 2: Load models one by one with verbose output
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 2/8: Loading models...")
+        quarantined_brains = set(quarantine_cfg.get('global_quarantine', []))
         pairs = list(self.pairs_map.keys())
         tfs = self.ibkr_cfg.get('timeframes', ['H1', 'M30'])
 
-        logger.info(f"Loading models for {len(pairs)} pairs x {len(tfs)} TFs...")
-        model_loader = ModelLoader(str(PROJECT_ROOT / 'models'), pairs=pairs, tfs=tfs)
+        # Discover all model files
+        model_files = []
+        for pair in pairs:
+            for tf in tfs:
+                for ext in ['onnx', 'joblib']:
+                    for path in sorted(_glob.glob(str(PROJECT_ROOT / 'models' / f'{pair}_{tf}_*.{ext}'))):
+                        basename = os.path.basename(path)
+                        parts = basename.replace(f'.{ext}', '').split('_')
+                        brain = '_'.join(parts[2:])
+                        model_files.append((pair, tf, brain, ext, path))
 
-        # Apply quarantine + verbose counting
-        total_loaded = 0
-        quarantined_count = 0
-        for pair_tf, models in sorted(model_loader.models.items()):
-            to_remove = [b for b in models
-                         if b in quarantine_cfg.get('global_quarantine', [])]
-            for b in to_remove:
-                del models[b]
-                quarantined_count += 1
-            n = len(models)
-            total_loaded += n
-            brains = ', '.join(sorted(models.keys()))
-            logger.info(f"  [{total_loaded:>4}] {pair_tf:<14} {n:>2} brains: {brains}")
+        total = len(model_files)
+        loaded = 0
+        skipped = 0
+        failed = 0
+        # We'll load models into a dict structure for ModelLoader-compatible access
+        model_registry = {}
 
-        logger.info(f"Models loaded: {total_loaded} active, {quarantined_count} quarantined")
+        for idx, (pair, tf, brain, ext, path) in enumerate(model_files, 1):
+            ptf = f"{pair}_{tf}"
+            file_size = os.path.getsize(path) / (1024 * 1024)
 
-        logger.info("Initializing regime simulator...")
+            if brain in quarantined_brains:
+                logger.info(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
+                            f"SKIP (quarantined)")
+                skipped += 1
+                continue
+
+            t_model = _time.perf_counter()
+            try:
+                if ext == 'onnx':
+                    import onnxruntime as ort
+                    sess = ort.InferenceSession(path, providers=['CPUExecutionProvider'])
+                    # Wrap in a minimal backend object
+                    backend = _OnnxBackendLite(sess)
+                elif ext == 'joblib':
+                    obj = joblib.load(path)
+                    model = obj if not isinstance(obj, dict) else obj.get('model', obj.get('estimator', obj))
+                    backend = _SklearnBackendLite(model)
+                else:
+                    continue
+
+                if ptf not in model_registry:
+                    model_registry[ptf] = {}
+                # Prefer ONNX over joblib if both exist
+                if brain not in model_registry[ptf] or ext == 'onnx':
+                    model_registry[ptf][brain] = backend
+                    loaded += 1
+
+                elapsed = _time.perf_counter() - t_model
+                logger.info(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
+                            f"OK ({file_size:.1f} MB, {elapsed:.1f}s)")
+
+            except Exception as e:
+                elapsed = _time.perf_counter() - t_model
+                logger.warning(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
+                               f"FAIL ({file_size:.1f} MB, {elapsed:.1f}s: {str(e)[:60]})")
+                failed += 1
+
+        total_time = _time.perf_counter() - t_step
+        logger.info(f"[STARTUP] Step 2/8: Loading models... Done. "
+                     f"{loaded} loaded, {skipped} quarantined, {failed} failed. "
+                     f"Total time: {total_time:.0f}s")
+
+        # Build a ModelLoader-compatible wrapper
+        model_loader = _ModelLoaderShim(model_registry)
+
+        # Step 3: Feature adapter
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 3/8: Initializing feature adapter...")
+        from inference.live_inference_handler import LiveInferenceHandler, LiveFeatureEngine
+        from inference.live_feature_adapter import LiveFeatureAdapter
+        try:
+            feature_adapter = LiveFeatureAdapter()
+            logger.info(f"[STARTUP] Step 3/8: Initializing feature adapter... "
+                        f"OK ({feature_adapter.n_features} features, "
+                        f"{_time.perf_counter()-t_step:.1f}s)")
+        except Exception as e:
+            logger.warning(f"[STARTUP] Step 3/8: Feature adapter failed: {e}")
+            feature_adapter = None
+
+        # Step 4: Thin ensemble
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 4/8: Loading thin ensemble...")
+        thin_path = PROJECT_ROOT / 'replay' / 'config' / 'thin_ensemble.json'
+        if thin_path.exists():
+            with open(thin_path) as f:
+                thin_cfg = json.load(f)
+            n_blocks = sum(1 for b in thin_cfg.get('blocks', {}).values()
+                           if b.get('rule') != 'disabled')
+            n_brains = sum(len(b.get('brains', [])) for b in thin_cfg.get('blocks', {}).values())
+            logger.info(f"[STARTUP] Step 4/8: Loading thin ensemble... "
+                        f"OK ({n_blocks} blocks, {n_brains} brain assignments, "
+                        f"{_time.perf_counter()-t_step:.1f}s)")
+        else:
+            thin_cfg = None
+            logger.warning("[STARTUP] Step 4/8: thin_ensemble.json not found — using full ensemble")
+
+        # Initialize remaining components
+        from replay.runners.run_replay import RegimeSimulator, EnsembleEngine
+        from risk.engine.portfolio_state import PortfolioState
+        from risk.engine.exposure_controller import ExposureController
+
+        t_step = _time.perf_counter()
         regime_sim = RegimeSimulator(str(PROJECT_ROOT / 'regime' / 'regime_policy.json'))
-        logger.info("Initializing ensemble engine...")
         ensemble_engine = EnsembleEngine(str(PROJECT_ROOT / 'ensemble' / 'ensemble_config.json'))
-        logger.info("Initializing risk controller...")
         risk_controller = ExposureController(str(PROJECT_ROOT / 'risk' / 'config' / 'risk_policy.json'))
-        logger.info("Initializing portfolio state...")
         portfolio_state = PortfolioState(
             str(PROJECT_ROOT / 'risk' / 'config' / 'instrument_specs.json'),
             str(PROJECT_ROOT / 'risk' / 'config' / 'correlation_groups.json'),
         )
+        logger.info(f"[STARTUP]          Regime + ensemble + risk initialized ({_time.perf_counter()-t_step:.1f}s)")
 
-        logger.info("Building inference handler...")
         self._handler = LiveInferenceHandler(
             model_loader=model_loader,
             regime_sim=regime_sim,
@@ -270,7 +414,7 @@ class IBKRExecutor:
             defensive_config=defensive_cfg,
             instrument_specs=instrument_specs,
         )
-        logger.info("Inference pipeline ready")
+        logger.info("[STARTUP]          Inference handler built")
 
     async def _on_bar_close(self, pair: str, tf: str, bars: list):
         """Called by bar builder when a bar closes. Runs full pipeline."""
@@ -437,7 +581,7 @@ class IBKRExecutor:
 
         logger.info(f"CLOSING: {close_action} {units} {ibkr_pair}")
 
-        trade = self.ib.placeOrder(contract, order)
+        trade = await self.ib.placeOrderAsync(contract, order)
         for _ in range(100):
             await asyncio.sleep(0.1)
             if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
@@ -482,52 +626,62 @@ class IBKRExecutor:
             print()
 
     async def start(self):
-        """Main entry point."""
+        """Main entry point with step-by-step verbose logging."""
+        t_total = _time.perf_counter()
         mode_str = "PAPER" if self.paper else "LIVE"
-        logger.info(f"CHAOS V1.0 IBKR Executor starting in {mode_str} mode")
-        logger.info(f"Connecting to {self.host}:{self.port} (clientId={self.client_id})")
+        logger.info(f"{'='*60}")
+        logger.info(f"  CHAOS V1.0 IBKR Executor — {mode_str} mode")
+        logger.info(f"  Target: {self.host}:{self.port} (clientId={self.client_id})")
+        logger.info(f"{'='*60}")
 
-        # Load inference pipeline
+        # Steps 1-4 happen inside _load_inference_handler
         self._load_inference_handler()
 
-        # Connect to IBKR with extended timeout
+        # Step 5: Connect to IBKR
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 5/8: Connecting to IBKR...")
         try:
-            logger.info(f"Connecting to IBKR at {self.host}:{self.port}...")
             await self.ib.connectAsync(
                 self.host, self.port, clientId=self.client_id, timeout=60)
         except Exception as e:
-            logger.error(f"IBKR connection failed: {e}")
+            logger.error(f"[STARTUP] Step 5/8: FAILED — {e}")
             logger.error("Make sure TWS/IB Gateway is running and API connections are enabled")
             return
+        sv = self.ib.client.serverVersion()
+        logger.info(f"[STARTUP] Step 5/8: Connecting to IBKR... "
+                     f"OK (server v{sv}, {_time.perf_counter()-t_step:.1f}s)")
 
-        logger.info(f"Connected to IBKR (server version {self.ib.client.serverVersion()})")
-
-        # Post-connect settling time — let IBKR finish its handshake
-        logger.info("Waiting 5s for IBKR to settle...")
+        # Post-connect settle
+        logger.info("[STARTUP]          Settling 5s...")
         await asyncio.sleep(5)
 
-        # Request account info first (lightweight, warms up the connection)
-        logger.info("Requesting account summary...")
+        # Step 6: Account summary
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 6/8: Account summary...")
+        equity_str = "unknown"
         try:
             await self.ib.reqAccountSummaryAsync()
             await asyncio.sleep(2)
             acct = await self.ib.accountSummaryAsync()
             for item in acct:
                 if item.tag == 'NetLiquidation' and item.currency == 'USD':
-                    logger.info(f"  Account equity: ${float(item.value):,.2f}")
+                    equity_str = f"${float(item.value):,.2f}"
                     break
+            logger.info(f"[STARTUP] Step 6/8: Account summary... "
+                        f"OK (equity: {equity_str}, {_time.perf_counter()-t_step:.1f}s)")
         except Exception as e:
-            logger.warning(f"Account summary failed (non-fatal): {e}")
+            logger.warning(f"[STARTUP] Step 6/8: Account summary... WARN ({e})")
 
         # Reconcile positions
-        logger.info("Reconciling positions with IBKR...")
         try:
             await self.tracker.reconcile(self.ib, self.pairs_map)
         except Exception as e:
-            logger.warning(f"Position reconciliation failed (non-fatal): {e}")
+            logger.warning(f"[STARTUP]          Position reconciliation: {e}")
         await asyncio.sleep(2)
 
-        # Build bar builder
+        # Step 7: Subscribe pairs
+        t_step = _time.perf_counter()
+        logger.info("[STARTUP] Step 7/8: Subscribing pairs...")
         tfs = self.ibkr_cfg.get('timeframes', ['H1', 'M30'])
         self._bar_builder = IBKRBarBuilder(
             ib_client=self.ib,
@@ -538,10 +692,9 @@ class IBKRExecutor:
             on_bar_close=self._on_bar_close,
         )
 
-        # Qualify contracts one at a time with pacing
-        logger.info("Qualifying FX contracts (one at a time)...")
         qualified_count = 0
-        for chaos_pair, ibkr_pair in self.pairs_map.items():
+        total_pairs = len(self.pairs_map)
+        for i, (chaos_pair, ibkr_pair) in enumerate(self.pairs_map.items(), 1):
             try:
                 base, quote = ibkr_pair.split('.')
                 contract = ib.Forex(base + quote, exchange='IDEALPRO')
@@ -549,25 +702,29 @@ class IBKRExecutor:
                 if result:
                     self._bar_builder._contracts[chaos_pair] = result[0]
                     qualified_count += 1
-                    logger.info(f"  Subscribing {chaos_pair} ({ibkr_pair})... OK "
-                                f"(conId={result[0].conId})")
+                    logger.info(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... "
+                                f"OK (conId={result[0].conId})")
                 else:
-                    logger.warning(f"  Subscribing {chaos_pair} ({ibkr_pair})... FAILED")
+                    logger.warning(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... FAILED")
             except Exception as e:
-                logger.warning(f"  Subscribing {chaos_pair} ({ibkr_pair})... ERROR: {e}")
-            await asyncio.sleep(2)  # IBKR pacing
+                logger.warning(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... ERROR: {e}")
+            await asyncio.sleep(2)
 
-        logger.info(f"Qualified {qualified_count}/{len(self.pairs_map)} contracts")
+        logger.info(f"[STARTUP] Step 7/8: Subscribing pairs... "
+                     f"{qualified_count}/{total_pairs} OK ({_time.perf_counter()-t_step:.1f}s)")
 
         if qualified_count == 0:
-            logger.error("No contracts qualified — cannot proceed")
+            logger.error("[STARTUP] No contracts qualified — cannot proceed")
             self.ib.disconnect()
             return
 
-        # Run concurrently: bar builder + dashboard
-        logger.info("Starting bar builder + dashboard loops...")
-        logger.info(f"Monitoring {qualified_count} pairs on {tfs}")
-        logger.info("Waiting for first bar close...")
+        # Step 8: Start bar builder
+        logger.info(f"[STARTUP] Step 8/8: Starting bar builder...")
+        logger.info(f"[STARTUP] Step 8/8: Starting bar builder... OK")
+        total_startup = _time.perf_counter() - t_total
+        logger.info(f"[STARTUP] READY. Total startup: {total_startup:.0f}s. "
+                     f"Monitoring {qualified_count} pairs on {tfs}. "
+                     f"Waiting for bar closes.")
 
         try:
             await asyncio.gather(
