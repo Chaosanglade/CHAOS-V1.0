@@ -260,6 +260,9 @@ class IBKRExecutor:
         self._handler = None
         self._bar_builder = None
 
+        # Qualified contracts (populated in Step 7, keyed by CHAOS pair name)
+        self._qualified_contracts = {}
+
         # Next order ID
         self._next_order_id = 1
 
@@ -507,15 +510,12 @@ class IBKRExecutor:
             await self._close_position(pair, tf)
 
     async def _place_order(self, pair: str, tf: str, side: int, lot_size: float):
-        """Place a market order on IBKR."""
-        ibkr_pair = self.pairs_map.get(pair)
-        if not ibkr_pair:
-            logger.error(f"No IBKR mapping for {pair}")
+        """Place a market order on IBKR using pre-qualified contract."""
+        contract = self._get_qualified_contract(pair)
+        if not contract:
+            logger.error(f"No qualified contract for {pair}")
             return
-
-        base, quote = ibkr_pair.split('.')
-        contract = ib.Forex(base + quote, exchange='IDEALPRO')
-        await self.ib.qualifyContractsAsync(contract)
+        ibkr_pair = self.pairs_map.get(pair, pair)
 
         units = round(lot_size * self.ibkr_cfg.get('lot_to_units', 100000))
         if units < 1:
@@ -565,16 +565,13 @@ class IBKRExecutor:
             logger.debug(f"No position to close for {pair}_{tf}")
             return
 
-        ibkr_pair = self.pairs_map.get(pair)
-        if not ibkr_pair:
+        contract = self._get_qualified_contract(pair)
+        if not contract:
+            logger.error(f"No qualified contract for {pair}")
             return
-
-        base, quote = ibkr_pair.split('.')
-        contract = ib.Forex(base + quote, exchange='IDEALPRO')
-        await self.ib.qualifyContractsAsync(contract)
+        ibkr_pair = self.pairs_map.get(pair, pair)
 
         units = round(pos['qty'] * self.ibkr_cfg.get('lot_to_units', 100000))
-        # Reverse the side to close
         close_action = 'SELL' if pos['side'] == 1 else 'BUY'
         order = ib.MarketOrder(close_action, units)
         order.tif = 'IOC'
@@ -608,14 +605,16 @@ class IBKRExecutor:
     def _price_to_pips(self, pair, price_diff):
         return price_diff / self._get_pip_size(pair)
 
+    def _get_qualified_contract(self, pair):
+        """Get the qualified (with conId) contract."""
+        return self._qualified_contracts.get(pair)
+
     async def _get_current_price(self, pair):
-        """Get current mid price for a pair from IBKR."""
-        ibkr_pair = self.pairs_map.get(pair)
-        if not ibkr_pair:
+        """Get current mid price for a pair from IBKR using qualified contract."""
+        contract = self._get_qualified_contract(pair)
+        if not contract:
             return None
         try:
-            base, quote = ibkr_pair.split('.')
-            contract = ib.Forex(base + quote, exchange='IDEALPRO')
             tickers = self.ib.reqTickers(contract)
             if tickers and tickers[0].midpoint():
                 return tickers[0].midpoint()
@@ -731,9 +730,10 @@ class IBKRExecutor:
 
             # ── Spread spike detection ──
             try:
-                for pair, ibkr_pair in self.pairs_map.items():
-                    base, quote = ibkr_pair.split('.')
-                    contract = ib.Forex(base + quote, exchange='IDEALPRO')
+                for pair in self.pairs_map:
+                    contract = self._get_qualified_contract(pair)
+                    if not contract:
+                        continue
                     tickers = self.ib.reqTickers(contract)
                     if tickers and tickers[0].ask > 0 and tickers[0].bid > 0:
                         spread = (tickers[0].ask - tickers[0].bid) / self._get_pip_size(pair)
@@ -873,6 +873,7 @@ class IBKRExecutor:
                 contract = ib.Forex(base + quote, exchange='IDEALPRO')
                 result = await self.ib.qualifyContractsAsync(contract)
                 if result:
+                    self._qualified_contracts[chaos_pair] = result[0]
                     self._bar_builder._contracts[chaos_pair] = result[0]
                     qualified_count += 1
                     logger.info(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... "
