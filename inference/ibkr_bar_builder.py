@@ -87,8 +87,12 @@ class IBKRBarBuilder:
         self._running = False
 
     async def qualify_contracts(self):
-        """Qualify all FX contracts with IBKR."""
+        """Qualify all FX contracts with IBKR.
+        Note: IBKRExecutor now qualifies one-by-one with pacing.
+        This method is kept for standalone usage."""
         contracts = list(self._contracts.values())
+        if not contracts:
+            return []
         qualified = await self.ib.qualifyContractsAsync(*contracts)
         for c in qualified:
             logger.info(f"  Qualified: {c.localSymbol} (conId={c.conId})")

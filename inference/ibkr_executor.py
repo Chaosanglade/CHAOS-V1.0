@@ -226,23 +226,38 @@ class IBKRExecutor:
         pairs = list(self.pairs_map.keys())
         tfs = self.ibkr_cfg.get('timeframes', ['H1', 'M30'])
 
+        logger.info(f"Loading models for {len(pairs)} pairs x {len(tfs)} TFs...")
         model_loader = ModelLoader(str(PROJECT_ROOT / 'models'), pairs=pairs, tfs=tfs)
 
-        # Apply quarantine
-        for pair_tf, models in list(model_loader.models.items()):
+        # Apply quarantine + verbose counting
+        total_loaded = 0
+        quarantined_count = 0
+        for pair_tf, models in sorted(model_loader.models.items()):
             to_remove = [b for b in models
                          if b in quarantine_cfg.get('global_quarantine', [])]
             for b in to_remove:
                 del models[b]
+                quarantined_count += 1
+            n = len(models)
+            total_loaded += n
+            brains = ', '.join(sorted(models.keys()))
+            logger.info(f"  [{total_loaded:>4}] {pair_tf:<14} {n:>2} brains: {brains}")
 
+        logger.info(f"Models loaded: {total_loaded} active, {quarantined_count} quarantined")
+
+        logger.info("Initializing regime simulator...")
         regime_sim = RegimeSimulator(str(PROJECT_ROOT / 'regime' / 'regime_policy.json'))
+        logger.info("Initializing ensemble engine...")
         ensemble_engine = EnsembleEngine(str(PROJECT_ROOT / 'ensemble' / 'ensemble_config.json'))
+        logger.info("Initializing risk controller...")
         risk_controller = ExposureController(str(PROJECT_ROOT / 'risk' / 'config' / 'risk_policy.json'))
+        logger.info("Initializing portfolio state...")
         portfolio_state = PortfolioState(
             str(PROJECT_ROOT / 'risk' / 'config' / 'instrument_specs.json'),
             str(PROJECT_ROOT / 'risk' / 'config' / 'correlation_groups.json'),
         )
 
+        logger.info("Building inference handler...")
         self._handler = LiveInferenceHandler(
             model_loader=model_loader,
             regime_sim=regime_sim,
@@ -475,9 +490,11 @@ class IBKRExecutor:
         # Load inference pipeline
         self._load_inference_handler()
 
-        # Connect to IBKR
+        # Connect to IBKR with extended timeout
         try:
-            await self.ib.connectAsync(self.host, self.port, clientId=self.client_id)
+            logger.info(f"Connecting to IBKR at {self.host}:{self.port}...")
+            await self.ib.connectAsync(
+                self.host, self.port, clientId=self.client_id, timeout=60)
         except Exception as e:
             logger.error(f"IBKR connection failed: {e}")
             logger.error("Make sure TWS/IB Gateway is running and API connections are enabled")
@@ -485,8 +502,30 @@ class IBKRExecutor:
 
         logger.info(f"Connected to IBKR (server version {self.ib.client.serverVersion()})")
 
+        # Post-connect settling time — let IBKR finish its handshake
+        logger.info("Waiting 5s for IBKR to settle...")
+        await asyncio.sleep(5)
+
+        # Request account info first (lightweight, warms up the connection)
+        logger.info("Requesting account summary...")
+        try:
+            self.ib.reqAccountSummary()
+            await asyncio.sleep(2)
+            acct = self.ib.accountSummary()
+            for item in acct:
+                if item.tag == 'NetLiquidation' and item.currency == 'USD':
+                    logger.info(f"  Account equity: ${float(item.value):,.2f}")
+                    break
+        except Exception as e:
+            logger.warning(f"Account summary failed (non-fatal): {e}")
+
         # Reconcile positions
-        await self.tracker.reconcile(self.ib, self.pairs_map)
+        logger.info("Reconciling positions with IBKR...")
+        try:
+            await self.tracker.reconcile(self.ib, self.pairs_map)
+        except Exception as e:
+            logger.warning(f"Position reconciliation failed (non-fatal): {e}")
+        await asyncio.sleep(2)
 
         # Build bar builder
         tfs = self.ibkr_cfg.get('timeframes', ['H1', 'M30'])
@@ -499,12 +538,35 @@ class IBKRExecutor:
             on_bar_close=self._on_bar_close,
         )
 
-        # Qualify contracts
-        await self._bar_builder.qualify_contracts()
+        # Qualify contracts one at a time with pacing
+        logger.info("Qualifying FX contracts (one at a time)...")
+        qualified_count = 0
+        for chaos_pair, ibkr_pair in self.pairs_map.items():
+            try:
+                base, quote = ibkr_pair.split('.')
+                contract = ib.Forex(base + quote, exchange='IDEALPRO')
+                result = await self.ib.qualifyContractsAsync(contract)
+                if result:
+                    self._bar_builder._contracts[chaos_pair] = result[0]
+                    qualified_count += 1
+                    logger.info(f"  Subscribing {chaos_pair} ({ibkr_pair})... OK "
+                                f"(conId={result[0].conId})")
+                else:
+                    logger.warning(f"  Subscribing {chaos_pair} ({ibkr_pair})... FAILED")
+            except Exception as e:
+                logger.warning(f"  Subscribing {chaos_pair} ({ibkr_pair})... ERROR: {e}")
+            await asyncio.sleep(2)  # IBKR pacing
+
+        logger.info(f"Qualified {qualified_count}/{len(self.pairs_map)} contracts")
+
+        if qualified_count == 0:
+            logger.error("No contracts qualified — cannot proceed")
+            self.ib.disconnect()
+            return
 
         # Run concurrently: bar builder + dashboard
         logger.info("Starting bar builder + dashboard loops...")
-        logger.info(f"Monitoring {len(self.pairs_map)} pairs on {tfs}")
+        logger.info(f"Monitoring {qualified_count} pairs on {tfs}")
         logger.info("Waiting for first bar close...")
 
         try:
