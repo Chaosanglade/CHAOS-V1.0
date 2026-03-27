@@ -113,7 +113,7 @@ class PositionTracker:
 
     async def reconcile(self, ib_client: ib.IB, pairs_map: dict):
         """Reconcile Python state with IBKR on connect/reconnect."""
-        ibkr_positions = ib_client.positions()
+        ibkr_positions = await ib_client.positionsAsync()
         logger.info(f"IBKR reports {len(ibkr_positions)} positions, "
                      f"Python tracks {len(self.positions)}")
         for p in ibkr_positions:
@@ -316,7 +316,7 @@ class IBKRExecutor:
                      f"latency={latency:.0f}ms")
 
         # Log to CSV
-        account = self.ib.accountSummary() if self.ib.isConnected() else []
+        account = await self.ib.accountSummaryAsync() if self.ib.isConnected() else []
         equity = 0.0
         for item in account:
             if item.tag == 'NetLiquidation' and item.currency == 'USD':
@@ -385,7 +385,7 @@ class IBKRExecutor:
 
         if self.paper:
             # Paper mode: place on paper account
-            trade = self.ib.placeOrder(contract, order)
+            trade = await self.ib.placeOrderAsync(contract, order)
             # Wait for fill
             for _ in range(50):  # Up to 5 seconds
                 await asyncio.sleep(0.1)
@@ -401,7 +401,7 @@ class IBKRExecutor:
                 logger.warning(f"Order not filled: status={trade.orderStatus.status}")
         else:
             # Live mode: same flow
-            trade = self.ib.placeOrder(contract, order)
+            trade = await self.ib.placeOrderAsync(contract, order)
             for _ in range(100):
                 await asyncio.sleep(0.1)
                 if trade.orderStatus.status in ('Filled', 'Cancelled', 'Inactive'):
@@ -509,9 +509,9 @@ class IBKRExecutor:
         # Request account info first (lightweight, warms up the connection)
         logger.info("Requesting account summary...")
         try:
-            self.ib.reqAccountSummary()
+            await self.ib.reqAccountSummaryAsync()
             await asyncio.sleep(2)
-            acct = self.ib.accountSummary()
+            acct = await self.ib.accountSummaryAsync()
             for item in acct:
                 if item.tag == 'NetLiquidation' and item.currency == 'USD':
                     logger.info(f"  Account equity: ${float(item.value):,.2f}")
