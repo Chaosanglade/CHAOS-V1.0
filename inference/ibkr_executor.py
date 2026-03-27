@@ -1,23 +1,19 @@
+import warnings
+import os
+warnings.filterwarnings('ignore')
+os.environ['ORT_LOG_SEVERITY_LEVEL'] = '3'
+os.environ['PYTHONWARNINGS'] = 'ignore'
 """
 CHAOS V1.0 — IBKR Direct Execution Module
 
 Pure Python → IBKR execution. No MT5, no ZeroMQ, no EA.
 Uses ib_async (maintained fork). Connects to TWS or IB Gateway.
 
-Pipeline per bar close:
-  1. Fetch 500 historical bars from IBKR
-  2. Compute 273 features via LiveFeatureAdapter
-  3. Reorder to training column order
-  4. Run thin ensemble (eligible brains only)
-  5. Risk engine checks
-  6. Place market order on IBKR if signal fires
-
 Usage:
     pip install ib_async
     python inference/ibkr_executor.py --paper
     python inference/ibkr_executor.py --live   (REAL MONEY)
 """
-import os
 import sys
 import json
 import csv
@@ -28,12 +24,6 @@ import time as _time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Dict, Optional
-
-os.environ['ORT_LOG_SEVERITY_LEVEL'] = '3'
-import warnings
-warnings.filterwarnings('ignore', category=UserWarning)
-warnings.filterwarnings('ignore', message='.*CUDA.*')
-warnings.filterwarnings('ignore', message='.*GPU.*')
 
 PROJECT_ROOT = Path(os.environ.get('CHAOS_BASE_DIR', os.getcwd()))
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -315,16 +305,12 @@ class IBKRExecutor:
             ptf = f"{pair}_{tf}"
             file_size = os.path.getsize(path) / (1024 * 1024)
 
-            if brain in quarantined_brains:
+            # Skip quarantined brains and tabnet (torch DLL unavailable on VPS)
+            skip_brains = quarantined_brains | {'tabnet_optuna'}
+            if brain in skip_brains:
+                reason = 'quarantined' if brain in quarantined_brains else 'tabnet/torch'
                 logger.info(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
-                            f"SKIP (quarantined)")
-                skipped += 1
-                continue
-
-            # Skip tabnet joblib — requires torch which has DLL issues on Windows Server
-            if ext == 'joblib' and 'tabnet' in brain:
-                logger.info(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
-                            f"SKIP (tabnet joblib needs torch)")
+                            f"SKIP ({reason})")
                 skipped += 1
                 continue
 
