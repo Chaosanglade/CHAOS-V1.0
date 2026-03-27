@@ -30,6 +30,10 @@ from pathlib import Path
 from typing import Dict, Optional
 
 os.environ['ORT_LOG_SEVERITY_LEVEL'] = '3'
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', message='.*CUDA.*')
+warnings.filterwarnings('ignore', message='.*GPU.*')
 
 PROJECT_ROOT = Path(os.environ.get('CHAOS_BASE_DIR', os.getcwd()))
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -317,12 +321,18 @@ class IBKRExecutor:
                 skipped += 1
                 continue
 
+            # Skip tabnet joblib — requires torch which has DLL issues on Windows Server
+            if ext == 'joblib' and 'tabnet' in brain:
+                logger.info(f"[{idx:>3}/{total}] Loading {os.path.basename(path)}... "
+                            f"SKIP (tabnet joblib needs torch)")
+                skipped += 1
+                continue
+
             t_model = _time.perf_counter()
             try:
                 if ext == 'onnx':
                     import onnxruntime as ort
                     sess = ort.InferenceSession(path, providers=['CPUExecutionProvider'])
-                    # Wrap in a minimal backend object
                     backend = _OnnxBackendLite(sess)
                 elif ext == 'joblib':
                     obj = joblib.load(path)
