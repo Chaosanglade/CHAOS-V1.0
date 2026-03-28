@@ -326,15 +326,190 @@ def create_et_v2_objective(X_train, y_train, X_val, y_val, returns_val):
     return objective
 
 
+def _train_pytorch_model(model, X_train, y_train, X_val, y_val, lr, weight_decay,
+                         batch_size, epochs, patience=15):
+    """Train a PyTorch model with balanced class weights + early stopping."""
+    import torch
+    import torch.nn as nn
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = model.to(device)
+
+    # Balanced class weights
+    classes = np.unique(y_train)
+    weights = compute_class_weight('balanced', classes=classes, y=y_train)
+    class_weights = torch.tensor(weights, dtype=torch.float32).to(device)
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=5, factor=0.5)
+
+    X_t = torch.tensor(X_train, dtype=torch.float32).to(device)
+    y_t = torch.tensor(y_train, dtype=torch.long).to(device)
+    X_v = torch.tensor(X_val, dtype=torch.float32).to(device)
+    y_v = torch.tensor(y_val, dtype=torch.long).to(device)
+
+    best_loss = float('inf')
+    best_state = None
+    wait = 0
+
+    for epoch in range(epochs):
+        model.train()
+        indices = torch.randperm(len(X_t))
+        epoch_loss = 0.0
+        n_batches = 0
+        for start in range(0, len(X_t), batch_size):
+            idx = indices[start:start + batch_size]
+            out = model(X_t[idx])
+            loss = criterion(out, y_t[idx])
+            optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            optimizer.step()
+            epoch_loss += loss.item()
+            n_batches += 1
+
+        # Validation
+        model.eval()
+        with torch.no_grad():
+            val_out = model(X_v)
+            val_loss = criterion(val_out, y_v).item()
+        scheduler.step(val_loss)
+
+        if val_loss < best_loss - 1e-4:
+            best_loss = val_loss
+            best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+            wait = 0
+        else:
+            wait += 1
+            if wait >= patience:
+                break
+
+    if best_state:
+        model.load_state_dict(best_state)
+    model.eval()
+    return model.cpu()
+
+
+class _MLPClassifier(object):
+    """Sklearn-like wrapper around a PyTorch MLP for predict/predict_proba."""
+    def __init__(self, net, n_features):
+        self.net = net
+        self.n_features = n_features
+
+    def predict_proba(self, X):
+        import torch
+        with torch.no_grad():
+            out = self.net(torch.tensor(X[:, :self.n_features], dtype=torch.float32))
+            return torch.softmax(out, dim=1).numpy()
+
+    def predict(self, X):
+        return np.argmax(self.predict_proba(X), axis=1)
+
+
+class _TransformerClassifier(object):
+    """Sklearn-like wrapper around a PyTorch Transformer."""
+    def __init__(self, net, n_features):
+        self.net = net
+        self.n_features = n_features
+
+    def predict_proba(self, X):
+        import torch
+        with torch.no_grad():
+            out = self.net(torch.tensor(X[:, :self.n_features], dtype=torch.float32))
+            return torch.softmax(out, dim=1).numpy()
+
+    def predict(self, X):
+        return np.argmax(self.predict_proba(X), axis=1)
+
+
+def create_mlp_objective(X_train, y_train, X_val, y_val, returns_val):
+    import torch
+    import torch.nn as nn
+    n_features = X_train.shape[1]
+
+    def objective(trial):
+        n_layers = trial.suggest_int('n_layers', 2, 4)
+        hidden_size = trial.suggest_int('hidden_size', 64, 512, step=64)
+        dropout = trial.suggest_float('dropout', 0.1, 0.5)
+        lr = trial.suggest_float('lr', 1e-4, 1e-2, log=True)
+        wd = trial.suggest_float('weight_decay', 1e-5, 1e-2, log=True)
+        batch_size = trial.suggest_categorical('batch_size', [256, 512, 1024])
+        epochs = trial.suggest_int('epochs', 50, 200, step=25)
+
+        layers = []
+        in_dim = n_features
+        for _ in range(n_layers):
+            layers.extend([nn.Linear(in_dim, hidden_size), nn.ReLU(), nn.Dropout(dropout)])
+            in_dim = hidden_size
+        layers.append(nn.Linear(in_dim, 3))
+        net = nn.Sequential(*layers)
+
+        net = _train_pytorch_model(net, X_train, y_train, X_val, y_val,
+                                    lr=lr, weight_decay=wd, batch_size=batch_size, epochs=epochs)
+
+        wrapper = _MLPClassifier(net, n_features)
+        preds = wrapper.predict(X_val)
+        return calculate_pf_with_penalty(preds, returns_val)
+    return objective
+
+
+def create_transformer_objective(X_train, y_train, X_val, y_val, returns_val):
+    import torch
+    import torch.nn as nn
+    n_features = X_train.shape[1]
+
+    class _TransformerNet(nn.Module):
+        def __init__(self, d_model, n_heads, n_layers, dropout):
+            super().__init__()
+            self.proj = nn.Linear(n_features, d_model)
+            encoder_layer = nn.TransformerEncoderLayer(
+                d_model=d_model, nhead=n_heads, dim_feedforward=d_model * 4,
+                dropout=dropout, batch_first=True)
+            self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=n_layers)
+            self.head = nn.Linear(d_model, 3)
+            self.dropout = nn.Dropout(dropout)
+
+        def forward(self, x):
+            # Treat feature vector as single-token sequence
+            x = self.proj(x).unsqueeze(1)  # (batch, 1, d_model)
+            x = self.encoder(x)
+            x = x.squeeze(1)  # (batch, d_model)
+            return self.head(self.dropout(x))
+
+    def objective(trial):
+        d_model_raw = trial.suggest_int('d_model', 64, 256, step=64)
+        n_heads = trial.suggest_categorical('n_heads', [2, 4, 8])
+        # d_model must be divisible by n_heads
+        d_model = max(n_heads, (d_model_raw // n_heads) * n_heads)
+        n_layers = trial.suggest_int('n_layers', 1, 4)
+        dropout = trial.suggest_float('dropout', 0.1, 0.5)
+        lr = trial.suggest_float('lr', 1e-4, 1e-2, log=True)
+        wd = trial.suggest_float('weight_decay', 1e-5, 1e-2, log=True)
+        batch_size = trial.suggest_categorical('batch_size', [256, 512])
+        epochs = trial.suggest_int('epochs', 50, 150, step=25)
+
+        net = _TransformerNet(d_model, n_heads, n_layers, dropout)
+        net = _train_pytorch_model(net, X_train, y_train, X_val, y_val,
+                                    lr=lr, weight_decay=wd, batch_size=batch_size, epochs=epochs)
+
+        wrapper = _TransformerClassifier(net, n_features)
+        preds = wrapper.predict(X_val)
+        return calculate_pf_with_penalty(preds, returns_val)
+    return objective
+
+
 OBJECTIVE_MAP = {
     'lgb_optuna': create_lgb_objective,
-    'lgb_v2_optuna': create_lgb_objective,      # Same v2 ranges now
+    'lgb_v2_optuna': create_lgb_objective,
     'xgb_optuna': create_xgb_objective,
     'xgb_v2_optuna': create_xgb_objective,
     'cat_optuna': create_cat_objective,
     'cat_v2_optuna': create_cat_objective,
     'rf_v2_optuna': create_rf_v2_objective,
     'et_v2_optuna': create_et_v2_objective,
+    'mlp_optuna': create_mlp_objective,
+    'transformer_optuna': create_transformer_objective,
 }
 
 
@@ -383,6 +558,65 @@ def train_final_model(brain, best_params, X_train, y_train):
         p.update({'class_weight': 'balanced', 'n_jobs': -1, 'random_state': RANDOM_SEED})
         model = ExtraTreesClassifier(**p)
         model.fit(X_train, y_train)
+
+    elif 'mlp' in brain:
+        import torch
+        import torch.nn as nn
+        n_features = X_train.shape[1]
+        n_layers = p.get('n_layers', 3)
+        hidden_size = p.get('hidden_size', 256)
+        dropout = p.get('dropout', 0.3)
+        lr = p.get('lr', 1e-3)
+        wd = p.get('weight_decay', 1e-4)
+        batch_size = p.get('batch_size', 512)
+        epochs = p.get('epochs', 100)
+
+        layers = []
+        in_dim = n_features
+        for _ in range(n_layers):
+            layers.extend([nn.Linear(in_dim, hidden_size), nn.ReLU(), nn.Dropout(dropout)])
+            in_dim = hidden_size
+        layers.append(nn.Linear(in_dim, 3))
+        net = nn.Sequential(*layers)
+
+        net = _train_pytorch_model(net, X_train, y_train,
+                                    X_train[-len(X_train)//5:], y_train[-len(y_train)//5:],
+                                    lr=lr, weight_decay=wd, batch_size=batch_size, epochs=epochs)
+        model = _MLPClassifier(net, n_features)
+
+    elif 'transformer' in brain:
+        import torch
+        import torch.nn as nn
+        n_features = X_train.shape[1]
+        d_model_raw = p.get('d_model', 128)
+        n_heads = p.get('n_heads', 4)
+        d_model = max(n_heads, (d_model_raw // n_heads) * n_heads)
+        n_layers_t = p.get('n_layers', 2)
+        dropout = p.get('dropout', 0.3)
+        lr = p.get('lr', 1e-3)
+        wd = p.get('weight_decay', 1e-4)
+        batch_size = p.get('batch_size', 512)
+        epochs = p.get('epochs', 100)
+
+        class _TNet(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.proj = nn.Linear(n_features, d_model)
+                enc = nn.TransformerEncoderLayer(d_model=d_model, nhead=n_heads,
+                         dim_feedforward=d_model*4, dropout=dropout, batch_first=True)
+                self.encoder = nn.TransformerEncoder(enc, num_layers=n_layers_t)
+                self.head = nn.Linear(d_model, 3)
+                self.drop = nn.Dropout(dropout)
+            def forward(self, x):
+                x = self.proj(x).unsqueeze(1)
+                x = self.encoder(x).squeeze(1)
+                return self.head(self.drop(x))
+
+        net = _TNet()
+        net = _train_pytorch_model(net, X_train, y_train,
+                                    X_train[-len(X_train)//5:], y_train[-len(y_train)//5:],
+                                    lr=lr, weight_decay=wd, batch_size=batch_size, epochs=epochs)
+        model = _TransformerClassifier(net, n_features)
 
     else:
         raise ValueError(f'Unknown brain type: {brain}')
@@ -472,11 +706,28 @@ def run_retraining(pairs=None, tfs=None, brains=None, resume=False):
                     elapsed = time.time() - t0
 
                     if elig['eligible']:
-                        # Save model
+                        # Save model (joblib)
                         save_path = OUTPUT_DIR / f'{pair}_{tf}_{brain}.joblib'
                         joblib.dump({'model': model, 'params': best_params,
                                      'brain': brain, 'pair': pair, 'tf': tf,
                                      'eligibility': elig, 'best_pf': best_pf}, str(save_path))
+
+                        # ONNX export for neural net models
+                        if hasattr(model, 'net'):
+                            try:
+                                import torch
+                                onnx_path = OUTPUT_DIR / f'{pair}_{tf}_{brain}.onnx'
+                                dummy = torch.randn(1, n_features, dtype=torch.float32)
+                                model.net.eval()
+                                torch.onnx.export(
+                                    model.net, dummy, str(onnx_path),
+                                    input_names=['features'], output_names=['logits'],
+                                    dynamic_axes={'features': {0: 'batch'}, 'logits': {0: 'batch'}},
+                                    opset_version=17)
+                                print(f'       ONNX exported: {onnx_path.name}')
+                            except Exception as onnx_err:
+                                print(f'       ONNX export failed: {onnx_err}')
+
                         total_eligible += 1
                         print(f'PASS  PF={best_pf:.2f}  F={elig["flat_pct"]}% L={elig["long_pct"]}% '
                               f'S={elig["short_pct"]}%  H={elig["entropy"]}  T={elig["trades"]}  '
