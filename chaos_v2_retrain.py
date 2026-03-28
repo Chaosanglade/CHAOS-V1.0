@@ -263,6 +263,9 @@ def create_xgb_objective(X_train, y_train, X_val, y_val, returns_val):
 
 def create_cat_objective(X_train, y_train, X_val, y_val, returns_val):
     from catboost import CatBoostClassifier
+    # CatBoost chokes on numpy int64 keys — convert to plain Python lists
+    y_train_list = y_train.tolist()
+    y_val_list = y_val.tolist()
 
     def objective(trial):
         use_gpu = trial.suggest_categorical('use_gpu', [True, False])
@@ -279,12 +282,12 @@ def create_cat_objective(X_train, y_train, X_val, y_val, returns_val):
             params['devices'] = '0'
         try:
             model = CatBoostClassifier(**params)
-            model.fit(X_train, y_train)
+            model.fit(X_train, y_train_list)
         except Exception:
             params['task_type'] = 'CPU'
             params.pop('devices', None)
             model = CatBoostClassifier(**params)
-            model.fit(X_train, y_train)
+            model.fit(X_train, y_train_list)
         preds = model.predict(X_val).flatten().astype(int)
         return calculate_pf_with_penalty(preds, returns_val)
     return objective
@@ -547,7 +550,7 @@ def train_final_model(brain, best_params, X_train, y_train):
         p.update({'auto_class_weights': 'Balanced', 'task_type': 'CPU',
                   'random_seed': RANDOM_SEED, 'verbose': False})
         model = CatBoostClassifier(**p)
-        model.fit(X_train, y_train)
+        model.fit(X_train, y_train.tolist())
 
     elif 'rf' in brain:
         p.update({'class_weight': 'balanced', 'n_jobs': -1, 'random_state': RANDOM_SEED})
