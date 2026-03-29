@@ -319,16 +319,24 @@ class IBKRExecutor:
         else:
             logger.info("[STARTUP] Step 2/8: Loading models...")
 
-        # Discover all model files
+        # Discover model files (v2_retrained first, then originals)
+        model_dirs = [PROJECT_ROOT / 'models' / 'v2_retrained', PROJECT_ROOT / 'models']
         model_files = []
-        for pair in pairs:
-            for tf in tfs:
-                for ext in ['onnx', 'joblib']:
-                    for path in sorted(_glob.glob(str(PROJECT_ROOT / 'models' / f'{pair}_{tf}_*.{ext}'))):
-                        basename = os.path.basename(path)
-                        parts = basename.replace(f'.{ext}', '').split('_')
-                        brain = '_'.join(parts[2:])
-                        model_files.append((pair, tf, brain, ext, path))
+        seen_keys = set()  # (pair, tf, brain) — prefer v2_retrained over original
+        for mdir in model_dirs:
+            if not mdir.exists():
+                continue
+            for pair in pairs:
+                for tf in tfs:
+                    for ext in ['onnx', 'joblib']:
+                        for path in sorted(_glob.glob(str(mdir / f'{pair}_{tf}_*.{ext}'))):
+                            basename = os.path.basename(path)
+                            parts = basename.replace(f'.{ext}', '').split('_')
+                            brain = '_'.join(parts[2:])
+                            dedupe_key = (pair, tf, brain)
+                            if dedupe_key not in seen_keys:
+                                seen_keys.add(dedupe_key)
+                                model_files.append((pair, tf, brain, ext, path))
 
         total = len(model_files)
         loaded = 0
