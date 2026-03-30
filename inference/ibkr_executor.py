@@ -589,6 +589,9 @@ class IBKRExecutor:
                      f"risk_ok={risk_approved} lot={lot_size} reason={reason} "
                      f"latency={latency:.0f}ms")
 
+        # ── DIAGNOSTIC: Feature + per-brain output dump ──
+        self._log_diagnostic(pair, tf, bars)
+
         # Log to CSV
         account = await self.ib.accountSummaryAsync() if self.ib.isConnected() else []
         equity = 0.0
@@ -682,6 +685,85 @@ class IBKRExecutor:
         self._last_signals[f"{pair}_{tf}"] = {
             'signal': sig_str, 'action': action, 'reason': reason,
             'has_pos': self.tracker.has_position(pair, tf)}
+
+    def _log_diagnostic(self, pair, tf, bars):
+        """Log detailed feature + per-brain diagnostic for debugging FLAT signals."""
+        try:
+            from inference.live_feature_adapter import LiveFeatureAdapter
+
+            # Get or reuse the handler's adapter
+            adapter = getattr(self._handler, '_feature_adapter', None)
+            if adapter is None:
+                adapter = LiveFeatureAdapter()
+
+            # Compute features
+            cross_closes = {}
+            if hasattr(self._handler, '_bar_cache'):
+                cross_closes = self._handler._bar_cache.get_all_pair_closes(tf)
+
+            schema_vec = adapter.compute(pair, tf, {tf: bars}, cross_pair_closes=cross_closes)
+            if schema_vec is None:
+                logger.warning(f"[DIAG] {pair}_{tf}: feature adapter returned None")
+                return
+
+            model_vec = adapter.reorder_for_model(schema_vec, pair, tf)
+
+            # Feature stats
+            n_zero = int(np.sum(model_vec == 0))
+            n_nan = int(np.sum(np.isnan(model_vec)))
+            n_inf = int(np.sum(np.isinf(model_vec)))
+            names = adapter.get_feature_names()
+
+            logger.info(f"[DIAG] {pair}_{tf}: features shape={model_vec.shape} "
+                         f"zeros={n_zero} nan={n_nan} inf={n_inf} "
+                         f"nonzero={len(model_vec)-n_zero}/{len(model_vec)}")
+
+            # First 10 features
+            first_10 = ', '.join(f"{names[i] if i < len(names) else f'f{i}'}={model_vec[i]:.4f}"
+                                 for i in range(min(10, len(model_vec))))
+            logger.info(f"[DIAG] {pair}_{tf} first10: {first_10}")
+
+            # Last 10 features
+            n = len(model_vec)
+            last_10 = ', '.join(f"{names[i] if i < len(names) else f'f{i}'}={model_vec[i]:.4f}"
+                                for i in range(max(0, n - 10), n))
+            logger.info(f"[DIAG] {pair}_{tf} last10: {last_10}")
+
+            # Per-brain predictions
+            block_key = f"{pair}_{tf}"
+            models = self._handler.model_loader.get_models(block_key) or {}
+            thin_block = (self._handler._thin_ensemble or {}).get('blocks', {}).get(block_key, {})
+            eligible = thin_block.get('brains', [])
+
+            class_names = {0: 'SHORT', 1: 'FLAT', 2: 'LONG'}
+            votes = {0: 0, 1: 0, 2: 0}
+            brain_results = []
+
+            for brain_name, backend in models.items():
+                if eligible and brain_name not in eligible:
+                    continue
+                try:
+                    fv = model_vec.reshape(1, -1).astype(np.float32)
+                    probs = backend.predict_proba(fv)[0]
+                    pred = int(np.argmax(probs))
+                    votes[pred] += 1
+                    brain_results.append((brain_name, pred, probs))
+                except Exception as e:
+                    brain_results.append((brain_name, -1, str(e)[:40]))
+
+            for brain_name, pred, probs in brain_results:
+                if isinstance(probs, np.ndarray) and len(probs) >= 3:
+                    logger.info(f"[DIAG] {pair}_{tf} {brain_name:<25} → "
+                                 f"{class_names.get(pred, '?'):<5} "
+                                 f"P(S)={probs[0]:.3f} P(F)={probs[1]:.3f} P(L)={probs[2]:.3f}")
+                else:
+                    logger.info(f"[DIAG] {pair}_{tf} {brain_name:<25} → ERROR: {probs}")
+
+            logger.info(f"[DIAG] {pair}_{tf} VOTES: SHORT={votes[0]} FLAT={votes[1]} "
+                         f"LONG={votes[2]} (total={sum(votes.values())})")
+
+        except Exception as e:
+            logger.error(f"[DIAG] {pair}_{tf} diagnostic error: {e}", exc_info=True)
 
     def _check_ibkr_position(self, pair):
         """Check if IBKR already has a position on this pair (any TF)."""
