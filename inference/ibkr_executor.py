@@ -177,13 +177,89 @@ class PositionTracker:
         self.daily_wins = 0
 
     async def reconcile(self, ib_client: ib.IB, pairs_map: dict):
-        """Reconcile Python state with IBKR on connect/reconnect."""
+        """
+        Reconcile Python state with IBKR on connect/reconnect.
+        Adopts ALL IBKR positions into self.positions so the executor
+        knows about them and won't stack new orders on top.
+        """
         ibkr_positions = ib_client.positions()
-        logger.info(f"IBKR reports {len(ibkr_positions)} positions, "
+        logger.info(f"[RECONCILE] IBKR reports {len(ibkr_positions)} positions, "
                      f"Python tracks {len(self.positions)}")
+
+        # Build reverse map: IBKR localSymbol -> CHAOS pair name
+        # localSymbol examples: "EUR.USD", "GBP.JPY"
+        ibkr_to_chaos = {}
+        for chaos_pair, ibkr_pair in pairs_map.items():
+            ibkr_to_chaos[ibkr_pair] = chaos_pair
+            # Also handle localSymbol format without dot: "EURUSD" or "EUR.USD"
+            ibkr_to_chaos[ibkr_pair.replace('.', '')] = chaos_pair
+
+        adopted = 0
         for p in ibkr_positions:
-            sym = p.contract.localSymbol if p.contract.localSymbol else ''
-            logger.info(f"  IBKR position: {sym} qty={p.position} avg={p.avgCost}")
+            sym = p.contract.localSymbol or p.contract.symbol or ''
+            qty = float(p.position)
+            avg_price = float(p.avgCost)
+
+            if abs(qty) < 0.01:
+                continue  # Skip zero positions
+
+            # Map to CHAOS pair name
+            chaos_pair = ibkr_to_chaos.get(sym)
+            if not chaos_pair:
+                # Try stripping exchange suffix or matching symbol+currency
+                combo = f"{p.contract.symbol}.{p.contract.currency}"
+                chaos_pair = ibkr_to_chaos.get(combo)
+            if not chaos_pair:
+                # Try raw symbol concatenation
+                raw = f"{p.contract.symbol}{p.contract.currency}"
+                chaos_pair = ibkr_to_chaos.get(raw)
+            if not chaos_pair:
+                logger.warning(f"[RECONCILE] Unknown IBKR position: {sym} qty={qty} "
+                                f"avg={avg_price} — cannot map to CHAOS pair")
+                continue
+
+            side = 1 if qty > 0 else -1  # LONG if positive, SHORT if negative
+            lots = abs(qty) / 100000  # Convert units to lots
+
+            # For IBKR FX, avgCost is the average price (not cost per unit)
+            # It may need adjustment for JPY pairs
+            if avg_price > 1000:
+                # Likely JPY pair in wrong units — avgCost for FX is actual price
+                pass
+
+            # Adopt into tracker under H1 TF (we don't know original TF from IBKR)
+            # Check if we already track this pair on any TF
+            already_tracked = False
+            for tf_check in ['H1', 'M30']:
+                if self.has_position(chaos_pair, tf_check):
+                    already_tracked = True
+                    logger.info(f"[RECONCILE] {chaos_pair} already tracked as {chaos_pair}_{tf_check}, "
+                                 f"updating price to {avg_price}")
+                    # Update the tracked position's price
+                    self.positions[f"{chaos_pair}_{tf_check}"]['entry_price'] = avg_price
+                    self.positions[f"{chaos_pair}_{tf_check}"]['current_price'] = avg_price
+                    break
+
+            if not already_tracked:
+                # Adopt as H1 position (default — we can't know the original TF)
+                key = f"{chaos_pair}_H1"
+                self.positions[key] = {
+                    'pair': chaos_pair, 'tf': 'H1', 'side': side,
+                    'qty': lots, 'entry_price': avg_price,
+                    'entry_ts': datetime.now(timezone.utc),  # Unknown, use now
+                    'order_id': -1,  # Reconciled, no order ID
+                    'max_profit_pips': 0.0,
+                    'current_price': avg_price,
+                    'unrealized_pnl': 0.0,
+                }
+                side_str = 'LONG' if side == 1 else 'SHORT'
+                logger.info(f"[RECONCILE] Adopted {chaos_pair} {side_str} "
+                             f"{abs(qty):.0f} units ({lots:.2f} lots) "
+                             f"@ {avg_price} from IBKR")
+                adopted += 1
+
+        logger.info(f"[RECONCILE] Done: {adopted} positions adopted, "
+                     f"total tracked: {len(self.positions)}")
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -581,6 +657,14 @@ class IBKRExecutor:
 
         # Open new position if signal is directional and no position exists
         if sig != 0 and not has_pos:
+            # Also check if ANY TF on this pair has a tracked position
+            pair_has_any = any(self.tracker.has_position(pair, t) for t in ['H1', 'M30'])
+            if pair_has_any:
+                logger.info(f"[BLOCKED] {pair}_{tf}: pair already has position on another TF")
+                self._last_signals[f"{pair}_{tf}"] = {
+                    'signal': sig_str, 'action': 'BLOCKED', 'reason': 'PAIR_HAS_POSITION',
+                    'has_pos': False}
+                return
             if self.tracker.open_count() >= self.kill_switch['max_open_positions']:
                 logger.warning(f"[BLOCKED] {pair}_{tf}: max positions "
                                 f"({self.kill_switch['max_open_positions']})")
@@ -599,6 +683,19 @@ class IBKRExecutor:
             'signal': sig_str, 'action': action, 'reason': reason,
             'has_pos': self.tracker.has_position(pair, tf)}
 
+    def _check_ibkr_position(self, pair):
+        """Check if IBKR already has a position on this pair (any TF)."""
+        ibkr_positions = self.ib.positions()
+        ibkr_pair = self.pairs_map.get(pair, '')
+        for p in ibkr_positions:
+            sym = p.contract.localSymbol or ''
+            combo = f"{p.contract.symbol}.{p.contract.currency}"
+            raw = f"{p.contract.symbol}{p.contract.currency}"
+            if ibkr_pair in (sym, combo, raw, sym.replace('.', '')):
+                if abs(float(p.position)) > 0.01:
+                    return float(p.position)
+        return 0.0
+
     async def _place_order(self, pair: str, tf: str, side: int, lot_size: float):
         """Place a market order on IBKR using pre-qualified contract."""
         contract = self._get_qualified_contract(pair)
@@ -606,6 +703,30 @@ class IBKRExecutor:
             logger.error(f"[ORDER] REJECTED: no qualified contract for {pair}")
             return
         ibkr_pair = self.pairs_map.get(pair, pair)
+
+        # CRITICAL: Check IBKR directly for existing position on this pair
+        # Prevents stacking if tracker is out of sync
+        existing_qty = self._check_ibkr_position(pair)
+        if abs(existing_qty) > 0.01:
+            existing_side = 'LONG' if existing_qty > 0 else 'SHORT'
+            new_side = 'LONG' if side == 1 else 'SHORT'
+            # Allow if closing (opposite direction) but block if stacking (same direction)
+            if (existing_qty > 0 and side == 1) or (existing_qty < 0 and side == -1):
+                logger.warning(f"[ORDER] BLOCKED: {pair} already has IBKR position "
+                                f"{existing_side} {abs(existing_qty):.0f} units — "
+                                f"would stack {new_side}")
+                # Adopt the position if not tracked
+                if not any(self.tracker.has_position(pair, t) for t in ['H1', 'M30']):
+                    logger.info(f"[ORDER] Adopting untracked IBKR position for {pair}")
+                    self.tracker.positions[f"{pair}_{tf}"] = {
+                        'pair': pair, 'tf': tf,
+                        'side': 1 if existing_qty > 0 else -1,
+                        'qty': abs(existing_qty) / 100000,
+                        'entry_price': 0, 'entry_ts': datetime.now(timezone.utc),
+                        'order_id': -1, 'max_profit_pips': 0.0,
+                        'current_price': 0, 'unrealized_pnl': 0.0,
+                    }
+                return
 
         units = round(lot_size * self.ibkr_cfg.get('lot_to_units', 100000))
         if units < 1:
