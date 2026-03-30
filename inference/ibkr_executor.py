@@ -813,8 +813,7 @@ class IBKRExecutor:
         while True:
             await asyncio.sleep(interval)
             if not self.ib.isConnected():
-                print("\n[DASHBOARD] DISCONNECTED from IBKR")
-                continue
+                continue  # Reconnect loop handles logging; don't spam
 
             now = datetime.now(timezone.utc)
             now_str = now.strftime('%H:%M:%S')
@@ -959,22 +958,144 @@ class IBKRExecutor:
                      f"Monitoring {qualified_count} pairs on {tfs}. "
                      f"Waiting for bar closes.")
 
-        try:
-            await asyncio.gather(
-                self._bar_builder.run(),
-                self._dashboard_loop(),
-                self._position_management_loop(),
+        await self._run_with_reconnect()
+
+    async def _subscribe_pairs(self):
+        """(Re)subscribe to all pairs: qualify contracts + market data."""
+        tfs = self.ibkr_cfg.get('timeframes', ['H1', 'M30'])
+        if not self._bar_builder:
+            self._bar_builder = IBKRBarBuilder(
+                ib_client=self.ib,
+                pairs_map=self.pairs_map,
+                timeframes=tfs,
+                bars_count=self.ibkr_cfg.get('bars_to_request', 500),
+                pacing_delay=self.ibkr_cfg.get('pacing_delay_sec', 2),
+                on_bar_close=self._on_bar_close,
             )
-        except KeyboardInterrupt:
-            logger.info("Shutdown requested")
-        except Exception as e:
-            logger.error(f"Executor error: {e}", exc_info=True)
-        finally:
+        else:
+            self._bar_builder.ib = self.ib
+
+        self._qualified_contracts.clear()
+        self._live_tickers.clear()
+        qualified_count = 0
+        total_pairs = len(self.pairs_map)
+
+        for i, (chaos_pair, ibkr_pair) in enumerate(self.pairs_map.items(), 1):
+            try:
+                base, quote = ibkr_pair.split('.')
+                contract = ib.Forex(base + quote, exchange='IDEALPRO')
+                result = await self.ib.qualifyContractsAsync(contract)
+                if result:
+                    qc = result[0]
+                    self._qualified_contracts[chaos_pair] = qc
+                    self._bar_builder._contracts[chaos_pair] = qc
+                    self._live_tickers[chaos_pair] = self.ib.reqMktData(qc, '', False, False)
+                    qualified_count += 1
+                    logger.info(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... OK")
+                else:
+                    logger.warning(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... FAILED")
+            except Exception as e:
+                logger.warning(f"  [{i}/{total_pairs}] {chaos_pair} ({ibkr_pair})... ERROR: {e}")
+            await asyncio.sleep(2)
+
+        logger.info(f"Subscribed {qualified_count}/{total_pairs} pairs")
+        return qualified_count
+
+    async def _reconnect(self):
+        """Reconnect to IBKR, re-subscribe pairs, reconcile positions."""
+        max_retries = 10
+        base_delay = self.ibkr_cfg.get('reconnect_delay_sec', 30)
+
+        for attempt in range(1, max_retries + 1):
+            delay = min(base_delay * (2 ** (attempt - 1)), 300)  # Exponential, cap 5 min
+            logger.info(f"[RECONNECT] Attempt {attempt}/{max_retries} in {delay}s...")
+
+            # Countdown (log every 10s instead of spamming)
+            remaining = delay
+            while remaining > 0:
+                await asyncio.sleep(min(10, remaining))
+                remaining -= 10
+                if remaining > 0:
+                    logger.info(f"[RECONNECT] Reconnecting in {remaining}s...")
+
+            # Disconnect cleanly if still half-open
+            try:
+                if self.ib.isConnected():
+                    self.ib.disconnect()
+            except Exception:
+                pass
+            await asyncio.sleep(1)
+
+            try:
+                logger.info(f"[RECONNECT] Connecting to {self.host}:{self.port}...")
+                await self.ib.connectAsync(
+                    self.host, self.port, clientId=self.client_id, timeout=60)
+                logger.info(f"[RECONNECT] Connected (server v{self.ib.client.serverVersion()})")
+
+                await asyncio.sleep(3)
+
+                # Re-subscribe pairs
+                logger.info("[RECONNECT] Re-subscribing pairs...")
+                n = await self._subscribe_pairs()
+                if n == 0:
+                    logger.warning("[RECONNECT] No pairs qualified, will retry")
+                    continue
+
+                # Reconcile positions
+                logger.info("[RECONNECT] Reconciling positions...")
+                try:
+                    await self.tracker.reconcile(self.ib, self.pairs_map)
+                except Exception as e:
+                    logger.warning(f"[RECONNECT] Reconciliation: {e}")
+
+                logger.info(f"[RECONNECT] SUCCESS — resumed trading with {n} pairs")
+                return True
+
+            except Exception as e:
+                logger.error(f"[RECONNECT] Attempt {attempt} failed: {e}")
+
+        logger.error(f"[RECONNECT] GAVE UP after {max_retries} attempts")
+        self._halted = True
+        return False
+
+    async def _run_with_reconnect(self):
+        """Run the main loops with automatic reconnection on disconnect."""
+        while not self._halted:
+            try:
+                await asyncio.gather(
+                    self._bar_builder.run(),
+                    self._dashboard_loop(),
+                    self._position_management_loop(),
+                )
+            except KeyboardInterrupt:
+                logger.info("[SHUTDOWN] KeyboardInterrupt — stopping")
+                break
+            except (ConnectionError, asyncio.IncompleteReadError, OSError) as e:
+                logger.error(f"[DISCONNECT] Connection lost: {e}")
+                self._bar_builder.stop()
+                if not await self._reconnect():
+                    break
+                # Reset bar builder running state for re-entry
+                self._bar_builder._running = False
+            except Exception as e:
+                err_str = str(e).lower()
+                if 'peer closed' in err_str or 'connection' in err_str or 'reset' in err_str:
+                    logger.error(f"[DISCONNECT] Connection lost: {e}")
+                    self._bar_builder.stop()
+                    if not await self._reconnect():
+                        break
+                    self._bar_builder._running = False
+                else:
+                    logger.error(f"[ERROR] Unexpected: {e}", exc_info=True)
+                    break
+
+        # Cleanup
+        if self._bar_builder:
             self._bar_builder.stop()
-            self.logger_csv.close()
-            if self.ib.isConnected():
-                self.ib.disconnect()
-            logger.info("IBKR Executor stopped")
+        self.logger_csv.close()
+        if self.ib.isConnected():
+            self.ib.disconnect()
+        logger.info("[SHUTDOWN] IBKR Executor stopped")
 
 
 # ──────────────────────────────────────────────────────────────────────
