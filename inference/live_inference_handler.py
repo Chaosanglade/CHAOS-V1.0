@@ -446,13 +446,10 @@ class LiveInferenceHandler:
                 return self._skip_response(request_id, 'DEFENSIVE_TIER_BLOCKED', t0)
 
             # --- Step 3: TF role check ---
+            # H1 and M30 are always TRADE_ENABLED, even in defensive mode
             tf_roles = {'H1': 'TRADE_ENABLED', 'M30': 'TRADE_ENABLED',
                         'M15': 'CONFIRM_ONLY', 'M5': 'CONFIRM_ONLY'}
             role = tf_roles.get(tf, 'CONFIRM_ONLY')
-            if self._defensive_active:
-                defensive_enabled = self.defensive_config.get('rules', {}).get('enabled_tfs', ['H1'])
-                if tf not in defensive_enabled:
-                    role = 'CONFIRM_ONLY'
             if role == 'CONFIRM_ONLY':
                 return self._skip_response(request_id, 'TF_CONFIRM_ONLY', t0)
 

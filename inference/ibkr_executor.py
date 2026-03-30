@@ -1037,6 +1037,7 @@ class IBKRExecutor:
 
             # ── Spread spike detection (from streaming tickers) ──
             try:
+                any_spiked = False
                 for pair in self.pairs_map:
                     ticker = self._live_tickers.get(pair)
                     if not ticker:
@@ -1045,15 +1046,19 @@ class IBKRExecutor:
                         spread = (ticker.ask - ticker.bid) / self._get_pip_size(pair)
                         baseline = baseline_spreads.get(pair, 1.0)
                         if spread > baseline * spread_mult:
+                            any_spiked = True
                             if not self._defensive_active:
-                                logger.warning(f"DEFENSIVE_MODE_SPREAD_SPIKE: {pair} "
+                                logger.warning(f"[DEFENSIVE] ACTIVATED: {pair} "
                                                f"spread={spread:.1f} pips (baseline={baseline})")
-                                if self._handler:
-                                    self._handler.set_defensive_mode(True)
-                                self._defensive_active = True
-                        elif self._defensive_active:
-                            # Check if all spreads normalized
-                            pass  # Will auto-deactivate when spreads normalize
+                if any_spiked and not self._defensive_active:
+                    self._defensive_active = True
+                    if self._handler:
+                        self._handler.set_defensive_mode(True)
+                elif not any_spiked and self._defensive_active:
+                    logger.info("[DEFENSIVE] DEACTIVATED: all spreads normalized")
+                    self._defensive_active = False
+                    if self._handler:
+                        self._handler.set_defensive_mode(False)
             except Exception as e:
                 logger.debug(f"Spread check error: {e}")
 
