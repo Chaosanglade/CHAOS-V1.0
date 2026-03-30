@@ -237,9 +237,10 @@ class IBKRExecutor:
     runs inference pipeline, executes trades.
     """
 
-    def __init__(self, paper: bool = True, thin_only: bool = False):
+    def __init__(self, paper: bool = True, thin_only: bool = False, test_close: bool = False):
         self.paper = paper
         self.thin_only = thin_only
+        self._test_close = test_close
 
         # Load configs
         with open(PROJECT_ROOT / 'inference' / 'ibkr_config.json') as f:
@@ -273,6 +274,9 @@ class IBKRExecutor:
         self._qualified_contracts = {}
         # Live market data tickers (streaming, keyed by CHAOS pair name)
         self._live_tickers = {}
+
+        # Signal tracking for cycle summary
+        self._last_signals = {}  # "EURUSD_H1" -> {signal, action, reason, has_pos}
 
         # Next order ID
         self._next_order_id = 1
@@ -531,8 +535,36 @@ class IBKRExecutor:
             'daily_pnl': self.tracker.daily_pnl, 'commission': 0,
         })
 
-        # Execute
-        if action == 'SKIP' or action == 'HOLD':
+        # ── Signal-based close logic (executor-level, not handler-level) ──
+        # The handler's portfolio state may not reflect our actual positions.
+        # We check the executor's own tracker for close decisions.
+        has_pos = self.tracker.has_position(pair, tf)
+        pos = self.tracker.get_position(pair, tf)
+
+        if has_pos and sig != 0 and pos['side'] != sig:
+            # Opposite signal → close immediately
+            logger.info(f"[CLOSE] SIGNAL_REVERSAL: {pair}_{tf} was "
+                         f"{'LONG' if pos['side']==1 else 'SHORT'} → signal={sig_str}")
+            await self._close_position(pair, tf)
+            # After close, proceed to potentially open the new direction below
+
+        if has_pos and sig == 0 and confidence > 0.8:
+            # FLAT with high confidence — close if position is stale (2+ hours)
+            age = (datetime.now(timezone.utc) - pos['entry_ts']).total_seconds() / 3600
+            if age >= 2.0:
+                logger.info(f"[CLOSE] FLAT_HIGH_CONF: {pair}_{tf} flat conf={confidence:.2f} "
+                             f"age={age:.1f}h")
+                await self._close_position(pair, tf)
+
+        # Re-check position after potential close
+        has_pos = self.tracker.has_position(pair, tf)
+
+        # Skip/Hold: no further action
+        if action == 'SKIP' or (action == 'HOLD' and not (sig != 0 and not has_pos)):
+            # Store signal for cycle summary
+            self._last_signals[f"{pair}_{tf}"] = {
+                'signal': sig_str, 'action': action, 'reason': reason,
+                'has_pos': has_pos}
             return
 
         # Kill switch checks
@@ -547,14 +579,25 @@ class IBKRExecutor:
             self._halted = True
             return
 
-        if action == 'OPEN' and risk_approved and sig != 0:
+        # Open new position if signal is directional and no position exists
+        if sig != 0 and not has_pos:
             if self.tracker.open_count() >= self.kill_switch['max_open_positions']:
-                logger.warning(f"Max open positions ({self.kill_switch['max_open_positions']}) — skipping")
+                logger.warning(f"[BLOCKED] {pair}_{tf}: max positions "
+                                f"({self.kill_switch['max_open_positions']})")
+                self._last_signals[f"{pair}_{tf}"] = {
+                    'signal': sig_str, 'action': 'BLOCKED', 'reason': 'MAX_POSITIONS',
+                    'has_pos': False}
                 return
-            await self._place_order(pair, tf, sig, lot_size)
+            lot = lot_size if lot_size > 0 else 0.02
+            await self._place_order(pair, tf, sig, lot)
 
-        elif action == 'CLOSE':
+        elif action == 'CLOSE' and has_pos:
             await self._close_position(pair, tf)
+
+        # Store signal for cycle summary
+        self._last_signals[f"{pair}_{tf}"] = {
+            'signal': sig_str, 'action': action, 'reason': reason,
+            'has_pos': self.tracker.has_position(pair, tf)}
 
     async def _place_order(self, pair: str, tf: str, side: int, lot_size: float):
         """Place a market order on IBKR using pre-qualified contract."""
@@ -735,7 +778,8 @@ class IBKRExecutor:
 
                 # ── Stop Loss ──
                 if pnl_pips <= -sl_pips:
-                    logger.warning(f"STOP_LOSS_HIT: {key} at {pnl_pips:.1f} pips (limit: -{sl_pips})")
+                    logger.warning(f"[CLOSE] SL_HIT pair={pair} tf={tf} pips={pnl_pips:.1f} "
+                                    f"limit=-{sl_pips}")
                     await self._close_position(pair, tf)
                     self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
                                          'action': 'CLOSE', 'reason_codes': 'STOP_LOSS_HIT',
@@ -744,7 +788,8 @@ class IBKRExecutor:
 
                 # ── Take Profit ──
                 if pnl_pips >= tp_pips:
-                    logger.info(f"TAKE_PROFIT_HIT: {key} at {pnl_pips:.1f} pips (limit: {tp_pips})")
+                    logger.info(f"[CLOSE] TP_HIT pair={pair} tf={tf} pips=+{pnl_pips:.1f} "
+                                 f"limit=+{tp_pips}")
                     await self._close_position(pair, tf)
                     self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
                                          'action': 'CLOSE', 'reason_codes': 'TAKE_PROFIT_HIT',
@@ -754,8 +799,9 @@ class IBKRExecutor:
                 # ── Trailing Stop ──
                 max_p = pos.get('max_profit_pips', 0)
                 if max_p >= trail_start and pnl_pips <= (max_p - trail_dist):
-                    logger.info(f"TRAILING_STOP_HIT: {key} max={max_p:.1f} now={pnl_pips:.1f} "
-                                f"(trail from {trail_start}, dist {trail_dist})")
+                    logger.info(f"[CLOSE] TRAILING_HIT pair={pair} tf={tf} "
+                                 f"max_pips=+{max_p:.1f} now=+{pnl_pips:.1f} "
+                                 f"trail_start={trail_start} trail_dist={trail_dist}")
                     await self._close_position(pair, tf)
                     self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
                                          'action': 'CLOSE', 'reason_codes': 'TRAILING_STOP_HIT',
@@ -764,7 +810,8 @@ class IBKRExecutor:
 
                 # ── Time-based stale exit ──
                 if age_hours >= stale_hours and pnl_pips < stale_min_pips:
-                    logger.info(f"TIME_EXIT_STALE: {key} age={age_hours:.1f}h pnl={pnl_pips:.1f} pips")
+                    logger.info(f"[CLOSE] TIME_EXIT pair={pair} tf={tf} "
+                                 f"age={age_hours:.1f}h pips={pnl_pips:.1f}")
                     await self._close_position(pair, tf)
                     self.logger_csv.log({'timestamp': now.isoformat(), 'pair': pair, 'tf': tf,
                                          'action': 'CLOSE', 'reason_codes': 'TIME_EXIT_STALE',
@@ -851,6 +898,29 @@ class IBKRExecutor:
                           f"@ {pos['entry_price']:.{prec}f}  "
                           f"current: {current:.{prec}f}  "
                           f"PnL: {pnl_str:<10} age: {hours}h {mins:02d}m")
+
+            # Cycle summary
+            if self._last_signals:
+                directional = sum(1 for s in self._last_signals.values()
+                                  if s['signal'] not in ('FLAT', '0'))
+                total_sigs = len(self._last_signals)
+                print(f"\n[CYCLE SUMMARY] {now_str} UTC")
+                for pair_name in sorted(set(p.split('_')[0] for p in self._last_signals)):
+                    parts = []
+                    for tf_name in ['H1', 'M30']:
+                        k = f"{pair_name}_{tf_name}"
+                        s = self._last_signals.get(k)
+                        if s:
+                            tag = s['signal']
+                            if s.get('has_pos'):
+                                tag += '(open)'
+                            elif s.get('action') == 'BLOCKED':
+                                tag += f"(blocked:{s.get('reason','')})"
+                            parts.append(f"{tf_name}={tag}")
+                    if parts:
+                        print(f"  {pair_name:<8} {' '.join(parts)}")
+                print(f"  Signals: {directional} directional / {total_sigs} total  "
+                      f"Positions: {self.tracker.open_count()}/{self.kill_switch['max_open_positions']}")
             print()
 
     async def start(self):
@@ -957,6 +1027,19 @@ class IBKRExecutor:
         logger.info(f"[STARTUP] READY. Total startup: {total_startup:.0f}s. "
                      f"Monitoring {qualified_count} pairs on {tfs}. "
                      f"Waiting for bar closes.")
+
+        # --test-close: close oldest position to verify close flow
+        if self._test_close and self.tracker.positions:
+            oldest_key = min(self.tracker.positions,
+                             key=lambda k: self.tracker.positions[k]['entry_ts'])
+            pos = self.tracker.positions[oldest_key]
+            logger.info(f"[TEST_CLOSE] Closing oldest position: {oldest_key} "
+                         f"({'LONG' if pos['side']==1 else 'SHORT'} "
+                         f"@ {pos['entry_price']})")
+            await self._close_position(pos['pair'], pos['tf'])
+            logger.info(f"[TEST_CLOSE] Done. Positions remaining: {self.tracker.open_count()}")
+        elif self._test_close:
+            logger.info("[TEST_CLOSE] No open positions to close")
 
         await self._run_with_reconnect()
 
@@ -1111,6 +1194,8 @@ def main():
                         help='Connect to live trading (port 7496) — REAL MONEY')
     parser.add_argument('--thin-only', action='store_true',
                         help='Only load models in thin_ensemble.json (~30 instead of ~400)')
+    parser.add_argument('--test-close', action='store_true',
+                        help='Close oldest open position on startup to verify close flow')
     parser.add_argument('--host', default=None, help='Override IBKR host')
     parser.add_argument('--port', type=int, default=None, help='Override IBKR port')
     parser.add_argument('--client-id', type=int, default=None, help='Override client ID')
@@ -1123,7 +1208,8 @@ def main():
         logger.warning("  *** LIVE TRADING MODE — REAL MONEY ***")
         logger.warning("=" * 60)
 
-    executor = IBKRExecutor(paper=is_paper, thin_only=args.thin_only)
+    executor = IBKRExecutor(paper=is_paper, thin_only=args.thin_only,
+                            test_close=args.test_close)
 
     if args.host:
         executor.host = args.host
