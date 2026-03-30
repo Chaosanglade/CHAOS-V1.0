@@ -1,7 +1,6 @@
 {
-  "version": "THIN_V2_20260329",
-  "description": "Merged ensemble: original 17 eligible + 29 v2-retrained models. 45 brain assignments across 15 blocks.",
-  "source": "brain_audit_results.json + models/v2_retrained/",
+  "version": "THIN_V3_20260330",
+  "description": "Full audit + retrained models. 50 brain assignments across 15 blocks.",
   "agreement_rules": {
     "single_brain": "direct_signal",
     "two_brains": "unanimous",
@@ -127,23 +126,33 @@
     },
     "AUDUSD_M30": {
       "brains": [
+        "et_v2_optuna",
         "lgb_optuna",
+        "rf_v2_optuna",
+        "xgb_optuna",
         "xgb_v2_optuna"
       ],
-      "rule": "unanimous",
+      "rule": "majority_0.50",
       "model_dirs": {
+        "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "rf_v2_optuna": "v2_retrained",
+        "xgb_optuna": "v2_retrained",
         "xgb_v2_optuna": "models"
       }
     },
     "USDCAD_H1": {
       "brains": [
         "cat_v2_optuna",
+        "lgb_optuna",
+        "xgb_optuna",
         "xgb_v2_optuna"
       ],
-      "rule": "unanimous",
+      "rule": "majority_0.50",
       "model_dirs": {
         "cat_v2_optuna": "models",
+        "lgb_optuna": "v2_retrained",
+        "xgb_optuna": "v2_retrained",
         "xgb_v2_optuna": "models"
       }
     },
@@ -230,7 +239,7 @@
     "total_blocks": 18,
     "enabled_blocks": 15,
     "disabled_blocks": 3,
-    "total_brain_assignments": 45,
+    "total_brain_assignments": 50,
     "unique_brains": [
       "cat_optuna",
       "cat_v2_optuna",

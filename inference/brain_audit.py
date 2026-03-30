@@ -59,16 +59,23 @@ def load_quarantine():
 
 
 def find_models(pair, tf):
-    """Return dict {brain_name: {'onnx': path, 'joblib': path, 'pt': path}}."""
+    """Return dict {brain_name: {'onnx': path, 'joblib': path, 'pt': path}}.
+    Searches models/v2_retrained/ first (preferred), then models/."""
     models = {}
-    for ext in ['onnx', 'joblib', 'pt']:
-        for path in glob.glob(str(PROJECT_ROOT / 'models' / f'{pair}_{tf}_*.{ext}')):
-            basename = os.path.basename(path)
-            parts = basename.replace(f'.{ext}', '').split('_')
-            brain = '_'.join(parts[2:])
-            if brain not in models:
-                models[brain] = {}
-            models[brain][ext] = path
+    search_dirs = [PROJECT_ROOT / 'models' / 'v2_retrained', PROJECT_ROOT / 'models']
+    for mdir in search_dirs:
+        if not mdir.exists():
+            continue
+        for ext in ['onnx', 'joblib', 'pt']:
+            for path in glob.glob(str(mdir / f'{pair}_{tf}_*.{ext}')):
+                basename = os.path.basename(path)
+                parts = basename.replace(f'.{ext}', '').split('_')
+                brain = '_'.join(parts[2:])
+                if brain not in models:
+                    models[brain] = {}
+                # Prefer v2_retrained over original
+                if ext not in models[brain] or 'v2_retrained' in str(mdir):
+                    models[brain][ext] = path
     return models
 
 
