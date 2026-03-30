@@ -97,7 +97,15 @@ class _SklearnBackendLite:
         self.n_features_ = getattr(model, 'n_features_in_', None)
 
     def predict_proba(self, X):
-        return self.model.predict_proba(np.nan_to_num(X.astype(np.float64), nan=0, posinf=0, neginf=0))
+        X = np.nan_to_num(X.astype(np.float64), nan=0, posinf=0, neginf=0)
+        # Zero-pad if model expects more features than provided
+        if self.n_features_ and X.shape[1] < self.n_features_:
+            padded = np.zeros((X.shape[0], self.n_features_), dtype=np.float64)
+            padded[:, :X.shape[1]] = X
+            X = padded
+        elif self.n_features_ and X.shape[1] > self.n_features_:
+            X = X[:, :self.n_features_]
+        return self.model.predict_proba(X)
 
 
 class _ModelLoaderShim:

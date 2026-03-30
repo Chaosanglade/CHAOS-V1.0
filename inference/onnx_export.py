@@ -748,6 +748,14 @@ class SklearnBackend:
         X = features.astype(np.float64)
         if self.scaler is not None:
             X = self.scaler.transform(X)
+        # Zero-pad or truncate to match model's expected feature count
+        n_expected = getattr(self.model, 'n_features_in_', None)
+        if n_expected and X.shape[1] < n_expected:
+            padded = np.zeros((X.shape[0], n_expected), dtype=np.float64)
+            padded[:, :X.shape[1]] = X
+            X = padded
+        elif n_expected and X.shape[1] > n_expected:
+            X = X[:, :n_expected]
         return self.model.predict_proba(X)
 
     def batch_predict_proba(self, features_batch):
