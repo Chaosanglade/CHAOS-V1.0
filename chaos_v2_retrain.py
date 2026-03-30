@@ -231,7 +231,8 @@ def create_xgb_objective(X_train, y_train, X_val, y_val, returns_val):
     from xgboost import XGBClassifier
     classes = np.unique(y_train)
     weights = compute_class_weight('balanced', classes=classes, y=y_train)
-    sample_weights = np.array([dict(zip(classes, weights))[y] for y in y_train])
+    weight_map = {int(c): float(w) for c, w in zip(classes, weights)}
+    sample_weights = np.array([weight_map[int(y)] for y in y_train])
 
     def objective(trial):
         use_gpu = trial.suggest_categorical('use_gpu', [True, False])
@@ -247,7 +248,7 @@ def create_xgb_objective(X_train, y_train, X_val, y_val, returns_val):
             'colsample_bytree': trial.suggest_float('colsample_bytree', 0.5, 0.9),
             'reg_alpha': trial.suggest_float('reg_alpha', 0.1, 100.0, log=True),
             'reg_lambda': trial.suggest_float('reg_lambda', 0.1, 100.0, log=True),
-            'random_state': RANDOM_SEED, 'verbosity': 0,
+            'random_state': RANDOM_SEED, 'verbosity': 0, 'n_jobs': -1,
         }
         try:
             model = XGBClassifier(**params)
@@ -263,9 +264,11 @@ def create_xgb_objective(X_train, y_train, X_val, y_val, returns_val):
 
 def create_cat_objective(X_train, y_train, X_val, y_val, returns_val):
     from catboost import CatBoostClassifier
-    # CatBoost chokes on numpy int64 keys — convert to plain Python lists
-    y_train_list = y_train.tolist()
-    y_val_list = y_val.tolist()
+    # CatBoost chokes on numpy int64 — convert everything to native Python types
+    X_train_f64 = X_train.astype(np.float64)
+    X_val_f64 = X_val.astype(np.float64)
+    y_train_list = [int(y) for y in y_train]
+    y_val_list = [int(y) for y in y_val]
 
     def objective(trial):
         use_gpu = trial.suggest_categorical('use_gpu', [True, False])
@@ -277,18 +280,19 @@ def create_cat_objective(X_train, y_train, X_val, y_val, returns_val):
             'auto_class_weights': 'Balanced',
             'task_type': 'GPU' if use_gpu else 'CPU',
             'random_seed': RANDOM_SEED, 'verbose': False,
+            'thread_count': -1,
         }
         if use_gpu:
             params['devices'] = '0'
         try:
             model = CatBoostClassifier(**params)
-            model.fit(X_train, y_train_list)
+            model.fit(X_train_f64, y_train_list)
         except Exception:
             params['task_type'] = 'CPU'
             params.pop('devices', None)
             model = CatBoostClassifier(**params)
-            model.fit(X_train, y_train_list)
-        preds = model.predict(X_val).flatten().astype(int)
+            model.fit(X_train_f64, y_train_list)
+        preds = model.predict(X_val_f64).flatten().astype(int)
         return calculate_pf_with_penalty(preds, returns_val)
     return objective
 
@@ -536,10 +540,11 @@ def train_final_model(brain, best_params, X_train, y_train):
     elif 'xgb' in brain:
         from xgboost import XGBClassifier
         p.update({'objective': 'multi:softmax', 'num_class': 3, 'tree_method': 'hist',
-                  'device': 'cpu', 'random_state': RANDOM_SEED, 'verbosity': 0})
+                  'device': 'cpu', 'random_state': RANDOM_SEED, 'verbosity': 0, 'n_jobs': -1})
         classes = np.unique(y_train)
         weights = compute_class_weight('balanced', classes=classes, y=y_train)
-        sw = np.array([dict(zip(classes, weights))[y] for y in y_train])
+        weight_map = {int(c): float(w) for c, w in zip(classes, weights)}
+        sw = np.array([weight_map[int(y)] for y in y_train])
         model = XGBClassifier(**p)
         model.fit(X_train, y_train, sample_weight=sw)
 
@@ -548,9 +553,9 @@ def train_final_model(brain, best_params, X_train, y_train):
         if 'iterations' not in p:
             p['iterations'] = p.pop('n_estimators', 500)
         p.update({'auto_class_weights': 'Balanced', 'task_type': 'CPU',
-                  'random_seed': RANDOM_SEED, 'verbose': False})
+                  'random_seed': RANDOM_SEED, 'verbose': False, 'thread_count': -1})
         model = CatBoostClassifier(**p)
-        model.fit(X_train, y_train.tolist())
+        model.fit(X_train.astype(np.float64), [int(y) for y in y_train])
 
     elif 'rf' in brain:
         p.update({'class_weight': 'balanced', 'n_jobs': -1, 'random_state': RANDOM_SEED})
