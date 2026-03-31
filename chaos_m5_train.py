@@ -83,7 +83,8 @@ def load_data(pair):
     df = pd.read_parquet(str(parquet))
     print(f'{df.shape[0]:,} rows x {df.shape[1]} cols ({time.time()-t0:.1f}s)')
 
-    feature_cols = [c for c in df.columns if not c.startswith(EXCLUDE_PREFIX)]
+    feature_cols = [c for c in df.columns
+                    if not c.startswith(EXCLUDE_PREFIX) and df[c].dtype != 'object']
 
     if TARGET_COL not in df.columns:
         raise ValueError(f'Missing {TARGET_COL} in {pair}_{TF}')
