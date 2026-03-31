@@ -153,24 +153,32 @@ class PositionTracker:
         self.daily_trades += 1
         logger.info(f"POSITION OPENED: {key} side={side} qty={qty} @ {price}")
 
-    def close_position(self, pair: str, tf: str, exit_price: float, order_id: int):
+    def close_position(self, pair: str, tf: str, exit_price: float, order_id: int,
+                       usdjpy_rate: float = 150.0):
         key = f"{pair}_{tf}"
         pos = self.positions.pop(key, None)
         if not pos:
             return None
         self._order_ids.add(order_id)
-        # Compute PnL
+        # Compute PnL in quote currency
         if pos['side'] == 1:  # LONG
-            pnl = (exit_price - pos['entry_price']) * pos['qty'] * 100000
+            pnl_quote = (exit_price - pos['entry_price']) * pos['qty'] * 100000
         else:  # SHORT
-            pnl = (pos['entry_price'] - exit_price) * pos['qty'] * 100000
+            pnl_quote = (pos['entry_price'] - exit_price) * pos['qty'] * 100000
+        # Convert to USD: JPY-denominated pairs need division by USDJPY rate
+        if 'JPY' in pair:
+            pnl = pnl_quote / usdjpy_rate
+        else:
+            pnl = pnl_quote
         trade = {**pos, 'exit_price': exit_price, 'exit_ts': datetime.now(timezone.utc),
-                 'pnl_usd': pnl, 'close_order_id': order_id}
+                 'pnl_usd': pnl, 'pnl_quote': pnl_quote, 'close_order_id': order_id}
         self.closed_trades.append(trade)
         self.daily_pnl += pnl
         if pnl > 0:
             self.daily_wins += 1
-        logger.info(f"POSITION CLOSED: {key} pnl=${pnl:.2f} (daily=${self.daily_pnl:.2f})")
+        logger.info(f"POSITION CLOSED: {key} pnl=${pnl:.2f} "
+                     f"{'('+str(round(pnl_quote,0))+' JPY) ' if 'JPY' in pair else ''}"
+                     f"(daily=${self.daily_pnl:.2f})")
         return trade
 
     def is_duplicate_order(self, order_id: int) -> bool:
@@ -883,7 +891,9 @@ class IBKRExecutor:
         if trade.orderStatus.status == 'Filled':
             fill_price = trade.orderStatus.avgFillPrice
             order_id = trade.order.orderId
-            result = self.tracker.close_position(pair, tf, fill_price, order_id)
+            usdjpy = await self._get_current_price('USDJPY') or 150.0
+            result = self.tracker.close_position(pair, tf, fill_price, order_id,
+                                                  usdjpy_rate=usdjpy)
             pnl = result['pnl_usd'] if result else 0
             logger.info(f"[CLOSE] FILLED: {pair}_{tf} exit={fill_price} "
                          f"pnl=${pnl:.2f} orderId={order_id}")
@@ -976,7 +986,14 @@ class IBKRExecutor:
                 else:  # SHORT
                     pnl_pips = (pos['entry_price'] - current) / pip_size
 
-                pnl_usd = pnl_pips * pip_val * pos['qty']
+                # Convert pips to USD — JPY pairs need USDJPY conversion
+                if 'JPY' in pair:
+                    usdjpy = await self._get_current_price('USDJPY') or 150.0
+                    # For JPY pairs: PnL in USD = price_diff * units / USDJPY
+                    price_diff = (current - pos['entry_price']) * pos['side']
+                    pnl_usd = price_diff * pos['qty'] * 100000 / usdjpy
+                else:
+                    pnl_usd = pnl_pips * pip_val * pos['qty']
                 pos['unrealized_pnl'] = pnl_usd
                 total_unrealized += pnl_usd
 
