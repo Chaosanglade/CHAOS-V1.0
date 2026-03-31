@@ -58,9 +58,9 @@ TF = 'M5'
 
 BRAINS = ['lgb', 'xgb', 'rf', 'et']
 
-EXCLUDE_SUBS = ['target_', 'return', 'Open', 'High', 'Low', 'Close', 'Volume',
-                'timestamp', 'date', 'pair', 'symbol', 'tf', 'bar_time',
-                'Bid_', 'Ask_', 'Spread_', 'Unnamed']
+# ONLY exclude forward-looking target columns. ALL other columns are features.
+# OHLCV, Spread, Bid/Ask, MTF context, execution — all kept as features.
+EXCLUDE_PREFIX = 'target_'
 
 np.random.seed(RANDOM_SEED)
 
@@ -83,7 +83,7 @@ def load_data(pair):
     df = pd.read_parquet(str(parquet))
     print(f'{df.shape[0]:,} rows x {df.shape[1]} cols ({time.time()-t0:.1f}s)')
 
-    feature_cols = [c for c in df.columns if not any(ex in c for ex in EXCLUDE_SUBS)]
+    feature_cols = [c for c in df.columns if not c.startswith(EXCLUDE_PREFIX)]
 
     if TARGET_COL not in df.columns:
         raise ValueError(f'Missing {TARGET_COL} in {pair}_{TF}')

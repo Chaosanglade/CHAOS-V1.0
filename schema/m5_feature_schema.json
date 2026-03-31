@@ -1,0 +1,2000 @@
+{
+  "timeframe": "M5",
+  "version": "1.0.0",
+  "feature_count": 498,
+  "note": "ALL non-target columns from M5 parquet. Includes OHLCV, Spread, Bid/Ask, MTF, execution.",
+  "features": [
+    {
+      "index": 0,
+      "name": "Open"
+    },
+    {
+      "index": 1,
+      "name": "High"
+    },
+    {
+      "index": 2,
+      "name": "Low"
+    },
+    {
+      "index": 3,
+      "name": "Close"
+    },
+    {
+      "index": 4,
+      "name": "Volume"
+    },
+    {
+      "index": 5,
+      "name": "Spread_Mean"
+    },
+    {
+      "index": 6,
+      "name": "Spread_Median"
+    },
+    {
+      "index": 7,
+      "name": "Spread_Std"
+    },
+    {
+      "index": 8,
+      "name": "Spread_Min"
+    },
+    {
+      "index": 9,
+      "name": "Spread_Max"
+    },
+    {
+      "index": 10,
+      "name": "Spread_Range"
+    },
+    {
+      "index": 11,
+      "name": "Spread_P25"
+    },
+    {
+      "index": 12,
+      "name": "Spread_P75"
+    },
+    {
+      "index": 13,
+      "name": "Spread_P95"
+    },
+    {
+      "index": 14,
+      "name": "Spread_Skew"
+    },
+    {
+      "index": 15,
+      "name": "Bid_Open"
+    },
+    {
+      "index": 16,
+      "name": "Bid_High"
+    },
+    {
+      "index": 17,
+      "name": "Bid_Low"
+    },
+    {
+      "index": 18,
+      "name": "Bid_Close"
+    },
+    {
+      "index": 19,
+      "name": "Ask_Open"
+    },
+    {
+      "index": 20,
+      "name": "Ask_High"
+    },
+    {
+      "index": 21,
+      "name": "Ask_Low"
+    },
+    {
+      "index": 22,
+      "name": "Ask_Close"
+    },
+    {
+      "index": 23,
+      "name": "Tick_Interval_Mean"
+    },
+    {
+      "index": 24,
+      "name": "Tick_Interval_Std"
+    },
+    {
+      "index": 25,
+      "name": "Tick_Interval_Max"
+    },
+    {
+      "index": 26,
+      "name": "Tick_Interval_Min"
+    },
+    {
+      "index": 27,
+      "name": "Tick_Clustering"
+    },
+    {
+      "index": 28,
+      "name": "Tick_Intensity"
+    },
+    {
+      "index": 29,
+      "name": "Uptick_Count"
+    },
+    {
+      "index": 30,
+      "name": "Downtick_Count"
+    },
+    {
+      "index": 31,
+      "name": "Uptick_Ratio"
+    },
+    {
+      "index": 32,
+      "name": "Tick_Imbalance"
+    },
+    {
+      "index": 33,
+      "name": "Path_Length"
+    },
+    {
+      "index": 34,
+      "name": "Path_Efficiency"
+    },
+    {
+      "index": 35,
+      "name": "Path_Reversals"
+    },
+    {
+      "index": 36,
+      "name": "Max_Favorable_Excursion"
+    },
+    {
+      "index": 37,
+      "name": "Max_Adverse_Excursion"
+    },
+    {
+      "index": 38,
+      "name": "Reversal_Rate"
+    },
+    {
+      "index": 39,
+      "name": "TWAP"
+    },
+    {
+      "index": 40,
+      "name": "VWAP"
+    },
+    {
+      "index": 41,
+      "name": "Realized_Vol"
+    },
+    {
+      "index": 42,
+      "name": "Realized_Vol_Bipower"
+    },
+    {
+      "index": 43,
+      "name": "Time_To_First_Tick"
+    },
+    {
+      "index": 44,
+      "name": "Bid_Changes"
+    },
+    {
+      "index": 45,
+      "name": "Ask_Changes"
+    },
+    {
+      "index": 46,
+      "name": "Quote_Stability"
+    },
+    {
+      "index": 47,
+      "name": "Bid_Lead_Ratio"
+    },
+    {
+      "index": 48,
+      "name": "vpin"
+    },
+    {
+      "index": 49,
+      "name": "vpin_ma10"
+    },
+    {
+      "index": 50,
+      "name": "vpin_ma50"
+    },
+    {
+      "index": 51,
+      "name": "vpin_zscore"
+    },
+    {
+      "index": 52,
+      "name": "vpin_percentile"
+    },
+    {
+      "index": 53,
+      "name": "vpin_alert"
+    },
+    {
+      "index": 54,
+      "name": "vpin_regime"
+    },
+    {
+      "index": 55,
+      "name": "kyle_lambda"
+    },
+    {
+      "index": 56,
+      "name": "kyle_lambda_ma20"
+    },
+    {
+      "index": 57,
+      "name": "kyle_lambda_ma50"
+    },
+    {
+      "index": 58,
+      "name": "kyle_lambda_zscore"
+    },
+    {
+      "index": 59,
+      "name": "kyle_lambda_regime"
+    },
+    {
+      "index": 60,
+      "name": "amihud_illiq"
+    },
+    {
+      "index": 61,
+      "name": "amihud_ma21"
+    },
+    {
+      "index": 62,
+      "name": "amihud_zscore"
+    },
+    {
+      "index": 63,
+      "name": "amihud_regime"
+    },
+    {
+      "index": 64,
+      "name": "ofi"
+    },
+    {
+      "index": 65,
+      "name": "ofi_ma5"
+    },
+    {
+      "index": 66,
+      "name": "ofi_ma20"
+    },
+    {
+      "index": 67,
+      "name": "ofi_zscore"
+    },
+    {
+      "index": 68,
+      "name": "ofi_cumsum"
+    },
+    {
+      "index": 69,
+      "name": "buy_pressure"
+    },
+    {
+      "index": 70,
+      "name": "sell_pressure"
+    },
+    {
+      "index": 71,
+      "name": "pressure_ratio"
+    },
+    {
+      "index": 72,
+      "name": "effective_spread"
+    },
+    {
+      "index": 73,
+      "name": "realized_spread"
+    },
+    {
+      "index": 74,
+      "name": "price_impact"
+    },
+    {
+      "index": 75,
+      "name": "spread_decomposition"
+    },
+    {
+      "index": 76,
+      "name": "tick_direction"
+    },
+    {
+      "index": 77,
+      "name": "tick_up_count"
+    },
+    {
+      "index": 78,
+      "name": "tick_down_count"
+    },
+    {
+      "index": 79,
+      "name": "tick_imbalance"
+    },
+    {
+      "index": 80,
+      "name": "tick_intensity"
+    },
+    {
+      "index": 81,
+      "name": "tick_run_length"
+    },
+    {
+      "index": 82,
+      "name": "tick_reversal_rate"
+    },
+    {
+      "index": 83,
+      "name": "tick_clustering"
+    },
+    {
+      "index": 84,
+      "name": "spread_raw"
+    },
+    {
+      "index": 85,
+      "name": "spread_pct"
+    },
+    {
+      "index": 86,
+      "name": "spread_ma5"
+    },
+    {
+      "index": 87,
+      "name": "spread_ma20"
+    },
+    {
+      "index": 88,
+      "name": "spread_ma50"
+    },
+    {
+      "index": 89,
+      "name": "spread_std20"
+    },
+    {
+      "index": 90,
+      "name": "spread_zscore"
+    },
+    {
+      "index": 91,
+      "name": "spread_expanding"
+    },
+    {
+      "index": 92,
+      "name": "spread_percentile"
+    },
+    {
+      "index": 93,
+      "name": "spread_regime"
+    },
+    {
+      "index": 94,
+      "name": "spread_vs_typical"
+    },
+    {
+      "index": 95,
+      "name": "volume_proxy"
+    },
+    {
+      "index": 96,
+      "name": "momentum_5"
+    },
+    {
+      "index": 97,
+      "name": "momentum_10"
+    },
+    {
+      "index": 98,
+      "name": "momentum_21"
+    },
+    {
+      "index": 99,
+      "name": "momentum_63"
+    },
+    {
+      "index": 100,
+      "name": "momentum_126"
+    },
+    {
+      "index": 101,
+      "name": "momentum_252"
+    },
+    {
+      "index": 102,
+      "name": "momentum_252_skip21"
+    },
+    {
+      "index": 103,
+      "name": "momentum_126_skip10"
+    },
+    {
+      "index": 104,
+      "name": "momentum_63_skip5"
+    },
+    {
+      "index": 105,
+      "name": "momentum_acceleration"
+    },
+    {
+      "index": 106,
+      "name": "momentum_jerk"
+    },
+    {
+      "index": 107,
+      "name": "rsi_2"
+    },
+    {
+      "index": 108,
+      "name": "rsi_3"
+    },
+    {
+      "index": 109,
+      "name": "rsi_14"
+    },
+    {
+      "index": 110,
+      "name": "rsi_2_cumulative"
+    },
+    {
+      "index": 111,
+      "name": "rsi_stretched"
+    },
+    {
+      "index": 112,
+      "name": "rsi_divergence"
+    },
+    {
+      "index": 113,
+      "name": "rsi_oversold"
+    },
+    {
+      "index": 114,
+      "name": "rsi_overbought"
+    },
+    {
+      "index": 115,
+      "name": "rsi_extreme"
+    },
+    {
+      "index": 116,
+      "name": "ou_half_life"
+    },
+    {
+      "index": 117,
+      "name": "ou_half_life_ma20"
+    },
+    {
+      "index": 118,
+      "name": "ou_equilibrium"
+    },
+    {
+      "index": 119,
+      "name": "ou_zscore"
+    },
+    {
+      "index": 120,
+      "name": "mean_reversion_signal"
+    },
+    {
+      "index": 121,
+      "name": "mean_reversion_strength"
+    },
+    {
+      "index": 122,
+      "name": "ema_8"
+    },
+    {
+      "index": 123,
+      "name": "ema_13"
+    },
+    {
+      "index": 124,
+      "name": "ema_21"
+    },
+    {
+      "index": 125,
+      "name": "ema_34"
+    },
+    {
+      "index": 126,
+      "name": "ema_55"
+    },
+    {
+      "index": 127,
+      "name": "ema_89"
+    },
+    {
+      "index": 128,
+      "name": "sma_10"
+    },
+    {
+      "index": 129,
+      "name": "sma_20"
+    },
+    {
+      "index": 130,
+      "name": "sma_50"
+    },
+    {
+      "index": 131,
+      "name": "sma_100"
+    },
+    {
+      "index": 132,
+      "name": "sma_200"
+    },
+    {
+      "index": 133,
+      "name": "price_vs_ema_21"
+    },
+    {
+      "index": 134,
+      "name": "price_vs_ema_55"
+    },
+    {
+      "index": 135,
+      "name": "ema_cross_8_21"
+    },
+    {
+      "index": 136,
+      "name": "ema_cross_21_55"
+    },
+    {
+      "index": 137,
+      "name": "sma_cross_50_200"
+    },
+    {
+      "index": 138,
+      "name": "trend_consistency"
+    },
+    {
+      "index": 139,
+      "name": "stoch_k_5"
+    },
+    {
+      "index": 140,
+      "name": "stoch_d_5"
+    },
+    {
+      "index": 141,
+      "name": "stoch_k_9"
+    },
+    {
+      "index": 142,
+      "name": "stoch_d_9"
+    },
+    {
+      "index": 143,
+      "name": "stoch_k_14"
+    },
+    {
+      "index": 144,
+      "name": "stoch_k_21"
+    },
+    {
+      "index": 145,
+      "name": "stoch_crossover"
+    },
+    {
+      "index": 146,
+      "name": "vol_cc_7"
+    },
+    {
+      "index": 147,
+      "name": "vol_cc_7_ma"
+    },
+    {
+      "index": 148,
+      "name": "vol_cc_7_zscore"
+    },
+    {
+      "index": 149,
+      "name": "vol_cc_7_pct"
+    },
+    {
+      "index": 150,
+      "name": "vol_parkinson_7"
+    },
+    {
+      "index": 151,
+      "name": "vol_parkinson_7_ma"
+    },
+    {
+      "index": 152,
+      "name": "vol_parkinson_7_zscore"
+    },
+    {
+      "index": 153,
+      "name": "vol_parkinson_7_pct"
+    },
+    {
+      "index": 154,
+      "name": "vol_gk_7"
+    },
+    {
+      "index": 155,
+      "name": "vol_gk_7_ma"
+    },
+    {
+      "index": 156,
+      "name": "vol_gk_7_zscore"
+    },
+    {
+      "index": 157,
+      "name": "vol_gk_7_pct"
+    },
+    {
+      "index": 158,
+      "name": "vol_yz_7"
+    },
+    {
+      "index": 159,
+      "name": "vol_yz_7_ma"
+    },
+    {
+      "index": 160,
+      "name": "vol_yz_7_zscore"
+    },
+    {
+      "index": 161,
+      "name": "vol_yz_7_pct"
+    },
+    {
+      "index": 162,
+      "name": "vol_cc_14"
+    },
+    {
+      "index": 163,
+      "name": "vol_cc_14_ma"
+    },
+    {
+      "index": 164,
+      "name": "vol_cc_14_zscore"
+    },
+    {
+      "index": 165,
+      "name": "vol_cc_14_pct"
+    },
+    {
+      "index": 166,
+      "name": "vol_parkinson_14"
+    },
+    {
+      "index": 167,
+      "name": "vol_parkinson_14_ma"
+    },
+    {
+      "index": 168,
+      "name": "vol_parkinson_14_zscore"
+    },
+    {
+      "index": 169,
+      "name": "vol_parkinson_14_pct"
+    },
+    {
+      "index": 170,
+      "name": "vol_gk_14"
+    },
+    {
+      "index": 171,
+      "name": "vol_gk_14_ma"
+    },
+    {
+      "index": 172,
+      "name": "vol_gk_14_zscore"
+    },
+    {
+      "index": 173,
+      "name": "vol_gk_14_pct"
+    },
+    {
+      "index": 174,
+      "name": "vol_yz_14"
+    },
+    {
+      "index": 175,
+      "name": "vol_yz_14_ma"
+    },
+    {
+      "index": 176,
+      "name": "vol_yz_14_zscore"
+    },
+    {
+      "index": 177,
+      "name": "vol_yz_14_pct"
+    },
+    {
+      "index": 178,
+      "name": "vol_cc_21"
+    },
+    {
+      "index": 179,
+      "name": "vol_cc_21_ma"
+    },
+    {
+      "index": 180,
+      "name": "vol_cc_21_zscore"
+    },
+    {
+      "index": 181,
+      "name": "vol_cc_21_pct"
+    },
+    {
+      "index": 182,
+      "name": "vol_parkinson_21"
+    },
+    {
+      "index": 183,
+      "name": "vol_parkinson_21_ma"
+    },
+    {
+      "index": 184,
+      "name": "vol_parkinson_21_zscore"
+    },
+    {
+      "index": 185,
+      "name": "vol_parkinson_21_pct"
+    },
+    {
+      "index": 186,
+      "name": "vol_gk_21"
+    },
+    {
+      "index": 187,
+      "name": "vol_gk_21_ma"
+    },
+    {
+      "index": 188,
+      "name": "vol_gk_21_zscore"
+    },
+    {
+      "index": 189,
+      "name": "vol_gk_21_pct"
+    },
+    {
+      "index": 190,
+      "name": "vol_yz_21"
+    },
+    {
+      "index": 191,
+      "name": "vol_yz_21_ma"
+    },
+    {
+      "index": 192,
+      "name": "vol_yz_21_zscore"
+    },
+    {
+      "index": 193,
+      "name": "vol_yz_21_pct"
+    },
+    {
+      "index": 194,
+      "name": "vol_cc_50"
+    },
+    {
+      "index": 195,
+      "name": "vol_cc_50_ma"
+    },
+    {
+      "index": 196,
+      "name": "vol_cc_50_zscore"
+    },
+    {
+      "index": 197,
+      "name": "vol_cc_50_pct"
+    },
+    {
+      "index": 198,
+      "name": "vol_parkinson_50"
+    },
+    {
+      "index": 199,
+      "name": "vol_parkinson_50_ma"
+    },
+    {
+      "index": 200,
+      "name": "vol_parkinson_50_zscore"
+    },
+    {
+      "index": 201,
+      "name": "vol_parkinson_50_pct"
+    },
+    {
+      "index": 202,
+      "name": "vol_gk_50"
+    },
+    {
+      "index": 203,
+      "name": "vol_gk_50_ma"
+    },
+    {
+      "index": 204,
+      "name": "vol_gk_50_zscore"
+    },
+    {
+      "index": 205,
+      "name": "vol_gk_50_pct"
+    },
+    {
+      "index": 206,
+      "name": "vol_yz_50"
+    },
+    {
+      "index": 207,
+      "name": "vol_yz_50_ma"
+    },
+    {
+      "index": 208,
+      "name": "vol_yz_50_zscore"
+    },
+    {
+      "index": 209,
+      "name": "vol_yz_50_pct"
+    },
+    {
+      "index": 210,
+      "name": "vol_regime"
+    },
+    {
+      "index": 211,
+      "name": "vol_regime_change"
+    },
+    {
+      "index": 212,
+      "name": "vol_regime_duration"
+    },
+    {
+      "index": 213,
+      "name": "atr_7"
+    },
+    {
+      "index": 214,
+      "name": "atr_pct_7"
+    },
+    {
+      "index": 215,
+      "name": "atr_zscore_7"
+    },
+    {
+      "index": 216,
+      "name": "atr_14"
+    },
+    {
+      "index": 217,
+      "name": "atr_pct_14"
+    },
+    {
+      "index": 218,
+      "name": "atr_zscore_14"
+    },
+    {
+      "index": 219,
+      "name": "atr_21"
+    },
+    {
+      "index": 220,
+      "name": "atr_pct_21"
+    },
+    {
+      "index": 221,
+      "name": "atr_zscore_21"
+    },
+    {
+      "index": 222,
+      "name": "atr_50"
+    },
+    {
+      "index": 223,
+      "name": "atr_pct_50"
+    },
+    {
+      "index": 224,
+      "name": "atr_zscore_50"
+    },
+    {
+      "index": 225,
+      "name": "hurst_exponent"
+    },
+    {
+      "index": 226,
+      "name": "hurst_ma20"
+    },
+    {
+      "index": 227,
+      "name": "hurst_ma50"
+    },
+    {
+      "index": 228,
+      "name": "hurst_trending"
+    },
+    {
+      "index": 229,
+      "name": "hurst_mean_reverting"
+    },
+    {
+      "index": 230,
+      "name": "hurst_random_walk"
+    },
+    {
+      "index": 231,
+      "name": "hurst_regime"
+    },
+    {
+      "index": 232,
+      "name": "hurst_confidence"
+    },
+    {
+      "index": 233,
+      "name": "frac_diff_03"
+    },
+    {
+      "index": 234,
+      "name": "frac_diff_04"
+    },
+    {
+      "index": 235,
+      "name": "frac_diff_05"
+    },
+    {
+      "index": 236,
+      "name": "frac_diff_04_ma10"
+    },
+    {
+      "index": 237,
+      "name": "frac_diff_04_zscore"
+    },
+    {
+      "index": 238,
+      "name": "frac_diff_signal"
+    },
+    {
+      "index": 239,
+      "name": "hmm_state"
+    },
+    {
+      "index": 240,
+      "name": "hmm_state_0"
+    },
+    {
+      "index": 241,
+      "name": "hmm_state_1"
+    },
+    {
+      "index": 242,
+      "name": "hmm_state_2"
+    },
+    {
+      "index": 243,
+      "name": "hmm_state_3"
+    },
+    {
+      "index": 244,
+      "name": "hmm_prob_0"
+    },
+    {
+      "index": 245,
+      "name": "hmm_prob_1"
+    },
+    {
+      "index": 246,
+      "name": "hmm_prob_2"
+    },
+    {
+      "index": 247,
+      "name": "hmm_prob_3"
+    },
+    {
+      "index": 248,
+      "name": "hmm_state_change"
+    },
+    {
+      "index": 249,
+      "name": "hmm_state_duration"
+    },
+    {
+      "index": 250,
+      "name": "entropy"
+    },
+    {
+      "index": 251,
+      "name": "entropy_ma10"
+    },
+    {
+      "index": 252,
+      "name": "entropy_ma50"
+    },
+    {
+      "index": 253,
+      "name": "entropy_zscore"
+    },
+    {
+      "index": 254,
+      "name": "entropy_high"
+    },
+    {
+      "index": 255,
+      "name": "entropy_low"
+    },
+    {
+      "index": 256,
+      "name": "bb_middle"
+    },
+    {
+      "index": 257,
+      "name": "bb_upper_2"
+    },
+    {
+      "index": 258,
+      "name": "bb_lower_2"
+    },
+    {
+      "index": 259,
+      "name": "bb_width"
+    },
+    {
+      "index": 260,
+      "name": "bb_percent_b"
+    },
+    {
+      "index": 261,
+      "name": "bb_squeeze"
+    },
+    {
+      "index": 262,
+      "name": "macd_12_26"
+    },
+    {
+      "index": 263,
+      "name": "macd_signal_12_26"
+    },
+    {
+      "index": 264,
+      "name": "macd_hist_12_26"
+    },
+    {
+      "index": 265,
+      "name": "macd_8_17"
+    },
+    {
+      "index": 266,
+      "name": "macd_signal_8_17"
+    },
+    {
+      "index": 267,
+      "name": "macd_hist_8_17"
+    },
+    {
+      "index": 268,
+      "name": "macd_5_35"
+    },
+    {
+      "index": 269,
+      "name": "macd_signal_5_35"
+    },
+    {
+      "index": 270,
+      "name": "macd_hist_5_35"
+    },
+    {
+      "index": 271,
+      "name": "macd_divergence"
+    },
+    {
+      "index": 272,
+      "name": "williams_r_14"
+    },
+    {
+      "index": 273,
+      "name": "williams_r_14_extreme"
+    },
+    {
+      "index": 274,
+      "name": "williams_r_21"
+    },
+    {
+      "index": 275,
+      "name": "williams_r_21_extreme"
+    },
+    {
+      "index": 276,
+      "name": "cci_14"
+    },
+    {
+      "index": 277,
+      "name": "cci_14_extreme"
+    },
+    {
+      "index": 278,
+      "name": "cci_20"
+    },
+    {
+      "index": 279,
+      "name": "cci_20_extreme"
+    },
+    {
+      "index": 280,
+      "name": "adx"
+    },
+    {
+      "index": 281,
+      "name": "plus_di"
+    },
+    {
+      "index": 282,
+      "name": "minus_di"
+    },
+    {
+      "index": 283,
+      "name": "pair"
+    },
+    {
+      "index": 284,
+      "name": "lf_hour"
+    },
+    {
+      "index": 285,
+      "name": "lf_minutes_to_fix"
+    },
+    {
+      "index": 286,
+      "name": "lf_pre_accumulation_2h"
+    },
+    {
+      "index": 287,
+      "name": "lf_pre_accumulation_1h"
+    },
+    {
+      "index": 288,
+      "name": "lf_pre_accumulation_30m"
+    },
+    {
+      "index": 289,
+      "name": "lf_fix_window"
+    },
+    {
+      "index": 290,
+      "name": "lf_post_fix_15m"
+    },
+    {
+      "index": 291,
+      "name": "lf_post_fix_30m"
+    },
+    {
+      "index": 292,
+      "name": "lf_post_fix_1h"
+    },
+    {
+      "index": 293,
+      "name": "lf_active"
+    },
+    {
+      "index": 294,
+      "name": "lf_proximity"
+    },
+    {
+      "index": 295,
+      "name": "lf_am_fix_window"
+    },
+    {
+      "index": 296,
+      "name": "lf_am_fix_proximity"
+    },
+    {
+      "index": 297,
+      "name": "lf_momentum_pre"
+    },
+    {
+      "index": 298,
+      "name": "lf_momentum_fix"
+    },
+    {
+      "index": 299,
+      "name": "lf_reversal_expected"
+    },
+    {
+      "index": 300,
+      "name": "lf_vol_during_fix"
+    },
+    {
+      "index": 301,
+      "name": "lf_typical_direction"
+    },
+    {
+      "index": 302,
+      "name": "lf_fix_strength"
+    },
+    {
+      "index": 303,
+      "name": "lf_fade_signal"
+    },
+    {
+      "index": 304,
+      "name": "tf_hour"
+    },
+    {
+      "index": 305,
+      "name": "tf_minutes_to_fix"
+    },
+    {
+      "index": 306,
+      "name": "tf_pre_fix_30m"
+    },
+    {
+      "index": 307,
+      "name": "tf_pre_fix_15m"
+    },
+    {
+      "index": 308,
+      "name": "tf_fix_window"
+    },
+    {
+      "index": 309,
+      "name": "tf_post_fix_15m"
+    },
+    {
+      "index": 310,
+      "name": "tf_post_fix_30m"
+    },
+    {
+      "index": 311,
+      "name": "tf_active"
+    },
+    {
+      "index": 312,
+      "name": "tf_proximity"
+    },
+    {
+      "index": 313,
+      "name": "tf_momentum_pre"
+    },
+    {
+      "index": 314,
+      "name": "tf_reversal_expected"
+    },
+    {
+      "index": 315,
+      "name": "tf_affects_pair"
+    },
+    {
+      "index": 316,
+      "name": "tf_vol_during_fix"
+    },
+    {
+      "index": 317,
+      "name": "tf_typical_direction"
+    },
+    {
+      "index": 318,
+      "name": "tf_fade_signal"
+    },
+    {
+      "index": 319,
+      "name": "sess_sydney"
+    },
+    {
+      "index": 320,
+      "name": "sess_tokyo"
+    },
+    {
+      "index": 321,
+      "name": "sess_london"
+    },
+    {
+      "index": 322,
+      "name": "sess_ny"
+    },
+    {
+      "index": 323,
+      "name": "sess_tokyo_london"
+    },
+    {
+      "index": 324,
+      "name": "sess_london_ny"
+    },
+    {
+      "index": 325,
+      "name": "sess_sydney_tokyo"
+    },
+    {
+      "index": 326,
+      "name": "sess_london_open"
+    },
+    {
+      "index": 327,
+      "name": "sess_london_close"
+    },
+    {
+      "index": 328,
+      "name": "sess_ny_open"
+    },
+    {
+      "index": 329,
+      "name": "sess_ny_close"
+    },
+    {
+      "index": 330,
+      "name": "sess_tokyo_open"
+    },
+    {
+      "index": 331,
+      "name": "sess_tokyo_close"
+    },
+    {
+      "index": 332,
+      "name": "sess_frankfurt_open"
+    },
+    {
+      "index": 333,
+      "name": "sess_frankfurt_close"
+    },
+    {
+      "index": 334,
+      "name": "hour_sin"
+    },
+    {
+      "index": 335,
+      "name": "hour_cos"
+    },
+    {
+      "index": 336,
+      "name": "minute_sin"
+    },
+    {
+      "index": 337,
+      "name": "minute_cos"
+    },
+    {
+      "index": 338,
+      "name": "dow_sin"
+    },
+    {
+      "index": 339,
+      "name": "dow_cos"
+    },
+    {
+      "index": 340,
+      "name": "sess_liquidity_score"
+    },
+    {
+      "index": 341,
+      "name": "sess_quiet"
+    },
+    {
+      "index": 342,
+      "name": "sess_prime_time"
+    },
+    {
+      "index": 343,
+      "name": "sess_low_liquidity"
+    },
+    {
+      "index": 344,
+      "name": "cal_day_of_month"
+    },
+    {
+      "index": 345,
+      "name": "cal_days_to_month_end"
+    },
+    {
+      "index": 346,
+      "name": "cal_month_end_5"
+    },
+    {
+      "index": 347,
+      "name": "cal_month_end_3"
+    },
+    {
+      "index": 348,
+      "name": "cal_month_start_3"
+    },
+    {
+      "index": 349,
+      "name": "cal_quarter"
+    },
+    {
+      "index": 350,
+      "name": "cal_quarter_end_5"
+    },
+    {
+      "index": 351,
+      "name": "cal_year_end_10"
+    },
+    {
+      "index": 352,
+      "name": "cal_year_start_5"
+    },
+    {
+      "index": 353,
+      "name": "cal_rebalancing"
+    },
+    {
+      "index": 354,
+      "name": "cal_nfp_week"
+    },
+    {
+      "index": 355,
+      "name": "cal_nfp_day"
+    },
+    {
+      "index": 356,
+      "name": "cal_nfp_hours"
+    },
+    {
+      "index": 357,
+      "name": "cal_fomc_week"
+    },
+    {
+      "index": 358,
+      "name": "cal_major_news_risk"
+    },
+    {
+      "index": 359,
+      "name": "cal_month_sin"
+    },
+    {
+      "index": 360,
+      "name": "cal_month_cos"
+    },
+    {
+      "index": 361,
+      "name": "cal_summer"
+    },
+    {
+      "index": 362,
+      "name": "cal_year_end_rally"
+    },
+    {
+      "index": 363,
+      "name": "cal_january_effect"
+    },
+    {
+      "index": 364,
+      "name": "exec_spread_score"
+    },
+    {
+      "index": 365,
+      "name": "exec_spread_vs_typical"
+    },
+    {
+      "index": 366,
+      "name": "exec_spread_percentile"
+    },
+    {
+      "index": 367,
+      "name": "exec_spread_regime"
+    },
+    {
+      "index": 368,
+      "name": "exec_widening"
+    },
+    {
+      "index": 369,
+      "name": "exec_gap_risk"
+    },
+    {
+      "index": 370,
+      "name": "exec_overnight_risk"
+    },
+    {
+      "index": 371,
+      "name": "exec_slippage_estimate"
+    },
+    {
+      "index": 372,
+      "name": "exec_fill_probability"
+    },
+    {
+      "index": 373,
+      "name": "exec_market_impact"
+    },
+    {
+      "index": 374,
+      "name": "exec_tfe_spread"
+    },
+    {
+      "index": 375,
+      "name": "exec_tfe_volatility"
+    },
+    {
+      "index": 376,
+      "name": "exec_tfe_liquidity"
+    },
+    {
+      "index": 377,
+      "name": "exec_tfe_score"
+    },
+    {
+      "index": 378,
+      "name": "exec_quality_score"
+    },
+    {
+      "index": 379,
+      "name": "rn_big_figure"
+    },
+    {
+      "index": 380,
+      "name": "rn_half_figure"
+    },
+    {
+      "index": 381,
+      "name": "rn_quarter_figure"
+    },
+    {
+      "index": 382,
+      "name": "rn_dist_big_pips"
+    },
+    {
+      "index": 383,
+      "name": "rn_dist_half_pips"
+    },
+    {
+      "index": 384,
+      "name": "rn_near_big_10"
+    },
+    {
+      "index": 385,
+      "name": "rn_near_big_20"
+    },
+    {
+      "index": 386,
+      "name": "rn_near_half_10"
+    },
+    {
+      "index": 387,
+      "name": "rn_approaching_big_from_below"
+    },
+    {
+      "index": 388,
+      "name": "rn_approaching_big_from_above"
+    },
+    {
+      "index": 389,
+      "name": "rn_just_crossed_big"
+    },
+    {
+      "index": 390,
+      "name": "rn_psychological_cluster"
+    },
+    {
+      "index": 391,
+      "name": "wknd_day_of_week"
+    },
+    {
+      "index": 392,
+      "name": "wknd_is_friday"
+    },
+    {
+      "index": 393,
+      "name": "wknd_is_monday"
+    },
+    {
+      "index": 394,
+      "name": "wknd_friday_afternoon"
+    },
+    {
+      "index": 395,
+      "name": "wknd_friday_evening"
+    },
+    {
+      "index": 396,
+      "name": "wknd_monday_morning"
+    },
+    {
+      "index": 397,
+      "name": "wknd_hours_to_close"
+    },
+    {
+      "index": 398,
+      "name": "wknd_hours_since_open"
+    },
+    {
+      "index": 399,
+      "name": "wknd_gap_risk"
+    },
+    {
+      "index": 400,
+      "name": "wknd_position_reduction"
+    },
+    {
+      "index": 401,
+      "name": "mtf_M15_trend"
+    },
+    {
+      "index": 402,
+      "name": "mtf_M15_sma20_slope"
+    },
+    {
+      "index": 403,
+      "name": "mtf_M15_above_sma20"
+    },
+    {
+      "index": 404,
+      "name": "mtf_M15_above_sma50"
+    },
+    {
+      "index": 405,
+      "name": "mtf_M15_sma_cross"
+    },
+    {
+      "index": 406,
+      "name": "mtf_M15_rsi"
+    },
+    {
+      "index": 407,
+      "name": "mtf_M15_rsi_zone"
+    },
+    {
+      "index": 408,
+      "name": "mtf_M15_momentum"
+    },
+    {
+      "index": 409,
+      "name": "mtf_M15_macd_hist"
+    },
+    {
+      "index": 410,
+      "name": "mtf_M15_momentum_direction"
+    },
+    {
+      "index": 411,
+      "name": "mtf_M15_atr"
+    },
+    {
+      "index": 412,
+      "name": "mtf_M15_atr_percentile"
+    },
+    {
+      "index": 413,
+      "name": "mtf_M15_volatility_regime"
+    },
+    {
+      "index": 414,
+      "name": "mtf_M15_bb_width"
+    },
+    {
+      "index": 415,
+      "name": "mtf_M15_range_position"
+    },
+    {
+      "index": 416,
+      "name": "mtf_M15_higher_high"
+    },
+    {
+      "index": 417,
+      "name": "mtf_M15_lower_low"
+    },
+    {
+      "index": 418,
+      "name": "mtf_M15_support_dist"
+    },
+    {
+      "index": 419,
+      "name": "mtf_M15_resistance_dist"
+    },
+    {
+      "index": 420,
+      "name": "mtf_M15_regime"
+    },
+    {
+      "index": 421,
+      "name": "mtf_H1_trend"
+    },
+    {
+      "index": 422,
+      "name": "mtf_H1_sma20_slope"
+    },
+    {
+      "index": 423,
+      "name": "mtf_H1_above_sma20"
+    },
+    {
+      "index": 424,
+      "name": "mtf_H1_above_sma50"
+    },
+    {
+      "index": 425,
+      "name": "mtf_H1_sma_cross"
+    },
+    {
+      "index": 426,
+      "name": "mtf_H1_rsi"
+    },
+    {
+      "index": 427,
+      "name": "mtf_H1_rsi_zone"
+    },
+    {
+      "index": 428,
+      "name": "mtf_H1_momentum"
+    },
+    {
+      "index": 429,
+      "name": "mtf_H1_macd_hist"
+    },
+    {
+      "index": 430,
+      "name": "mtf_H1_momentum_direction"
+    },
+    {
+      "index": 431,
+      "name": "mtf_H1_atr"
+    },
+    {
+      "index": 432,
+      "name": "mtf_H1_atr_percentile"
+    },
+    {
+      "index": 433,
+      "name": "mtf_H1_volatility_regime"
+    },
+    {
+      "index": 434,
+      "name": "mtf_H1_bb_width"
+    },
+    {
+      "index": 435,
+      "name": "mtf_H1_range_position"
+    },
+    {
+      "index": 436,
+      "name": "mtf_H1_higher_high"
+    },
+    {
+      "index": 437,
+      "name": "mtf_H1_lower_low"
+    },
+    {
+      "index": 438,
+      "name": "mtf_H1_support_dist"
+    },
+    {
+      "index": 439,
+      "name": "mtf_H1_resistance_dist"
+    },
+    {
+      "index": 440,
+      "name": "mtf_H1_regime"
+    },
+    {
+      "index": 441,
+      "name": "mtf_H4_trend"
+    },
+    {
+      "index": 442,
+      "name": "mtf_H4_sma20_slope"
+    },
+    {
+      "index": 443,
+      "name": "mtf_H4_above_sma20"
+    },
+    {
+      "index": 444,
+      "name": "mtf_H4_above_sma50"
+    },
+    {
+      "index": 445,
+      "name": "mtf_H4_sma_cross"
+    },
+    {
+      "index": 446,
+      "name": "mtf_H4_rsi"
+    },
+    {
+      "index": 447,
+      "name": "mtf_H4_rsi_zone"
+    },
+    {
+      "index": 448,
+      "name": "mtf_H4_momentum"
+    },
+    {
+      "index": 449,
+      "name": "mtf_H4_macd_hist"
+    },
+    {
+      "index": 450,
+      "name": "mtf_H4_momentum_direction"
+    },
+    {
+      "index": 451,
+      "name": "mtf_H4_atr"
+    },
+    {
+      "index": 452,
+      "name": "mtf_H4_atr_percentile"
+    },
+    {
+      "index": 453,
+      "name": "mtf_H4_volatility_regime"
+    },
+    {
+      "index": 454,
+      "name": "mtf_H4_bb_width"
+    },
+    {
+      "index": 455,
+      "name": "mtf_H4_range_position"
+    },
+    {
+      "index": 456,
+      "name": "mtf_H4_higher_high"
+    },
+    {
+      "index": 457,
+      "name": "mtf_H4_lower_low"
+    },
+    {
+      "index": 458,
+      "name": "mtf_H4_support_dist"
+    },
+    {
+      "index": 459,
+      "name": "mtf_H4_resistance_dist"
+    },
+    {
+      "index": 460,
+      "name": "mtf_H4_regime"
+    },
+    {
+      "index": 461,
+      "name": "mtf_D1_trend"
+    },
+    {
+      "index": 462,
+      "name": "mtf_D1_sma20_slope"
+    },
+    {
+      "index": 463,
+      "name": "mtf_D1_above_sma20"
+    },
+    {
+      "index": 464,
+      "name": "mtf_D1_above_sma50"
+    },
+    {
+      "index": 465,
+      "name": "mtf_D1_sma_cross"
+    },
+    {
+      "index": 466,
+      "name": "mtf_D1_rsi"
+    },
+    {
+      "index": 467,
+      "name": "mtf_D1_rsi_zone"
+    },
+    {
+      "index": 468,
+      "name": "mtf_D1_momentum"
+    },
+    {
+      "index": 469,
+      "name": "mtf_D1_macd_hist"
+    },
+    {
+      "index": 470,
+      "name": "mtf_D1_momentum_direction"
+    },
+    {
+      "index": 471,
+      "name": "mtf_D1_atr"
+    },
+    {
+      "index": 472,
+      "name": "mtf_D1_atr_percentile"
+    },
+    {
+      "index": 473,
+      "name": "mtf_D1_volatility_regime"
+    },
+    {
+      "index": 474,
+      "name": "mtf_D1_bb_width"
+    },
+    {
+      "index": 475,
+      "name": "mtf_D1_range_position"
+    },
+    {
+      "index": 476,
+      "name": "mtf_D1_higher_high"
+    },
+    {
+      "index": 477,
+      "name": "mtf_D1_lower_low"
+    },
+    {
+      "index": 478,
+      "name": "mtf_D1_support_dist"
+    },
+    {
+      "index": 479,
+      "name": "mtf_D1_resistance_dist"
+    },
+    {
+      "index": 480,
+      "name": "mtf_D1_regime"
+    },
+    {
+      "index": 481,
+      "name": "mtf_alignment_count"
+    },
+    {
+      "index": 482,
+      "name": "mtf_aligned_bullish"
+    },
+    {
+      "index": 483,
+      "name": "mtf_aligned_bearish"
+    },
+    {
+      "index": 484,
+      "name": "mtf_conflict"
+    },
+    {
+      "index": 485,
+      "name": "corr_GBPUSD_20"
+    },
+    {
+      "index": 486,
+      "name": "corr_USDJPY_20"
+    },
+    {
+      "index": 487,
+      "name": "rel_strength"
+    },
+    {
+      "index": 488,
+      "name": "rel_strength_cum"
+    },
+    {
+      "index": 489,
+      "name": "rel_strength_rank"
+    },
+    {
+      "index": 490,
+      "name": "usd_index"
+    },
+    {
+      "index": 491,
+      "name": "usd_index_ma"
+    },
+    {
+      "index": 492,
+      "name": "jpy_index"
+    },
+    {
+      "index": 493,
+      "name": "jpy_index_ma"
+    },
+    {
+      "index": 494,
+      "name": "cross_momentum_div_5"
+    },
+    {
+      "index": 495,
+      "name": "cross_momentum_div_20"
+    },
+    {
+      "index": 496,
+      "name": "lead_lag_GBPUSD"
+    },
+    {
+      "index": 497,
+      "name": "vol_vs_basket"
+    }
+  ]
+}
