@@ -608,12 +608,14 @@ class IBKRExecutor:
         # ── DIAGNOSTIC: Feature + per-brain output dump ──
         self._log_diagnostic(pair, tf, bars)
 
-        # Log to CSV
+        # Log to CSV + update handler equity
         account = await self.ib.accountSummaryAsync() if self.ib.isConnected() else []
         equity = 0.0
         for item in account:
             if item.tag == 'NetLiquidation' and item.currency == 'USD':
                 equity = float(item.value)
+                if self._handler:
+                    self._handler.set_equity(equity)
                 break
 
         self.logger_csv.log({
@@ -1196,7 +1198,11 @@ class IBKRExecutor:
             acct = await self.ib.accountSummaryAsync()
             for item in acct:
                 if item.tag == 'NetLiquidation' and item.currency == 'USD':
-                    equity_str = f"${float(item.value):,.2f}"
+                    equity_val = float(item.value)
+                    equity_str = f"${equity_val:,.2f}"
+                    if self._handler:
+                        self._handler.set_equity(equity_val)
+                        logger.info(f"[STARTUP]          Handler equity set to ${equity_val:,.2f}")
                     break
             logger.info(f"[STARTUP] Step 6/8: Account summary... "
                         f"OK (equity: {equity_str}, {_time.perf_counter()-t_step:.1f}s)")

@@ -86,12 +86,12 @@ class ExposureController:
             return result
 
         # Check 4: Gross/net exposure
-        result = self._check_exposure_limits(portfolio, intent)
+        result = self._check_exposure_limits(portfolio, intent, equity_usd)
         if not result['approved']:
             return result
 
         # Check 5: Correlation group caps
-        result = self._check_group_caps(portfolio, intent)
+        result = self._check_group_caps(portfolio, intent, equity_usd)
         if not result['approved']:
             return result
 
@@ -189,44 +189,56 @@ class ExposureController:
 
         return {'approved': True, 'reason': 'position_limits_ok', 'adjusted_size': None}
 
-    def _check_exposure_limits(self, portfolio, intent) -> Dict:
-        """Check 4: Gross and net exposure limits."""
+    def _resolve_limit(self, policy_section, key_pct, key_usd, equity_usd) -> float:
+        """Resolve a limit: use percentage of equity if set, else fixed USD, else inf."""
+        pct = policy_section.get(key_pct)
+        usd = policy_section.get(key_usd)
+        if pct is not None and pct > 0:
+            return equity_usd * pct / 100.0
+        if usd is not None and usd > 0:
+            return float(usd)
+        return float('inf')
+
+    def _check_exposure_limits(self, portfolio, intent, equity_usd=100000.0) -> Dict:
+        """Check 4: Gross and net exposure limits (percentage-based or fixed USD)."""
         limits = self.policy['portfolio']
         proposed_notional = intent.qty_lots * 100000
 
+        max_gross = self._resolve_limit(limits, 'max_gross_exposure_pct', 'max_gross_exposure_usd', equity_usd)
+        max_net = self._resolve_limit(limits, 'max_net_exposure_pct', 'max_net_exposure_usd', equity_usd)
+
         # Gross exposure
         current_gross = portfolio.get_gross_exposure_usd()
-        if current_gross + proposed_notional > limits['max_gross_exposure_usd']:
+        if current_gross + proposed_notional > max_gross:
             return {
                 'approved': False,
                 'reason': 'RISK_BLOCKED_EXPOSURE',
                 'adjusted_size': None,
-                'detail': f'Gross exposure {current_gross + proposed_notional:.0f} > {limits["max_gross_exposure_usd"]}'
+                'detail': f'Gross exposure {current_gross + proposed_notional:.0f} > {max_gross:.0f} ({limits.get("max_gross_exposure_pct", "?")}% of ${equity_usd:.0f})'
             }
 
         # Net exposure
         current_net = portfolio.get_net_exposure_usd()
         proposed_net = current_net + (intent.side * proposed_notional)
-        if abs(proposed_net) > limits['max_net_exposure_usd']:
+        if abs(proposed_net) > max_net:
             return {
                 'approved': False,
                 'reason': 'RISK_BLOCKED_EXPOSURE',
                 'adjusted_size': None,
-                'detail': f'Net exposure |{proposed_net:.0f}| > {limits["max_net_exposure_usd"]}'
+                'detail': f'Net exposure |{proposed_net:.0f}| > {max_net:.0f} ({limits.get("max_net_exposure_pct", "?")}% of ${equity_usd:.0f})'
             }
 
         return {'approved': True, 'reason': 'exposure_ok', 'adjusted_size': None}
 
-    def _check_group_caps(self, portfolio, intent) -> Dict:
-        """Check 5: Correlation group caps."""
+    def _check_group_caps(self, portfolio, intent, equity_usd=100000.0) -> Dict:
+        """Check 5: Correlation group caps (percentage-based or fixed USD)."""
         group_caps = self.policy.get('group_caps', [])
         proposed_notional = intent.qty_lots * 100000
 
         for cap in group_caps:
             group_name = cap['group']
-            max_exposure = cap['max_gross_exposure_usd']
+            max_exposure = self._resolve_limit(cap, 'max_gross_exposure_pct', 'max_gross_exposure_usd', equity_usd)
 
-            # Check if this pair is in the group
             group_pairs = portfolio.correlation_groups.get(group_name, [])
             if intent.pair in group_pairs:
                 current = portfolio.get_group_exposure(group_name)
@@ -235,7 +247,7 @@ class ExposureController:
                         'approved': False,
                         'reason': 'RISK_BLOCKED_CORRELATION',
                         'adjusted_size': None,
-                        'detail': f'{group_name} exposure {current + proposed_notional:.0f} > {max_exposure}'
+                        'detail': f'{group_name} exposure {current + proposed_notional:.0f} > {max_exposure:.0f}'
                     }
 
         return {'approved': True, 'reason': 'group_caps_ok', 'adjusted_size': None}

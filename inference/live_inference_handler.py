@@ -326,7 +326,15 @@ class LiveInferenceHandler:
         self._tier_2 = set(tiering.get('tier_2', []))
         self._all_tradeable = self._tier_1 | self._tier_2
 
+        # Account equity (updated by executor from IBKR)
+        self._equity_usd = 100000.0
+
         logger.info("LiveInferenceHandler initialized (risk engine + lot sizing wired)")
+
+    def set_equity(self, equity_usd):
+        """Update account equity from IBKR. Called by executor."""
+        if equity_usd > 0:
+            self._equity_usd = equity_usd
 
     def is_quarantined(self, brain_name, pair, tf):
         block_key = f"{pair}_{tf}"
@@ -615,7 +623,7 @@ class LiveInferenceHandler:
                 action = 'OPEN'
 
             # --- Step 9: Risk engine check (for OPEN only) ---
-            equity_usd = 100000.0  # Default; EA has real equity
+            equity_usd = self._equity_usd
             lot_size = 0.0
             risk_reason = ''
 

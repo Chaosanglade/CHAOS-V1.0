@@ -1,15 +1,17 @@
 {
-  "version": "2.0.0",
+  "version": "3.0.0",
   "portfolio": {
     "max_total_open_positions": 12,
     "max_positions_per_pair": 1,
     "max_positions_per_tf": 4,
-    "max_gross_exposure_usd": 250000,
-    "max_net_exposure_usd": 100000
+    "max_gross_exposure_pct": 25.0,
+    "max_net_exposure_pct": 10.0,
+    "max_gross_exposure_usd": null,
+    "max_net_exposure_usd": null
   },
   "group_caps": [
-    {"group": "USD_LEG", "max_gross_exposure_usd": 150000},
-    {"group": "JPY_CROSS", "max_gross_exposure_usd": 80000}
+    {"group": "USD_LEG", "max_gross_exposure_pct": 15.0, "max_gross_exposure_usd": null},
+    {"group": "JPY_CROSS", "max_gross_exposure_pct": 8.0, "max_gross_exposure_usd": null}
   ],
   "drawdown_circuit_breaker": {
     "enabled": true,
