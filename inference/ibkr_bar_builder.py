@@ -107,6 +107,8 @@ class IBKRBarBuilder:
         Returns list of bar dicts with: time, open, high, low, close, volume
         """
         count = count or self.bars_count
+        if not self.ib.isConnected():
+            return []
         contract = self._contracts.get(pair)
         if not contract:
             logger.warning(f"No contract for {pair}")
@@ -174,6 +176,11 @@ class IBKRBarBuilder:
         while self._running:
             now = datetime.now(timezone.utc)
 
+            # Skip all work if disconnected — no error spam
+            if not self.ib.isConnected():
+                await asyncio.sleep(5)
+                continue
+
             for pair in self.pairs_map:
                 for tf in self.timeframes:
                     key = f"{pair}_{tf}"
@@ -189,6 +196,10 @@ class IBKRBarBuilder:
                         continue
 
                     # New bar closed — fetch historical data
+                    # Skip if disconnected (reconnect loop will handle it)
+                    if not self.ib.isConnected():
+                        continue
+
                     logger.info(f"Bar closed: {key} at {expected_close}")
                     self._last_bar_close[key] = expected_close
 

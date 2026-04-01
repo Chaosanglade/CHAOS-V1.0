@@ -1376,7 +1376,51 @@ class IBKRExecutor:
             except Exception as e:
                 logger.error(f"[RECONNECT] Attempt {attempt} failed: {e}")
 
-        logger.error(f"[RECONNECT] GAVE UP after {max_retries} attempts")
+        # All retries exhausted — IB Gateway is likely fully down
+        logger.critical(f"[CRITICAL] IB Gateway appears to be down — "
+                         f"all {max_retries} reconnect attempts failed")
+
+        # Attempt to restart IB Gateway
+        try:
+            import subprocess
+            # Common IB Gateway paths on Windows
+            gw_paths = [
+                r'C:\Jts\ibgateway\1021\ibgateway.exe',
+                r'C:\Jts\ibgateway\ibgateway.exe',
+                os.path.expanduser(r'~\Jts\ibgateway\1021\ibgateway.exe'),
+            ]
+            for gw_path in gw_paths:
+                if os.path.exists(gw_path):
+                    logger.info(f"[CRITICAL] Attempting to restart IB Gateway: {gw_path}")
+                    subprocess.Popen([gw_path], creationflags=getattr(subprocess, 'DETACHED_PROCESS', 0))
+                    logger.info("[CRITICAL] IB Gateway restart command sent. "
+                                 "Waiting 60s for it to initialize...")
+                    await asyncio.sleep(60)
+
+                    # One last reconnect attempt
+                    try:
+                        await self.ib.connectAsync(
+                            self.host, self.port, clientId=self.client_id, timeout=60)
+                        logger.info("[CRITICAL] IB Gateway restarted successfully!")
+                        await asyncio.sleep(5)
+                        n = await self._subscribe_pairs()
+                        if n > 0:
+                            try:
+                                await self.tracker.reconcile(self.ib, self.pairs_map)
+                            except Exception:
+                                pass
+                            logger.info(f"[CRITICAL] Recovered with {n} pairs after Gateway restart")
+                            return True
+                    except Exception as e:
+                        logger.error(f"[CRITICAL] Gateway restart reconnect failed: {e}")
+                    break
+            else:
+                logger.critical("[CRITICAL] IB Gateway executable not found — manual restart required")
+        except Exception as e:
+            logger.critical(f"[CRITICAL] Failed to restart IB Gateway: {e}")
+
+        logger.critical("[CRITICAL] Entering dormant mode. Manual intervention required.")
+        logger.critical("[CRITICAL] Restart IB Gateway, then restart the executor.")
         self._halted = True
         return False
 
