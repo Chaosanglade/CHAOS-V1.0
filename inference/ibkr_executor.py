@@ -160,16 +160,24 @@ class PositionTracker:
         if not pos:
             return None
         self._order_ids.add(order_id)
-        # Compute PnL in quote currency
-        if pos['side'] == 1:  # LONG
-            pnl_quote = (exit_price - pos['entry_price']) * pos['qty'] * 100000
-        else:  # SHORT
-            pnl_quote = (pos['entry_price'] - exit_price) * pos['qty'] * 100000
-        # Convert to USD: JPY-denominated pairs need division by USDJPY rate
-        if 'JPY' in pair:
-            pnl = pnl_quote / usdjpy_rate
+        # Safety: reject PnL calculation if entry_price is 0 or missing
+        entry = pos['entry_price']
+        if entry == 0 or entry is None:
+            logger.warning(f"POSITION CLOSED: {key} entry_price=0 — PnL set to $0 "
+                            f"(unknown entry, was auto-adopted)")
+            pnl = 0.0
+            pnl_quote = 0.0
         else:
-            pnl = pnl_quote
+            # Compute PnL in quote currency
+            if pos['side'] == 1:  # LONG
+                pnl_quote = (exit_price - entry) * pos['qty'] * 100000
+            else:  # SHORT
+                pnl_quote = (entry - exit_price) * pos['qty'] * 100000
+            # Convert to USD: JPY-denominated pairs need division by USDJPY rate
+            if 'JPY' in pair:
+                pnl = pnl_quote / usdjpy_rate
+            else:
+                pnl = pnl_quote
         trade = {**pos, 'exit_price': exit_price, 'exit_ts': datetime.now(timezone.utc),
                  'pnl_usd': pnl, 'pnl_quote': pnl_quote, 'close_order_id': order_id}
         self.closed_trades.append(trade)
@@ -817,14 +825,17 @@ class IBKRExecutor:
                                 f"would stack {new_side}")
                 # Adopt the position if not tracked
                 if not any(self.tracker.has_position(pair, t) for t in ['H1', 'M30']):
-                    logger.info(f"[ORDER] Adopting untracked IBKR position for {pair}")
+                    # Use current price as entry (unknown real entry — PnL starts from now)
+                    adopt_price = await self._get_current_price(pair) or 0
+                    logger.info(f"[ORDER] Adopting untracked IBKR position for {pair} "
+                                 f"@ {adopt_price} (PnL starts from now)")
                     self.tracker.positions[f"{pair}_{tf}"] = {
                         'pair': pair, 'tf': tf,
                         'side': 1 if existing_qty > 0 else -1,
                         'qty': abs(existing_qty) / 100000,
-                        'entry_price': 0, 'entry_ts': datetime.now(timezone.utc),
+                        'entry_price': adopt_price, 'entry_ts': datetime.now(timezone.utc),
                         'order_id': -1, 'max_profit_pips': 0.0,
-                        'current_price': 0, 'unrealized_pnl': 0.0,
+                        'current_price': adopt_price, 'unrealized_pnl': 0.0,
                     }
                 return
 
