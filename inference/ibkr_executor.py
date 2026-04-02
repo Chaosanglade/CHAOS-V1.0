@@ -991,9 +991,12 @@ class IBKRExecutor:
                 # Convert pips to USD — JPY pairs need USDJPY conversion
                 if 'JPY' in pair:
                     usdjpy = await self._get_current_price('USDJPY') or 150.0
-                    # For JPY pairs: PnL in USD = price_diff * units / USDJPY
                     price_diff = (current - pos['entry_price']) * pos['side']
                     pnl_usd = price_diff * pos['qty'] * 100000 / usdjpy
+                    logger.info(f"[POS_MGMT] {key} JPY->USD: entry={pos['entry_price']:.3f} "
+                                 f"current={current:.3f} side={pos['side']} diff={price_diff:.5f} "
+                                 f"units={pos['qty']*100000:.0f} usdjpy={usdjpy:.2f} "
+                                 f"pnl_usd=${pnl_usd:.2f}")
                 else:
                     pnl_usd = pnl_pips * pip_val * pos['qty']
                 pos['unrealized_pnl'] = pnl_usd
@@ -1050,6 +1053,15 @@ class IBKRExecutor:
 
             # ── Kill switch: realized + unrealized ──
             total_pnl = self.tracker.daily_pnl + total_unrealized
+            # Log per-position breakdown when approaching kill threshold
+            if total_pnl < -self.kill_switch['max_daily_loss_usd'] * 0.5:
+                logger.warning(f"[KILL_WARN] PnL ${total_pnl:.2f} approaching kill "
+                                f"(realized=${self.tracker.daily_pnl:.2f} "
+                                f"unrealized=${total_unrealized:.2f})")
+                for k, p in self.tracker.positions.items():
+                    logger.warning(f"  {k}: unrealized=${p.get('unrealized_pnl',0):.2f} "
+                                    f"entry={p.get('entry_price',0)} "
+                                    f"current={p.get('current_price',0)}")
             if total_pnl < -self.kill_switch['max_daily_loss_usd']:
                 logger.error(f"KILL_SWITCH_ACTIVATED: daily PnL ${total_pnl:.2f} "
                               f"(realized ${self.tracker.daily_pnl:.2f} + "
