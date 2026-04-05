@@ -1,6 +1,6 @@
 {
-  "version": "THIN_V3_20260330",
-  "description": "Full audit + retrained models. 50 brain assignments across 15 blocks.",
+  "version": "THIN_V4_20260405",
+  "description": "V4: added lgb_v2/xgb_v2 to major blocks, enabled USDCAD_M30. 68 brain assignments across 16 blocks.",
   "agreement_rules": {
     "single_brain": "direct_signal",
     "two_brains": "unanimous",
@@ -18,46 +18,56 @@
         "lgb_optuna",
         "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "cat_v2_optuna": "models",
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
-        "lgb_v2_optuna": "models",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "EURUSD_M30": {
       "brains": [
         "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "GBPUSD_H1": {
       "brains": [
         "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "GBPUSD_M30": {
@@ -66,15 +76,17 @@
         "lgb_optuna",
         "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
-        "lgb_v2_optuna": "models",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "USDJPY_H1": {
@@ -82,52 +94,65 @@
         "cat_v2_optuna",
         "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "cat_v2_optuna": "models",
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "USDJPY_M30": {
       "brains": [
         "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "AUDUSD_H1": {
       "brains": [
         "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
         "rf_v2_optuna",
-        "xgb_optuna"
+        "xgb_optuna",
+        "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
-        "xgb_optuna": "v2_retrained"
+        "xgb_optuna": "v2_retrained",
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "AUDUSD_M30": {
       "brains": [
         "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
         "rf_v2_optuna",
         "xgb_optuna",
         "xgb_v2_optuna"
@@ -136,31 +161,43 @@
       "model_dirs": {
         "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
         "rf_v2_optuna": "v2_retrained",
         "xgb_optuna": "v2_retrained",
-        "xgb_v2_optuna": "models"
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "USDCAD_H1": {
       "brains": [
         "cat_v2_optuna",
+        "et_v2_optuna",
         "lgb_optuna",
+        "lgb_v2_optuna",
+        "rf_v2_optuna",
         "xgb_optuna",
         "xgb_v2_optuna"
       ],
       "rule": "majority_0.50",
       "model_dirs": {
         "cat_v2_optuna": "models",
+        "et_v2_optuna": "v2_retrained",
         "lgb_optuna": "v2_retrained",
+        "lgb_v2_optuna": "v2_retrained",
+        "rf_v2_optuna": "v2_retrained",
         "xgb_optuna": "v2_retrained",
-        "xgb_v2_optuna": "models"
+        "xgb_v2_optuna": "v2_retrained"
       }
     },
     "USDCAD_M30": {
-      "brains": [],
-      "rule": "disabled",
-      "model_dirs": {},
-      "note": "No eligible brains"
+      "brains": [
+        "et_v2_optuna",
+        "rf_v2_optuna"
+      ],
+      "rule": "unanimous",
+      "model_dirs": {
+        "et_v2_optuna": "v2_retrained",
+        "rf_v2_optuna": "v2_retrained"
+      }
     },
     "USDCHF_H1": {
       "brains": [
@@ -237,9 +274,10 @@
   },
   "coverage_summary": {
     "total_blocks": 18,
-    "enabled_blocks": 15,
-    "disabled_blocks": 3,
-    "total_brain_assignments": 50,
+    "enabled_blocks": 16,
+    "disabled_blocks": 2,
+    "total_brain_assignments": 68,
+    "note": "V4: lgb_v2+xgb_v2 added to 8 major blocks, USDCAD_M30 enabled, USDCAD_H1 expanded",
     "unique_brains": [
       "cat_optuna",
       "cat_v2_optuna",
@@ -251,7 +289,6 @@
       "xgb_v2_optuna"
     ],
     "disabled_list": [
-      "USDCAD_M30",
       "USDCHF_M30",
       "NZDUSD_M30"
     ]
