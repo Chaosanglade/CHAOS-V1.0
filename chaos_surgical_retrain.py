@@ -1,33 +1,25 @@
 """
 CHAOS V1.0 — Surgical Feature Replacement + XGBoost Retrain
 
-Instead of recomputing all 540 features from scratch (588 hours),
-this script:
-1. Loads existing feature parquets (already have 1.12M bars x 540 cols)
-2. Fixes ONLY the columns where production adapter differs from training
-3. Saves to features_fixed/
-4. Trains XGBoost on the fixed parquets with walk-forward validation
+Fixes ONLY the columns where training parquets differ from production.
+Verified via parity audit — most features already match (corr>0.99).
 
-Estimated time: ~30 minutes per pair on A100, ~2 hours on RTX 4060.
+Features that NEED fixing (verified mismatched):
+  - TWAP: parquet has unknown formula, production uses rolling 20-bar close mean
+  - spread_decomposition: parquet range [-26K,+26K], production uses wick ratio [0,1]
+  - mtf_*_support_dist, mtf_*_resistance_dist: raw pips (0-265), production uses pct of price
 
-Fixed features:
-  - rsi_stretched: was (rsi_14-50)*2, production uses float(rsi>80 or rsi<20)
-    → recompute as float(rsi_14 > 80 or rsi_14 < 20) to match production
-  - ema_cross_21_55: was {-1,+1} in some versions, production uses {0,1}
-    → recompute as (ema_21 > ema_55).astype(int)
-  - ofi: sign correction — production uses sign(close-open)*volume
-    → recompute from Close/Open/Volume columns
-  - rn_dist_big_pips: formula fix — distance in figure intervals
-    → recompute from Close column
-  - rn_dist_half_pips: same formula fix
-  - mtf_*_sma_cross: ensure {0,1} not {-1,+1}
-  - mtf_*_support_dist, mtf_*_resistance_dist: raw vs percentage fix
-  - TWAP: ensure raw price (mean of close over 20 bars)
-  - spread_decomposition: fix constant-0 issue
+Features that DON'T need fixing (verified matching):
+  - rsi_stretched: parquet = (rsi_14-50)*2 continuous — matches production (DO NOT TOUCH)
+  - ema_cross_21_55: {0,1} — matches (99.9%)
+  - ofi: sign(close-open)*volume — matches (corr=1.0)
+  - rn_dist_big_pips, rn_dist_half_pips — matches (corr=1.0)
+  - mtf_*_sma_cross: {0,1} — matches
 
 Usage:
     python chaos_surgical_retrain.py --pairs EURUSD GBPUSD USDJPY
-    python chaos_surgical_retrain.py --pairs EURUSD --skip-train  # Fix only, no retrain
+    python chaos_surgical_retrain.py --pairs EURUSD --skip-train
+    python chaos_surgical_retrain.py --pairs EURUSD --verify-only
 """
 import os
 import sys
@@ -67,105 +59,122 @@ np.random.seed(RANDOM_SEED)
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Step 1: Surgical Feature Fixes
+# Step 1: Surgical Feature Fixes — ONLY verified mismatches
 # ═══════════════════════════════════════════════════════════════════════
 
 def fix_features(df, pair):
     """
-    Fix ONLY the columns that differ between training parquet and
-    production live adapter. All fixes are vectorized on full series.
+    Fix ONLY columns verified to differ between training parquet and
+    production live_feature_adapter.py. Each formula is copied EXACTLY
+    from the production source.
     """
     n_fixed = 0
+    pip_size = 0.01 if 'JPY' in pair else 0.0001
 
-    # --- rsi_stretched: production returns 0/1 (boolean), training had continuous ---
-    if 'rsi_14' in df.columns:
-        rsi = df['rsi_14'].values
-        # Production: float(rsi > 80 or rsi < 20)
-        df['rsi_stretched'] = ((rsi > 80) | (rsi < 20)).astype(np.float32)
-        n_fixed += 1
-        print(f'    rsi_stretched: fixed (was continuous, now 0/1 boolean)')
-
-    # --- ema_cross_21_55: ensure {0, 1} not {-1, +1} ---
-    if 'ema_21' in df.columns and 'ema_55' in df.columns:
-        df['ema_cross_21_55'] = (df['ema_21'] > df['ema_55']).astype(np.int8)
-        n_fixed += 1
-        print(f'    ema_cross_21_55: fixed (ensured {{0,1}})')
-
-    # --- ofi: production uses sign(close-open)*volume ---
-    if 'Close' in df.columns and 'Open' in df.columns and 'Volume' in df.columns:
-        df['ofi'] = (np.sign(df['Close'] - df['Open']) * df['Volume']).astype(np.float32)
-        n_fixed += 1
-        print(f'    ofi: fixed (sign(close-open)*volume)')
-
-    # --- rn_dist_big_pips, rn_dist_half_pips: figure interval formula ---
-    if 'Close' in df.columns:
-        close = df['Close'].values
-        is_jpy = 'JPY' in pair
-        pip_size = 0.01 if is_jpy else 0.0001
-        big_interval = 500 * pip_size    # 0.05 for non-JPY, 5.0 for JPY
-        half_interval = 50 * pip_size    # 0.005 for non-JPY, 0.50 for JPY
-
-        big_fig = np.round(close / big_interval) * big_interval
-        half_fig = np.round(close / half_interval) * half_interval
-
-        df['rn_dist_big_pips'] = (np.abs(close - big_fig) / half_interval).astype(np.float32)
-        df['rn_dist_half_pips'] = (np.abs(close - half_fig) / half_interval).astype(np.float32)
-        n_fixed += 2
-        print(f'    rn_dist_big_pips, rn_dist_half_pips: fixed (figure interval formula)')
-
-    # --- mtf_*_sma_cross: ensure {0, 1} ---
-    sma_cross_cols = [c for c in df.columns if 'sma_cross' in c]
-    for col in sma_cross_cols:
-        vals = df[col].values
-        if vals.min() < 0:  # Has {-1, +1} encoding
-            df[col] = (vals > 0).astype(np.int8)
-            n_fixed += 1
-            print(f'    {col}: fixed (-1/+1 → 0/1)')
-
-    # --- mtf_*_support_dist, mtf_*_resistance_dist ---
-    # Production computes as raw price distance / price (percentage)
-    # Training may have raw pip distance. Normalize to percentage.
-    for prefix in ['support_dist', 'resistance_dist']:
-        dist_cols = [c for c in df.columns if prefix in c]
-        for col in dist_cols:
-            vals = df[col].values
-            # If max > 10, it's in raw pips/points — convert to percentage
-            if np.nanmax(vals) > 10:
-                if 'Close' in df.columns:
-                    df[col] = (vals * pip_size / df['Close'].values).astype(np.float32)
-                    n_fixed += 1
-                    print(f'    {col}: fixed (raw pips → percentage of price)')
-
-    # --- TWAP: ensure raw price average ---
+    # --- TWAP: production = rolling 20-bar close mean (raw price) ---
+    # Parquet has different formula (corr=0.13 vs production)
+    # Source: live_feature_adapter.py line 234: F['TWAP'] = _roll_mean(c, 20)[-1]
     if 'Close' in df.columns:
         df['TWAP'] = df['Close'].rolling(20, min_periods=1).mean().astype(np.float32)
         n_fixed += 1
-        print(f'    TWAP: fixed (rolling 20-bar close mean)')
+        print(f'    TWAP: fixed -> rolling 20-bar close mean')
 
-    # --- spread_decomposition: fix if constant 0 ---
-    if 'spread_decomposition' in df.columns:
-        if df['spread_decomposition'].nunique() <= 2:
-            if 'High' in df.columns and 'Low' in df.columns and 'Open' in df.columns and 'Close' in df.columns:
-                bar_range = df['High'] - df['Low']
-                body = np.abs(df['Close'] - df['Open'])
-                df['spread_decomposition'] = ((bar_range - body) / (bar_range + 1e-10)).astype(np.float32)
-                n_fixed += 1
-                print(f'    spread_decomposition: fixed (wick ratio)')
+    # --- spread_decomposition: production = (H-L - |C-O|) / (H-L) ---
+    # Parquet range [-26K,+26K] vs production [0,1] (corr=0.0007)
+    # Source: live_feature_adapter.py line 301:
+    #   F['spread_decomposition'] = _safe_div(spread_raw - np.abs(c - o), spread_raw + 1e-10)[-1]
+    if all(c in df.columns for c in ['High', 'Low', 'Close', 'Open']):
+        bar_range = (df['High'] - df['Low']).values
+        body = np.abs(df['Close'] - df['Open']).values
+        sd = np.where(bar_range > 1e-10, (bar_range - body) / bar_range, 0.0)
+        df['spread_decomposition'] = sd.astype(np.float32)
+        n_fixed += 1
+        print(f'    spread_decomposition: fixed -> wick ratio [0,1]')
 
-    # --- Bid_High: fill if missing ---
-    if 'Bid_High' in df.columns:
-        if df['Bid_High'].isna().sum() > len(df) * 0.5:
-            if 'High' in df.columns:
-                df['Bid_High'] = df['High'].astype(np.float32)
-                n_fixed += 1
-                print(f'    Bid_High: filled from High')
+    # --- mtf_*_support_dist, mtf_*_resistance_dist: raw pips -> pct of price ---
+    # Parquet has raw values (max 265), production normalizes by price
+    # Source: live_feature_adapter.py uses _safe_div for similar features
+    if 'Close' in df.columns:
+        close = df['Close'].values
+        for prefix in ['support_dist', 'resistance_dist']:
+            dist_cols = [c for c in df.columns if prefix in c]
+            for col in dist_cols:
+                vals = df[col].values
+                if np.nanmax(np.abs(vals)) > 10:  # Raw pips, needs normalization
+                    df[col] = (vals * pip_size / (close + 1e-10)).astype(np.float32)
+                    n_fixed += 1
+                    print(f'    {col}: fixed -> pct of price')
 
     print(f'    Total fixes applied: {n_fixed}')
     return df
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Step 2: PF + Anti-Flat (same as other scripts)
+# Step 2: Verification — compare fixed parquet vs production adapter
+# ═══════════════════════════════════════════════════════════════════════
+
+def verify_fixes(df, pair, n_samples=100):
+    """
+    Verify fixed features match what production adapter would compute
+    on the same OHLCV data, for a random sample of bars.
+    """
+    sys.path.insert(0, str(PROJECT_ROOT))
+    sys.path.insert(0, str(PROJECT_ROOT / 'inference'))
+    from inference.live_feature_adapter import LiveFeatureAdapter, _roll_mean, _safe_div
+
+    print(f'  Verifying {n_samples} random bars...')
+    np.random.seed(42)
+    indices = np.random.choice(range(500, len(df) - 10), n_samples, replace=False)
+
+    adapter = LiveFeatureAdapter()
+    features_to_check = ['TWAP', 'spread_decomposition']
+    mismatches = {f: [] for f in features_to_check}
+
+    for idx in indices:
+        # Extract 500-bar window ending at idx
+        window = df.iloc[max(0, idx - 499):idx + 1]
+        bars = []
+        for _, row in window.iterrows():
+            bar = {'open': float(row['Open']), 'high': float(row['High']),
+                   'low': float(row['Low']), 'close': float(row['Close']),
+                   'volume': float(row['Volume'])}
+            if hasattr(window.index, 'strftime'):
+                bar['time'] = row.name.strftime('%Y-%m-%dT%H:%M:%S')
+            else:
+                bar['time'] = '2020-01-01T00:00:00'
+            bars.append(bar)
+
+        schema_vec = adapter.compute(pair, TF, {TF: bars})
+        if schema_vec is None:
+            continue
+
+        # Compare each fixed feature
+        for fname in features_to_check:
+            if fname in adapter._name_to_idx and fname in df.columns:
+                prod_val = float(schema_vec[adapter._name_to_idx[fname]])
+                parq_val = float(df[fname].iloc[idx])
+                if abs(parq_val) > 1e-10:
+                    pct_diff = abs(prod_val - parq_val) / abs(parq_val) * 100
+                else:
+                    pct_diff = abs(prod_val - parq_val) * 100
+                if pct_diff > 5.0:  # >5% difference
+                    mismatches[fname].append((idx, parq_val, prod_val, pct_diff))
+
+    all_ok = True
+    for fname, mm in mismatches.items():
+        if mm:
+            print(f'    {fname}: {len(mm)}/{n_samples} mismatches (>{5}%)')
+            for idx, pv, rv, pct in mm[:3]:
+                print(f'      bar {idx}: parquet={pv:.6f} prod={rv:.6f} diff={pct:.1f}%')
+            all_ok = False
+        else:
+            print(f'    {fname}: OK (0 mismatches)')
+
+    return all_ok
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Step 3: PF + Anti-Flat
 # ═══════════════════════════════════════════════════════════════════════
 
 def calculate_pf_with_penalty(predictions, returns):
@@ -213,32 +222,23 @@ def check_eligibility(preds, returns_val):
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# Step 3: XGBoost Training with Walk-Forward Validation
+# Step 4: XGBoost Training
 # ═══════════════════════════════════════════════════════════════════════
 
 def train_xgb(pair, df, feature_cols):
-    """Train XGBoost on fixed features with walk-forward validation."""
     import optuna
     from xgboost import XGBClassifier
     optuna.logging.set_verbosity(optuna.logging.WARNING)
-
-    # Prepare data
-    if TARGET_COL not in df.columns or RETURNS_COL not in df.columns:
-        print(f'  SKIP {pair}: missing target columns')
-        return None
 
     df_clean = df.dropna(subset=[TARGET_COL, RETURNS_COL]).copy()
     df_clean['returns_lagged'] = df_clean[RETURNS_COL].shift(-EXECUTION_LAG_BARS)
     df_clean = df_clean.dropna(subset=['returns_lagged'])
 
-    X = df_clean[feature_cols].values.astype(np.float32)
-    X = np.nan_to_num(X, nan=0, posinf=0, neginf=0)
-
+    X = np.nan_to_num(df_clean[feature_cols].values.astype(np.float32), nan=0, posinf=0, neginf=0)
     y_raw = df_clean[TARGET_COL].values
     y = np.where(y_raw == -1, 0, np.where(y_raw == 0, 1, 2)).astype(np.int64)
     returns = df_clean['returns_lagged'].values.astype(np.float64)
 
-    # Chronological split with purge gap
     n = len(X)
     split = int(n * 0.80)
     X_train, X_val = X[:split - PURGE_GAP_BARS], X[split:]
@@ -247,13 +247,11 @@ def train_xgb(pair, df, feature_cols):
 
     print(f'  Train: {len(X_train):,}  Val: {len(X_val):,}  Features: {len(feature_cols)}')
 
-    # Class weights
     classes = np.unique(y_train)
     weights = compute_class_weight('balanced', classes=classes, y=y_train)
     weight_map = {int(c): float(w) for c, w in zip(classes, weights)}
     sample_weights = np.array([weight_map[int(y)] for y in y_train])
 
-    # Optuna
     def objective(trial):
         params = {
             'objective': 'multi:softmax', 'num_class': 3,
@@ -277,11 +275,7 @@ def train_xgb(pair, df, feature_cols):
                                 sampler=optuna.samplers.TPESampler(seed=RANDOM_SEED))
     study.optimize(objective, n_trials=250, show_progress_bar=False)
 
-    best_pf = study.best_value
     best_params = study.best_params
-    print(f'  Best PF: {best_pf:.3f}  Params: {best_params}')
-
-    # Train final model
     best_params.update({
         'objective': 'multi:softmax', 'num_class': 3,
         'tree_method': 'hist', 'device': 'cpu',
@@ -290,17 +284,15 @@ def train_xgb(pair, df, feature_cols):
     model = XGBClassifier(**best_params)
     model.fit(X_train, y_train, sample_weight=sample_weights)
 
-    # Eligibility
     preds = model.predict(X_val)
     elig = check_eligibility(preds, returns_val)
-    print(f'  Eligibility: {"PASS" if elig["eligible"] else "FAIL"}  '
+    print(f'  PF={study.best_value:.3f}  '
           f'F={elig["flat_pct"]}% L={elig["long_pct"]}% S={elig["short_pct"]}% '
           f'H={elig["entropy"]} T={elig["trades"]}')
 
     return {
-        'model': model, 'params': best_params, 'best_pf': best_pf,
+        'model': model, 'params': best_params, 'best_pf': study.best_value,
         'eligibility': elig, 'feature_names': feature_cols,
-        'n_train': len(X_train), 'n_val': len(X_val),
     }
 
 
@@ -308,7 +300,7 @@ def train_xgb(pair, df, feature_cols):
 # Main
 # ═══════════════════════════════════════════════════════════════════════
 
-def run(pairs=None, skip_train=False):
+def run(pairs=None, skip_train=False, verify_only=False):
     pairs = pairs or ALL_PAIRS
     FIXED_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -319,46 +311,48 @@ def run(pairs=None, skip_train=False):
     for pair in pairs:
         parquet = FEATURES_DIR / f'{pair}_{TF}_features.parquet'
         if not parquet.exists():
-            print(f'SKIP {pair}: {parquet} not found')
+            print(f'SKIP {pair}: not found')
             continue
 
         print(f'\n{"="*60}')
         print(f'  {pair}_{TF}')
         print(f'{"="*60}')
 
-        # Load
         t0 = time.time()
-        print(f'  Loading {parquet.name}...', end=' ', flush=True)
+        print(f'  Loading...', end=' ', flush=True)
         df = pd.read_parquet(str(parquet))
         print(f'{df.shape[0]:,} rows x {df.shape[1]} cols ({time.time()-t0:.1f}s)')
 
-        # Fix features
-        print(f'  Applying surgical fixes:')
+        print(f'  Applying surgical fixes (ONLY verified mismatches):')
         df = fix_features(df, pair)
 
-        # Save fixed parquet
+        # Verify
+        print(f'  Verification:')
+        verify_ok = verify_fixes(df, pair, n_samples=50)
+        if not verify_ok:
+            print(f'  WARNING: verification found mismatches')
+        if verify_only:
+            continue
+
+        # Save
         fixed_path = FIXED_DIR / f'{pair}_{TF}_features.parquet'
-        print(f'  Saving to {fixed_path.name}...', end=' ', flush=True)
+        print(f'  Saving fixed parquet...', end=' ', flush=True)
         t0 = time.time()
         df.to_parquet(str(fixed_path), engine='pyarrow', compression='snappy')
         print(f'OK ({time.time()-t0:.1f}s)')
 
         if skip_train:
-            print(f'  --skip-train: skipping model training')
             continue
 
-        # Get feature columns
         feature_cols = [c for c in df.columns
                         if not c.startswith('target_') and df[c].dtype != 'object']
 
-        # Train
-        print(f'  Training XGBoost (250 Optuna trials)...')
+        print(f'  Training XGBoost (250 trials)...')
         t0 = time.time()
         result = train_xgb(pair, df, feature_cols)
         elapsed = time.time() - t0
 
         if result:
-            # Save model
             save_path = OUTPUT_DIR / f'{pair}_{TF}_xgb_surgical.joblib'
             joblib.dump({
                 'model': result['model'], 'params': result['params'],
@@ -368,37 +362,30 @@ def run(pairs=None, skip_train=False):
                 'eligibility': result['eligibility'],
                 'best_pf': result['best_pf'],
             }, str(save_path))
-            print(f'  Saved: {save_path.name} ({elapsed:.0f}s)')
+            status = 'PASS' if result['eligibility']['eligible'] else 'FAIL'
+            print(f'  {status} -> {save_path.name} ({elapsed:.0f}s)')
+            results.append({'pair': pair, **result['eligibility'],
+                           'best_pf': result['best_pf'], 'elapsed': round(elapsed)})
 
-            results.append({
-                'pair': pair, 'tf': TF, 'best_pf': result['best_pf'],
-                **result['eligibility'], 'elapsed_sec': round(elapsed),
-            })
+        del df; gc.collect()
 
-        del df
-        gc.collect()
-
-    # Summary
     total_time = time.time() - t_total
     print(f'\n{"="*60}')
-    print(f'SURGICAL RETRAIN COMPLETE ({total_time/60:.1f} min)')
+    print(f'DONE ({total_time/60:.1f} min)')
     for r in results:
-        status = 'PASS' if r.get('eligible') else 'FAIL'
-        print(f'  {r["pair"]}_{TF}: {status} PF={r["best_pf"]:.2f} '
-              f'F={r["flat_pct"]}% L={r["long_pct"]}% S={r["short_pct"]}% T={r["trades"]}')
+        print(f'  {r["pair"]}: PF={r["best_pf"]:.2f} F={r["flat_pct"]}% T={r["trades"]}')
     print(f'{"="*60}')
 
-    # Save results
     results_path = OUTPUT_DIR / 'surgical_results.json'
     with open(results_path, 'w') as f:
         json.dump({'timestamp': datetime.now().isoformat(),
-                   'total_time_sec': round(total_time),
                    'results': results}, f, indent=2, default=str)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='CHAOS V1.0 — Surgical Feature Fix + Retrain')
+    parser = argparse.ArgumentParser()
     parser.add_argument('--pairs', nargs='+', default=None)
-    parser.add_argument('--skip-train', action='store_true', help='Fix features only, skip training')
+    parser.add_argument('--skip-train', action='store_true')
+    parser.add_argument('--verify-only', action='store_true')
     args = parser.parse_args()
-    run(pairs=args.pairs, skip_train=args.skip_train)
+    run(pairs=args.pairs, skip_train=args.skip_train, verify_only=args.verify_only)

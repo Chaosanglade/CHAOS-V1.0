@@ -354,7 +354,7 @@ class LiveFeatureAdapter:
             # rsi_2_cumulative: training mean ~100.4 = sum of RSI(2) over 5 bars (raw, NOT /500)
             F['rsi_2_cumulative'] = _roll_sum(_rsi(c, 2), 5)[-1]
             rsi14 = _rsi(c, 14)
-            F['rsi_stretched'] = float(rsi14[-1] > 80 or rsi14[-1] < 20)
+            F['rsi_stretched'] = (rsi14[-1] - 50.0) * 2.0  # Continuous, matches training parquet
 
             # OU half-life
             log_p = np.log(np.maximum(c, 1e-10))
