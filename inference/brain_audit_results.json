@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-03-26T17:29:05Z",
-  "elapsed_sec": 1760.0,
+  "timestamp": "2026-03-30T19:08:29Z",
+  "elapsed_sec": 1249.3,
   "results": [
     {
       "pair": "EURUSD",
@@ -172,6 +172,39 @@
     {
       "pair": "EURUSD",
       "tf": "H1",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 252,
+        "severe_z10": 7,
+        "out_of_range": 14,
+        "pct_ok": 92.3
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 32.0,
+        "flat_pct": 35.6,
+        "long_pct": 32.4,
+        "entropy": 1.583,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 28066,
+        "non_flat_signals": 15400,
+        "signal_rate_pct": 54.9,
+        "trade_count": 4854
+      },
+      "eligible": true
+    },
+    {
+      "pair": "EURUSD",
+      "tf": "H1",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -182,9 +215,8 @@
         "pct_ok": 92.3
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "X has 275 features, but LGBMClassifier is expecting 368 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -306,7 +338,7 @@
     {
       "pair": "EURUSD",
       "tf": "H1",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -320,40 +352,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURUSD",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 252,
-        "severe_z10": 7,
-        "out_of_range": 14,
-        "pct_ok": 92.3
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 25.8,
+        "flat_pct": 46.2,
+        "long_pct": 28.0,
+        "entropy": 1.533,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 28066,
+        "non_flat_signals": 13258,
+        "signal_rate_pct": 47.2,
+        "trade_count": 4813
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "EURUSD",
@@ -391,32 +404,6 @@
     {
       "pair": "EURUSD",
       "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 252,
-        "severe_z10": 7,
-        "out_of_range": 14,
-        "pct_ok": 92.3
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURUSD",
-      "tf": "H1",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -427,9 +414,8 @@
         "pct_ok": 92.3
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 368, got 275"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -652,6 +638,39 @@
     {
       "pair": "EURUSD",
       "tf": "M30",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 251,
+        "severe_z10": 5,
+        "out_of_range": 17,
+        "pct_ok": 91.9
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 40.4,
+        "flat_pct": 29.8,
+        "long_pct": 29.8,
+        "entropy": 1.569,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 56127,
+        "non_flat_signals": 40233,
+        "signal_rate_pct": 71.7,
+        "trade_count": 8953
+      },
+      "eligible": true
+    },
+    {
+      "pair": "EURUSD",
+      "tf": "M30",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -662,9 +681,8 @@
         "pct_ok": 91.9
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "X has 275 features, but LGBMClassifier is expecting 368 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -786,7 +804,7 @@
     {
       "pair": "EURUSD",
       "tf": "M30",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -800,40 +818,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURUSD",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 251,
-        "severe_z10": 5,
-        "out_of_range": 17,
-        "pct_ok": 91.9
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 33.6,
+        "flat_pct": 39.6,
+        "long_pct": 26.8,
+        "entropy": 1.567,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 56127,
+        "non_flat_signals": 37668,
+        "signal_rate_pct": 67.1,
+        "trade_count": 8558
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "EURUSD",
@@ -871,32 +870,6 @@
     {
       "pair": "EURUSD",
       "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 251,
-        "severe_z10": 5,
-        "out_of_range": 17,
-        "pct_ok": 91.9
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURUSD",
-      "tf": "M30",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -907,9 +880,8 @@
         "pct_ok": 91.9
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 368, got 275"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -1132,6 +1104,39 @@
     {
       "pair": "GBPUSD",
       "tf": "H1",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 251,
+        "severe_z10": 4,
+        "out_of_range": 18,
+        "pct_ok": 91.9
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 31.6,
+        "flat_pct": 39.2,
+        "long_pct": 29.2,
+        "entropy": 1.573,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 28062,
+        "non_flat_signals": 16438,
+        "signal_rate_pct": 58.6,
+        "trade_count": 5297
+      },
+      "eligible": true
+    },
+    {
+      "pair": "GBPUSD",
+      "tf": "H1",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -1142,9 +1147,8 @@
         "pct_ok": 91.9
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "X has 275 features, but LGBMClassifier is expecting 368 features as input."
       },
       "directional_coverage": {
         "status": "PASS",
@@ -1161,7 +1165,7 @@
         "signal_rate_pct": 52.4,
         "trade_count": 1002
       },
-      "eligible": true
+      "eligible": false
     },
     {
       "pair": "GBPUSD",
@@ -1266,7 +1270,7 @@
     {
       "pair": "GBPUSD",
       "tf": "H1",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -1280,40 +1284,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPUSD",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 251,
-        "severe_z10": 4,
-        "out_of_range": 18,
-        "pct_ok": 91.9
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 25.2,
+        "flat_pct": 48.2,
+        "long_pct": 26.6,
+        "entropy": 1.517,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 28062,
+        "non_flat_signals": 12355,
+        "signal_rate_pct": 44.0,
+        "trade_count": 4994
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "GBPUSD",
@@ -1351,32 +1336,6 @@
     {
       "pair": "GBPUSD",
       "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 251,
-        "severe_z10": 4,
-        "out_of_range": 18,
-        "pct_ok": 91.9
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPUSD",
-      "tf": "H1",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -1387,9 +1346,8 @@
         "pct_ok": 91.9
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 368, got 275"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -1612,6 +1570,39 @@
     {
       "pair": "GBPUSD",
       "tf": "M30",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 254,
+        "severe_z10": 11,
+        "out_of_range": 8,
+        "pct_ok": 93.0
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 31.4,
+        "flat_pct": 30.8,
+        "long_pct": 37.8,
+        "entropy": 1.579,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 56120,
+        "non_flat_signals": 39485,
+        "signal_rate_pct": 70.4,
+        "trade_count": 9719
+      },
+      "eligible": true
+    },
+    {
+      "pair": "GBPUSD",
+      "tf": "M30",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -1622,9 +1613,8 @@
         "pct_ok": 93.0
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "X has 275 features, but LGBMClassifier is expecting 368 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -1746,7 +1736,7 @@
     {
       "pair": "GBPUSD",
       "tf": "M30",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -1760,40 +1750,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 368 elements not 275"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPUSD",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 254,
-        "severe_z10": 11,
-        "out_of_range": 8,
-        "pct_ok": 93.0
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 30.4,
+        "flat_pct": 33.6,
+        "long_pct": 36.0,
+        "entropy": 1.582,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 56120,
+        "non_flat_signals": 36268,
+        "signal_rate_pct": 64.6,
+        "trade_count": 9846
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "GBPUSD",
@@ -1831,32 +1802,6 @@
     {
       "pair": "GBPUSD",
       "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 254,
-        "severe_z10": 11,
-        "out_of_range": 8,
-        "pct_ok": 93.0
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPUSD",
-      "tf": "M30",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -1867,9 +1812,8 @@
         "pct_ok": 93.0
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 368, got 275"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -2092,6 +2036,39 @@
     {
       "pair": "USDJPY",
       "tf": "H1",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 236,
+        "severe_z10": 11,
+        "out_of_range": 25,
+        "pct_ok": 86.8
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 30.4,
+        "flat_pct": 42.2,
+        "long_pct": 27.4,
+        "entropy": 1.559,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 28057,
+        "non_flat_signals": 18057,
+        "signal_rate_pct": 64.4,
+        "trade_count": 5401
+      },
+      "eligible": true
+    },
+    {
+      "pair": "USDJPY",
+      "tf": "H1",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -2102,9 +2079,8 @@
         "pct_ok": 86.8
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0013
+        "status": "ERROR",
+        "reason": "X has 276 features, but LGBMClassifier is expecting 369 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -2226,7 +2202,7 @@
     {
       "pair": "USDJPY",
       "tf": "H1",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -2240,40 +2216,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 369 elements not 276"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 369 elements not 276"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDJPY",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 236,
-        "severe_z10": 11,
-        "out_of_range": 25,
-        "pct_ok": 86.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 29.2,
+        "flat_pct": 45.6,
+        "long_pct": 25.2,
+        "entropy": 1.536,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 28057,
+        "non_flat_signals": 16538,
+        "signal_rate_pct": 58.9,
+        "trade_count": 5171
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "USDJPY",
@@ -2311,32 +2268,6 @@
     {
       "pair": "USDJPY",
       "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 236,
-        "severe_z10": 11,
-        "out_of_range": 25,
-        "pct_ok": 86.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDJPY",
-      "tf": "H1",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -2347,9 +2278,8 @@
         "pct_ok": 86.8
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 369, got 276"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -2572,6 +2502,39 @@
     {
       "pair": "USDJPY",
       "tf": "M30",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "FAIL",
+        "ok": 43,
+        "severe_z10": 227,
+        "out_of_range": 3,
+        "pct_ok": 15.8
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "WARN",
+        "short_pct": 30.0,
+        "flat_pct": 61.8,
+        "long_pct": 8.2,
+        "entropy": 1.246,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 56109,
+        "non_flat_signals": 17602,
+        "signal_rate_pct": 31.4,
+        "trade_count": 4056
+      },
+      "eligible": false
+    },
+    {
+      "pair": "USDJPY",
+      "tf": "M30",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -2582,9 +2545,9 @@
         "pct_ok": 15.8
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "FAIL",
+        "class_match_pct": 77.0,
+        "max_prob_diff": 0.4117
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -2706,7 +2669,7 @@
     {
       "pair": "USDJPY",
       "tf": "M30",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "FAIL",
@@ -2720,45 +2683,19 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "FAIL",
-        "short_pct": 10.0,
-        "flat_pct": 75.2,
-        "long_pct": 14.8,
-        "entropy": 1.049,
+        "status": "WARN",
+        "short_pct": 22.2,
+        "flat_pct": 69.8,
+        "long_pct": 8.0,
+        "entropy": 1.136,
         "n_samples": 500
       },
       "trade_viability": {
         "status": "PASS",
         "total_bars": 56109,
-        "non_flat_signals": 4873,
-        "signal_rate_pct": 8.7,
-        "trade_count": 3230
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDJPY",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "FAIL",
-        "ok": 43,
-        "severe_z10": 227,
-        "out_of_range": 3,
-        "pct_ok": 15.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "non_flat_signals": 17496,
+        "signal_rate_pct": 31.2,
+        "trade_count": 3611
       },
       "eligible": false
     },
@@ -2798,32 +2735,6 @@
     {
       "pair": "USDJPY",
       "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "FAIL",
-        "ok": 43,
-        "severe_z10": 227,
-        "out_of_range": 3,
-        "pct_ok": 15.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDJPY",
-      "tf": "M30",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -2834,9 +2745,9 @@
         "pct_ok": 15.8
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "FAIL",
+        "class_match_pct": 82.0,
+        "max_prob_diff": 0.2829
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -3059,6 +2970,39 @@
     {
       "pair": "AUDUSD",
       "tf": "H1",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 245,
+        "severe_z10": 8,
+        "out_of_range": 20,
+        "pct_ok": 89.7
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 30.4,
+        "flat_pct": 41.4,
+        "long_pct": 28.2,
+        "entropy": 1.564,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 28057,
+        "non_flat_signals": 15856,
+        "signal_rate_pct": 56.5,
+        "trade_count": 5644
+      },
+      "eligible": true
+    },
+    {
+      "pair": "AUDUSD",
+      "tf": "H1",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -3069,9 +3013,8 @@
         "pct_ok": 89.7
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0077
+        "status": "ERROR",
+        "reason": "X has 277 features, but LGBMClassifier is expecting 370 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -3193,7 +3136,7 @@
     {
       "pair": "AUDUSD",
       "tf": "H1",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -3207,40 +3150,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "AUDUSD",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 245,
-        "severe_z10": 8,
-        "out_of_range": 20,
-        "pct_ok": 89.7
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 26.8,
+        "flat_pct": 47.8,
+        "long_pct": 25.4,
+        "entropy": 1.52,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 28057,
+        "non_flat_signals": 13710,
+        "signal_rate_pct": 48.9,
+        "trade_count": 5371
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "AUDUSD",
@@ -3278,32 +3202,6 @@
     {
       "pair": "AUDUSD",
       "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 245,
-        "severe_z10": 8,
-        "out_of_range": 20,
-        "pct_ok": 89.7
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "AUDUSD",
-      "tf": "H1",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -3314,9 +3212,8 @@
         "pct_ok": 89.7
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 370, got 277"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -3539,6 +3436,39 @@
     {
       "pair": "AUDUSD",
       "tf": "M30",
+      "brain": "et_v2_optuna",
+      "quarantined": false,
+      "feature_parity": {
+        "status": "PASS",
+        "ok": 244,
+        "severe_z10": 14,
+        "out_of_range": 15,
+        "pct_ok": 89.4
+      },
+      "export_parity": {
+        "status": "SKIP",
+        "reason": "missing_artifact"
+      },
+      "directional_coverage": {
+        "status": "PASS",
+        "short_pct": 29.2,
+        "flat_pct": 36.2,
+        "long_pct": 34.6,
+        "entropy": 1.579,
+        "n_samples": 500
+      },
+      "trade_viability": {
+        "status": "PASS",
+        "total_bars": 56110,
+        "non_flat_signals": 38356,
+        "signal_rate_pct": 68.4,
+        "trade_count": 10182
+      },
+      "eligible": true
+    },
+    {
+      "pair": "AUDUSD",
+      "tf": "M30",
       "brain": "lgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -3549,9 +3479,8 @@
         "pct_ok": 89.4
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0012
+        "status": "ERROR",
+        "reason": "X has 277 features, but LGBMClassifier is expecting 370 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -3673,7 +3602,7 @@
     {
       "pair": "AUDUSD",
       "tf": "M30",
-      "brain": "tabnet_optuna",
+      "brain": "rf_v2_optuna",
       "quarantined": false,
       "feature_parity": {
         "status": "PASS",
@@ -3687,40 +3616,21 @@
         "reason": "missing_artifact"
       },
       "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "AUDUSD",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
         "status": "PASS",
-        "ok": 244,
-        "severe_z10": 14,
-        "out_of_range": 15,
-        "pct_ok": 89.4
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "short_pct": 29.4,
+        "flat_pct": 39.4,
+        "long_pct": 31.2,
+        "entropy": 1.573,
+        "n_samples": 500
       },
       "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
+        "status": "PASS",
+        "total_bars": 56110,
+        "non_flat_signals": 36363,
+        "signal_rate_pct": 64.8,
+        "trade_count": 10009
       },
-      "eligible": false
+      "eligible": true
     },
     {
       "pair": "AUDUSD",
@@ -3758,32 +3668,6 @@
     {
       "pair": "AUDUSD",
       "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 244,
-        "severe_z10": 14,
-        "out_of_range": 15,
-        "pct_ok": 89.4
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "AUDUSD",
-      "tf": "M30",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -3794,9 +3678,8 @@
         "pct_ok": 89.4
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 370, got 277"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -4029,9 +3912,8 @@
         "pct_ok": 91.2
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0005
+        "status": "ERROR",
+        "reason": "X has 277 features, but LGBMClassifier is expecting 370 features as input."
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -4153,58 +4035,6 @@
     {
       "pair": "USDCAD",
       "tf": "H1",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 249,
-        "severe_z10": 4,
-        "out_of_range": 20,
-        "pct_ok": 91.2
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCAD",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 249,
-        "severe_z10": 4,
-        "out_of_range": 20,
-        "pct_ok": 91.2
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCAD",
-      "tf": "H1",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -4238,32 +4068,6 @@
     {
       "pair": "USDCAD",
       "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 249,
-        "severe_z10": 4,
-        "out_of_range": 20,
-        "pct_ok": 91.2
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCAD",
-      "tf": "H1",
       "brain": "xgb_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -4274,9 +4078,8 @@
         "pct_ok": 91.2
       },
       "export_parity": {
-        "status": "PASS",
-        "class_match_pct": 100.0,
-        "max_prob_diff": 0.0
+        "status": "ERROR",
+        "reason": "Feature shape mismatch, expected: 370, got 277"
       },
       "directional_coverage": {
         "status": "FAIL",
@@ -4633,58 +4436,6 @@
     {
       "pair": "USDCAD",
       "tf": "M30",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 9,
-        "out_of_range": 16,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCAD",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 9,
-        "out_of_range": 16,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCAD",
-      "tf": "M30",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -4712,32 +4463,6 @@
         "non_flat_signals": 0,
         "signal_rate_pct": 0.0,
         "trade_count": 0
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCAD",
-      "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 9,
-        "out_of_range": 16,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -5113,58 +4838,6 @@
     {
       "pair": "USDCHF",
       "tf": "H1",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 250,
-        "severe_z10": 5,
-        "out_of_range": 18,
-        "pct_ok": 91.6
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCHF",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 250,
-        "severe_z10": 5,
-        "out_of_range": 18,
-        "pct_ok": 91.6
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCHF",
-      "tf": "H1",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -5192,32 +4865,6 @@
         "non_flat_signals": 28063,
         "signal_rate_pct": 100.0,
         "trade_count": 1
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCHF",
-      "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 250,
-        "severe_z10": 5,
-        "out_of_range": 18,
-        "pct_ok": 91.6
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -5593,58 +5240,6 @@
     {
       "pair": "USDCHF",
       "tf": "M30",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 7,
-        "out_of_range": 18,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCHF",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 7,
-        "out_of_range": 18,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCHF",
-      "tf": "M30",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -5672,32 +5267,6 @@
         "non_flat_signals": 56118,
         "signal_rate_pct": 100.0,
         "trade_count": 1
-      },
-      "eligible": false
-    },
-    {
-      "pair": "USDCHF",
-      "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 7,
-        "out_of_range": 18,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -6066,58 +5635,6 @@
     {
       "pair": "NZDUSD",
       "tf": "H1",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 253,
-        "severe_z10": 7,
-        "out_of_range": 13,
-        "pct_ok": 92.7
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "NZDUSD",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 253,
-        "severe_z10": 7,
-        "out_of_range": 13,
-        "pct_ok": 92.7
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "NZDUSD",
-      "tf": "H1",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -6145,32 +5662,6 @@
         "non_flat_signals": 28057,
         "signal_rate_pct": 100.0,
         "trade_count": 1
-      },
-      "eligible": false
-    },
-    {
-      "pair": "NZDUSD",
-      "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 253,
-        "severe_z10": 7,
-        "out_of_range": 13,
-        "pct_ok": 92.7
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -6546,58 +6037,6 @@
     {
       "pair": "NZDUSD",
       "tf": "M30",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 246,
-        "severe_z10": 12,
-        "out_of_range": 15,
-        "pct_ok": 90.1
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "NZDUSD",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 246,
-        "severe_z10": 12,
-        "out_of_range": 15,
-        "pct_ok": 90.1
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "NZDUSD",
-      "tf": "M30",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -6625,32 +6064,6 @@
         "non_flat_signals": 56107,
         "signal_rate_pct": 100.0,
         "trade_count": 1
-      },
-      "eligible": false
-    },
-    {
-      "pair": "NZDUSD",
-      "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 246,
-        "severe_z10": 12,
-        "out_of_range": 15,
-        "pct_ok": 90.1
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -7026,58 +6439,6 @@
     {
       "pair": "EURJPY",
       "tf": "H1",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 243,
-        "severe_z10": 12,
-        "out_of_range": 18,
-        "pct_ok": 89.0
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURJPY",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 243,
-        "severe_z10": 12,
-        "out_of_range": 18,
-        "pct_ok": 89.0
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURJPY",
-      "tf": "H1",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -7105,32 +6466,6 @@
         "non_flat_signals": 0,
         "signal_rate_pct": 0.0,
         "trade_count": 0
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURJPY",
-      "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 243,
-        "severe_z10": 12,
-        "out_of_range": 18,
-        "pct_ok": 89.0
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -7506,58 +6841,6 @@
     {
       "pair": "EURJPY",
       "tf": "M30",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 245,
-        "severe_z10": 12,
-        "out_of_range": 16,
-        "pct_ok": 89.7
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURJPY",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 245,
-        "severe_z10": 12,
-        "out_of_range": 16,
-        "pct_ok": 89.7
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURJPY",
-      "tf": "M30",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -7585,32 +6868,6 @@
         "non_flat_signals": 0,
         "signal_rate_pct": 0.0,
         "trade_count": 0
-      },
-      "eligible": false
-    },
-    {
-      "pair": "EURJPY",
-      "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 245,
-        "severe_z10": 12,
-        "out_of_range": 16,
-        "pct_ok": 89.7
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -7986,58 +7243,6 @@
     {
       "pair": "GBPJPY",
       "tf": "H1",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 249,
-        "severe_z10": 8,
-        "out_of_range": 16,
-        "pct_ok": 91.2
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPJPY",
-      "tf": "H1",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 249,
-        "severe_z10": 8,
-        "out_of_range": 16,
-        "pct_ok": 91.2
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPJPY",
-      "tf": "H1",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -8065,32 +7270,6 @@
         "non_flat_signals": 0,
         "signal_rate_pct": 0.0,
         "trade_count": 0
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPJPY",
-      "tf": "H1",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 249,
-        "severe_z10": 8,
-        "out_of_range": 16,
-        "pct_ok": 91.2
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
@@ -8499,58 +7678,6 @@
     {
       "pair": "GBPJPY",
       "tf": "M30",
-      "brain": "tabnet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 7,
-        "out_of_range": 18,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "SKIP",
-        "reason": "missing_artifact"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "running_mean should contain 370 elements not 277"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPJPY",
-      "tf": "M30",
-      "brain": "tcn_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 7,
-        "out_of_range": 18,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPJPY",
-      "tf": "M30",
       "brain": "transformer_optuna",
       "quarantined": false,
       "feature_parity": {
@@ -8578,32 +7705,6 @@
         "non_flat_signals": 0,
         "signal_rate_pct": 0.0,
         "trade_count": 0
-      },
-      "eligible": false
-    },
-    {
-      "pair": "GBPJPY",
-      "tf": "M30",
-      "brain": "wavenet_optuna",
-      "quarantined": false,
-      "feature_parity": {
-        "status": "PASS",
-        "ok": 248,
-        "severe_z10": 7,
-        "out_of_range": 18,
-        "pct_ok": 90.8
-      },
-      "export_parity": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "directional_coverage": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
-      },
-      "trade_viability": {
-        "status": "ERROR",
-        "reason": "[ONNXRuntimeError] : 2 : INVALID_ARGUMENT : Got invalid dimensions for input: fe"
       },
       "eligible": false
     },
