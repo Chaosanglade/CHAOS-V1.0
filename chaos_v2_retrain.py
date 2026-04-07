@@ -45,7 +45,8 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 PROJECT_ROOT = Path(os.environ.get('CHAOS_BASE_DIR', '.'))
 FEATURES_DIR = PROJECT_ROOT / 'features'
 OUTPUT_DIR = PROJECT_ROOT / 'models' / 'v2_retrained'
-CHECKPOINT_DIR = PROJECT_ROOT / 'models' / 'v2_retrained' / 'checkpoints'
+# Checkpoint on LOCAL disk (not Google Drive) to avoid Errno 22 on sync
+CHECKPOINT_DIR = Path(os.path.expanduser('~/chaos_checkpoints'))
 
 RANDOM_SEED = 42
 TARGET_COL = 'target_3class_8'
